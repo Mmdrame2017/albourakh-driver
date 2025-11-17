@@ -1,0 +1,2517 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Al Bourakh Driver Pro - Application Chauffeur</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* MOBILE CONTAINER */
+        .mobile-container {
+            max-width: 414px;
+            margin: 0 auto;
+            background: #fff;
+            min-height: 100vh;
+            position: relative;
+            box-shadow: 0 0 30px rgba(0,0,0,0.1);
+        }
+
+        /* ÉCRAN CACHÉ PAR DÉFAUT */
+        .screen {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* HEADER */
+        .app-header {
+            background: linear-gradient(135deg, #00A854, #FECB00);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            position: relative;
+            z-index: 100;
+        }
+
+        .app-header h1 {
+            font-size: 1.3em;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .app-header button {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2em;
+            transition: all 0.3s;
+        }
+
+        .app-header button:hover {
+            background: rgba(255,255,255,0.3);
+            transform: scale(1.1);
+        }
+
+        /* ÉCRAN DE CONNEXION */
+        .login-screen {
+            padding: 40px 30px;
+            text-align: center;
+        }
+
+        .login-logo {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 30px;
+            background: linear-gradient(135deg, #00A854, #FECB00);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3em;
+            box-shadow: 0 8px 20px rgba(0,168,84,0.3);
+        }
+
+        .login-title {
+            font-size: 2em;
+            color: #00A854;
+            margin-bottom: 10px;
+        }
+
+        .login-subtitle {
+            color: #666;
+            margin-bottom: 40px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #00A854;
+            box-shadow: 0 0 15px rgba(0,168,84,0.2);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 18px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #00A854, #FECB00);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: scale(1.02);
+            box-shadow: 0 8px 25px rgba(0,168,84,0.3);
+        }
+
+        .link-text {
+            color: #00A854;
+            margin-top: 20px;
+            display: inline-block;
+            cursor: pointer;
+        }
+
+        /* DASHBOARD */
+        .dashboard-content {
+            padding: 20px;
+            padding-bottom: 100px;
+        }
+
+        .status-toggle {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .status-info h3 {
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .status-text {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #999;
+        }
+
+        .status-text.online {
+            color: #00A854;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 60px;
+            height: 34px;
+            background: #ccc;
+            border-radius: 34px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .toggle-switch.active {
+            background: #00A854;
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            width: 26px;
+            height: 26px;
+            background: white;
+            border-radius: 50%;
+            top: 4px;
+            left: 4px;
+            transition: all 0.3s;
+        }
+
+        .toggle-switch.active::after {
+            left: 30px;
+        }
+
+        /* GOOGLE MAPS */
+        #map {
+            width: 100%;
+            height: 300px;
+            border-radius: 15px;
+            margin: 20px 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .map-container {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .map-container h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .location-info {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+
+        .location-info div {
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .stat-icon {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .stat-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #00A854;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .action-btn {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+            font-size: 1em;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+
+        .action-btn-icon {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        /* NOTIFICATION COURSE */
+        .course-notification {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            animation: fadeIn 0.3s;
+        }
+
+        .course-modal {
+            background: white;
+            width: 90%;
+            max-width: 400px;
+            border-radius: 20px;
+            padding: 30px;
+            animation: slideUp 0.3s;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .course-timer {
+            background: linear-gradient(135deg, #E30613, #FF6B00);
+            color: white;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 2em;
+            font-weight: bold;
+            box-shadow: 0 8px 20px rgba(227,6,19,0.3);
+        }
+
+        .course-timer-label {
+            font-size: 0.4em;
+            margin-top: 5px;
+        }
+
+        .course-title {
+            text-align: center;
+            font-size: 1.5em;
+            color: #00A854;
+            margin-bottom: 20px;
+        }
+
+        .course-map-mini {
+            width: 100%;
+            height: 200px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .course-client {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .course-route {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .route-point {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .route-icon {
+            font-size: 1.5em;
+        }
+
+        .course-details {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            padding: 15px;
+            background: #f5f5f5;
+            border-radius: 10px;
+        }
+
+        .detail-item {
+            text-align: center;
+        }
+
+        .detail-icon {
+            font-size: 1.5em;
+            margin-bottom: 5px;
+        }
+
+        .course-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn-refuse {
+            background: #E30613;
+            color: white;
+        }
+
+        .btn-accept {
+            background: #00A854;
+            color: white;
+        }
+
+        /* ÉCRAN DE COURSE EN COURS */
+        .active-course-container {
+            padding: 20px;
+            padding-bottom: 100px;
+        }
+
+        .course-status-card {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .status-badge.acceptee {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-badge.en-route {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .status-badge.arrive {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-badge.en-cours {
+            background: #cce5ff;
+            color: #004085;
+        }
+
+        .client-info-card {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .client-info-card h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .navigation-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .nav-btn {
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+
+        .nav-btn.primary {
+            background: #00A854;
+            color: white;
+        }
+
+        .nav-btn.secondary {
+            background: #2196F3;
+            color: white;
+        }
+
+        .nav-btn.danger {
+            background: #E30613;
+            color: white;
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        /* CHAT EN TEMPS RÉEL */
+        .chat-container {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            width: 350px;
+            max-width: calc(100% - 40px);
+            height: 500px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+            display: none;
+            flex-direction: column;
+            z-index: 9999;
+            animation: slideUp 0.3s;
+        }
+
+        .chat-container.active {
+            display: flex;
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, #00A854, #FECB00);
+            color: white;
+            padding: 15px;
+            border-radius: 15px 15px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+            background: #f5f5f5;
+        }
+
+        .chat-message {
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-message.sent {
+            align-items: flex-end;
+        }
+
+        .chat-message.received {
+            align-items: flex-start;
+        }
+
+        .message-bubble {
+            max-width: 70%;
+            padding: 10px 15px;
+            border-radius: 15px;
+            word-wrap: break-word;
+        }
+
+        .message-bubble.sent {
+            background: #00A854;
+            color: white;
+            border-bottom-right-radius: 5px;
+        }
+
+        .message-bubble.received {
+            background: white;
+            color: #333;
+            border-bottom-left-radius: 5px;
+        }
+
+        .message-time {
+            font-size: 0.75em;
+            color: #999;
+            margin-top: 5px;
+        }
+
+        .chat-input-container {
+            padding: 15px;
+            background: white;
+            border-radius: 0 0 15px 15px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 10px 15px;
+            border: 2px solid #ddd;
+            border-radius: 20px;
+            font-size: 1em;
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: #00A854;
+        }
+
+        .chat-send-btn {
+            width: 45px;
+            height: 45px;
+            background: #00A854;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+        }
+
+        .chat-fab {
+            position: fixed;
+            bottom: 100px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            background: #00A854;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            box-shadow: 0 4px 15px rgba(0,168,84,0.4);
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            z-index: 9998;
+        }
+
+        .chat-fab.active {
+            display: flex;
+        }
+
+        .chat-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #E30613;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75em;
+            font-weight: bold;
+        }
+
+        /* PAIEMENT */
+        .payment-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+        }
+
+        .payment-modal.active {
+            display: flex;
+        }
+
+        .payment-content {
+            background: white;
+            width: 90%;
+            max-width: 400px;
+            border-radius: 20px;
+            padding: 30px;
+            animation: slideUp 0.3s;
+        }
+
+        .payment-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .payment-amount {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #00A854;
+            margin: 20px 0;
+        }
+
+        .payment-methods {
+            display: grid;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .payment-method {
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .payment-method:hover {
+            border-color: #00A854;
+            background: #f5fff5;
+        }
+
+        .payment-method.selected {
+            border-color: #00A854;
+            background: #f5fff5;
+        }
+
+        .payment-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+        }
+
+        .payment-icon.cash {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .payment-icon.orange {
+            background: #FF6B00;
+            color: white;
+        }
+
+        .payment-icon.wave {
+            background: #0066FF;
+            color: white;
+        }
+
+        /* HISTORIQUE */
+        .history-list {
+            padding: 20px;
+            padding-bottom: 100px;
+        }
+
+        .history-item {
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .history-date {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .history-price {
+            font-weight: bold;
+            color: #00A854;
+        }
+
+        .history-route {
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .history-status {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            background: #00A854;
+            color: white;
+        }
+
+        /* PROFIL */
+        .profile-header {
+            background: linear-gradient(135deg, #00A854, #FECB00);
+            padding: 30px 20px;
+            text-align: center;
+            color: white;
+        }
+
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            background: white;
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3em;
+            color: #00A854;
+        }
+
+        .profile-name {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .profile-rating {
+            font-size: 1.2em;
+        }
+
+        .profile-info {
+            padding: 20px;
+            padding-bottom: 100px;
+        }
+
+        .info-item {
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .info-label {
+            color: #666;
+        }
+
+        .info-value {
+            font-weight: bold;
+            color: #333;
+        }
+
+        /* BOTTOM NAVIGATION */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            box-shadow: 0 -4px 12px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            max-width: 414px;
+            margin: 0 auto;
+            z-index: 1000;
+        }
+
+        .nav-item {
+            text-align: center;
+            cursor: pointer;
+            padding: 10px;
+            transition: all 0.3s;
+            flex: 1;
+        }
+
+        .nav-item:hover {
+            background: #f5f5f5;
+        }
+
+        .nav-item.active {
+            color: #00A854;
+        }
+
+        .nav-icon {
+            font-size: 1.5em;
+            margin-bottom: 5px;
+        }
+
+        .nav-label {
+            font-size: 0.8em;
+        }
+
+        /* TOAST NOTIFICATION */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+            z-index: 9999;
+            animation: slideInRight 0.3s;
+            max-width: 300px;
+        }
+
+        @keyframes slideInRight {
+            from { transform: translateX(400px); }
+            to { transform: translateX(0); }
+        }
+
+        .toast.success {
+            border-left: 4px solid #00A854;
+        }
+
+        .toast.error {
+            border-left: 4px solid #E30613;
+        }
+
+        .toast.info {
+            border-left: 4px solid #2196F3;
+        }
+
+        /* LOADING */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 6px solid rgba(255,255,255,0.3);
+            border-top-color: #FECB00;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            color: white;
+            font-size: 1.2em;
+            margin-top: 20px;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 414px) {
+            .mobile-container {
+                max-width: 100%;
+            }
+
+            .bottom-nav {
+                max-width: 100%;
+            }
+
+            .chat-container {
+                right: 10px;
+                width: calc(100% - 20px);
+            }
+
+            .chat-fab {
+                right: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="mobile-container">
+        <!-- ÉCRAN DE CONNEXION -->
+        <div id="loginScreen" class="screen active">
+            <div class="login-screen">
+                <div class="login-logo">🚕</div>
+                <h1 class="login-title">Al Bourakh Driver Pro</h1>
+                <p class="login-subtitle">Connectez-vous pour commencer</p>
+
+                <div class="input-group">
+                    <label>📱 Téléphone</label>
+                    <input type="tel" id="loginPhone" placeholder="+221 77 123 45 67">
+                </div>
+
+                <div class="input-group">
+                    <label>🔒 Mot de passe</label>
+                    <input type="password" id="loginPassword" placeholder="Votre mot de passe">
+                </div>
+
+                <button class="btn btn-primary" onclick="handleLogin()">
+                    Se connecter
+                </button>
+
+                <a class="link-text" onclick="showToast('Contactez l\'admin: +221 77 000 00 00', 'info')">
+                    Mot de passe oublié ?
+                </a>
+
+                <p style="margin-top: 30px; color: #999; font-size: 0.9em;">
+                    Version 2.0.0 Pro - Al Bourakh © 2025
+                </p>
+            </div>
+        </div>
+
+        <!-- ÉCRAN DASHBOARD -->
+        <div id="dashboardScreen" class="screen">
+            <div class="app-header">
+                <h1><i class="fas fa-car"></i> Dashboard</h1>
+                <button onclick="showScreen('profileScreen')">
+                    <i class="fas fa-user"></i>
+                </button>
+            </div>
+
+            <div class="dashboard-content">
+                <!-- Toggle En Ligne / Hors Ligne -->
+                <div class="status-toggle">
+                    <div class="status-info">
+                        <h3>Statut</h3>
+                        <div class="status-text" id="statusText">⚫ HORS LIGNE</div>
+                    </div>
+                    <div class="toggle-switch" id="toggleSwitch" onclick="toggleOnlineStatus()"></div>
+                </div>
+
+                <!-- Google Maps avec position en temps réel -->
+                <div class="map-container">
+                    <h3>📍 Ma Position</h3>
+                    <div id="map"></div>
+                    <div class="location-info" id="locationInfo">
+                        <div>
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span id="currentAddress">En attente de localisation...</span>
+                        </div>
+                        <div>
+                            <i class="fas fa-crosshairs"></i>
+                            <span id="accuracy">Précision: -- m</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Statistiques -->
+                <h3 style="margin-bottom: 15px; color: #333;">📊 Aujourd'hui</h3>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">🚗</div>
+                        <div class="stat-value" id="coursesJour">0</div>
+                        <div class="stat-label">Courses</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">💰</div>
+                        <div class="stat-value" id="revenusJour">0</div>
+                        <div class="stat-label">FCFA</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">⭐</div>
+                        <div class="stat-value" id="rating">4.8</div>
+                        <div class="stat-label">Note</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">📈</div>
+                        <div class="stat-value" id="coursesTotal">0</div>
+                        <div class="stat-label">Total</div>
+                    </div>
+                </div>
+
+                <!-- Actions Rapides -->
+                <div class="action-buttons">
+                    <button class="action-btn" onclick="showScreen('historyScreen')">
+                        <div class="action-btn-icon">📊</div>
+                        <div>Historique</div>
+                    </button>
+
+                    <button class="action-btn" onclick="showScreen('profileScreen')">
+                        <div class="action-btn-icon">👤</div>
+                        <div>Profil</div>
+                    </button>
+
+                    <button class="action-btn" onclick="showToast('Support: +221 77 000 00 00', 'info')">
+                        <div class="action-btn-icon">💬</div>
+                        <div>Support</div>
+                    </button>
+
+                    <button class="action-btn" onclick="simulateNewCourse()">
+                        <div class="action-btn-icon">🔔</div>
+                        <div>Test Course</div>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ÉCRAN COURSE EN COURS -->
+        <div id="activeCourseScreen" class="screen">
+            <div class="app-header">
+                <button onclick="showScreen('dashboardScreen')">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <h1><i class="fas fa-route"></i> Course en cours</h1>
+                <button onclick="toggleChat()">
+                    <i class="fas fa-comments"></i>
+                </button>
+            </div>
+
+            <div class="active-course-container">
+                <!-- Carte avec itinéraire -->
+                <div class="map-container">
+                    <div id="activeCourseMap" style="height: 350px; border-radius: 15px;"></div>
+                </div>
+
+                <!-- Statut de la course -->
+                <div class="course-status-card">
+                    <span class="status-badge acceptee" id="courseStatus">✅ Course acceptée</span>
+                    <h3 id="courseStatusTitle">En route vers le client</h3>
+                    <div class="location-info">
+                        <div>
+                            <i class="fas fa-clock"></i>
+                            <span id="estimatedTime">Temps estimé: 12 min</span>
+                        </div>
+                        <div>
+                            <i class="fas fa-road"></i>
+                            <span id="remainingDistance">Distance: 3.2 km</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Informations client -->
+                <div class="client-info-card" id="clientInfoCard">
+                    <h3>👤 Client</h3>
+                    <div class="info-row">
+                        <span>Nom</span>
+                        <strong id="clientName">Aminata Sow</strong>
+                    </div>
+                    <div class="info-row">
+                        <span>Téléphone</span>
+                        <strong id="clientPhone">+221 77 999 88 77</strong>
+                    </div>
+                    <div class="info-row">
+                        <span>Note</span>
+                        <strong id="clientRating">⭐ 4.9</strong>
+                    </div>
+                </div>
+
+                <!-- Détails du trajet -->
+                <div class="client-info-card">
+                    <h3>🗺️ Trajet</h3>
+                    <div class="info-row">
+                        <span>📍 Départ</span>
+                        <strong id="activeDeparture">Plateau, Dakar</strong>
+                    </div>
+                    <div class="info-row">
+                        <span>🎯 Destination</span>
+                        <strong id="activeDestination">Almadies</strong>
+                    </div>
+                    <div class="info-row">
+                        <span>💰 Prix</span>
+                        <strong id="activePrice">3 500 FCFA</strong>
+                    </div>
+                </div>
+
+                <!-- Boutons d'action -->
+                <div class="navigation-buttons">
+                    <button class="nav-btn secondary" onclick="openGoogleMaps()">
+                        <i class="fas fa-map-marked-alt"></i> Navigation GPS
+                    </button>
+                    <button class="nav-btn primary" onclick="callClient()">
+                        <i class="fas fa-phone"></i> Appeler Client
+                    </button>
+                </div>
+
+                <div class="navigation-buttons" style="margin-top: 10px;">
+                    <button class="nav-btn primary" onclick="updateCourseStatus('arrive')">
+                        <i class="fas fa-map-pin"></i> Arrivé sur place
+                    </button>
+                    <button class="nav-btn primary" onclick="updateCourseStatus('en_cours')">
+                        <i class="fas fa-play"></i> Démarrer course
+                    </button>
+                </div>
+
+                <button class="btn btn-primary" onclick="completeCourse()" style="margin-top: 15px;">
+                    <i class="fas fa-check-circle"></i> Terminer la course
+                </button>
+
+                <button class="btn" onclick="cancelCourse()" style="margin-top: 10px; background: #E30613; color: white;">
+                    <i class="fas fa-times-circle"></i> Annuler la course
+                </button>
+            </div>
+        </div>
+
+        <!-- ÉCRAN HISTORIQUE -->
+        <div id="historyScreen" class="screen">
+            <div class="app-header">
+                <button onclick="showScreen('dashboardScreen')">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <h1><i class="fas fa-history"></i> Historique</h1>
+                <button onclick="loadHistory()">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+            </div>
+
+            <div class="history-list" id="historyList">
+                <!-- Les courses seront ajoutées ici -->
+            </div>
+        </div>
+
+        <!-- ÉCRAN PROFIL -->
+        <div id="profileScreen" class="screen">
+            <div class="profile-header">
+                <button onclick="showScreen('dashboardScreen')" style="position: absolute; left: 20px; top: 20px; background: rgba(255,255,255,0.2); border: none; color: white; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 1.2em;">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <div class="profile-avatar">👤</div>
+                <div class="profile-name" id="profileName">Chauffeur Al Bourakh</div>
+                <div class="profile-rating">⭐ 4.8 • <span id="profileTotalCourses">0</span> courses</div>
+            </div>
+
+            <div class="profile-info">
+                <div class="info-item">
+                    <span class="info-label">📱 Téléphone</span>
+                    <span class="info-value" id="profilePhone">+221 77 123 45 67</span>
+                </div>
+
+                <div class="info-item">
+                    <span class="info-label">🚗 Véhicule</span>
+                    <span class="info-value">Toyota Corolla</span>
+                </div>
+
+                <div class="info-item">
+                    <span class="info-label">🔢 Immatriculation</span>
+                    <span class="info-value">DK-1234-AB</span>
+                </div>
+
+                <div class="info-item">
+                    <span class="info-label">💰 Revenus Total</span>
+                    <span class="info-value" id="profileRevenuTotal">0 FCFA</span>
+                </div>
+
+                <button class="btn btn-primary" onclick="handleLogout()" style="margin-top: 20px;">
+                    <i class="fas fa-sign-out-alt"></i> Déconnexion
+                </button>
+            </div>
+        </div>
+
+        <!-- BOTTOM NAVIGATION -->
+        <div class="bottom-nav" id="bottomNav" style="display: none;">
+            <div class="nav-item active" onclick="showScreen('dashboardScreen')">
+                <div class="nav-icon"><i class="fas fa-home"></i></div>
+                <div class="nav-label">Accueil</div>
+            </div>
+
+            <div class="nav-item" onclick="showScreen('activeCourseScreen')">
+                <div class="nav-icon"><i class="fas fa-route"></i></div>
+                <div class="nav-label">Course</div>
+            </div>
+
+            <div class="nav-item" onclick="showScreen('historyScreen')">
+                <div class="nav-icon"><i class="fas fa-history"></i></div>
+                <div class="nav-label">Historique</div>
+            </div>
+
+            <div class="nav-item" onclick="showScreen('profileScreen')">
+                <div class="nav-icon"><i class="fas fa-user"></i></div>
+                <div class="nav-label">Profil</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CHAT FLOTTANT -->
+    <button class="chat-fab" id="chatFab" onclick="toggleChat()">
+        <i class="fas fa-comments"></i>
+        <span class="chat-badge" id="chatBadge" style="display: none;">0</span>
+    </button>
+
+    <div class="chat-container" id="chatContainer">
+        <div class="chat-header">
+            <div>
+                <strong id="chatClientName">Client</strong>
+                <div style="font-size: 0.85em; opacity: 0.9;">En ligne</div>
+            </div>
+            <button onclick="toggleChat()" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 35px; height: 35px; border-radius: 50%; cursor: pointer;">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="chat-messages" id="chatMessages">
+            <!-- Les messages seront ajoutés ici -->
+        </div>
+        <div class="chat-input-container">
+            <input type="text" class="chat-input" id="chatInput" placeholder="Écrivez votre message..." onkeypress="handleChatKeyPress(event)">
+            <button class="chat-send-btn" onclick="sendMessage()">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL DE PAIEMENT -->
+    <div class="payment-modal" id="paymentModal">
+        <div class="payment-content">
+            <div class="payment-header">
+                <h2>💳 Paiement</h2>
+                <p style="color: #666; margin-top: 10px;">Sélectionnez le mode de paiement</p>
+            </div>
+
+            <div class="payment-amount" id="paymentAmount">3 500 FCFA</div>
+
+            <div class="payment-methods">
+                <div class="payment-method" onclick="selectPaymentMethod('cash')">
+                    <div class="payment-icon cash">
+                        <i class="fas fa-money-bill-wave"></i>
+                    </div>
+                    <div>
+                        <strong>Espèces</strong>
+                        <div style="font-size: 0.9em; color: #666;">Paiement en liquide</div>
+                    </div>
+                </div>
+
+                <div class="payment-method" onclick="selectPaymentMethod('orange')">
+                    <div class="payment-icon orange">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <div>
+                        <strong>Orange Money</strong>
+                        <div style="font-size: 0.9em; color: #666;">Paiement mobile</div>
+                    </div>
+                </div>
+
+                <div class="payment-method" onclick="selectPaymentMethod('wave')">
+                    <div class="payment-icon wave">
+                        <i class="fas fa-wallet"></i>
+                    </div>
+                    <div>
+                        <strong>Wave</strong>
+                        <div style="font-size: 0.9em; color: #666;">Portefeuille digital</div>
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn btn-primary" onclick="confirmPayment()">
+                Confirmer le paiement
+            </button>
+
+            <button class="btn" onclick="closePaymentModal()" style="margin-top: 10px; background: #999; color: white;">
+                Annuler
+            </button>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    
+    <!-- Google Maps API -->
+    <script>
+        // Créer dynamiquement le script Google Maps
+        function loadGoogleMaps() {
+            const script = document.createElement('script');
+            script.src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyBI1svukv3Ts7fN97ke5OGfwo2V-vRUGHI&callback=initMap';
+            script.async = true;
+            script.defer = true;
+            document.head.appendChild(script);
+        }
+    </script>
+
+    <script>
+        // ✅ CONFIGURATION FIREBASE
+        const firebaseConfig = {
+            apiKey: "AIzaSyANcdvMz2yMbRD4V82EGLm95Jh2NdaR2o0",
+            authDomain: "albourakh-sn-ok.firebaseapp.com",
+            projectId: "albourakh-sn-ok",
+            storageBucket: "albourakh-sn-ok.firebasestorage.app",
+            messagingSenderId: "297875396274",
+            appId: "1:297875396274:web:82a466c4fce6fbb79b1bab"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+        console.log('✅ Firebase connecté!');
+
+        // ÉTAT DE L'APPLICATION
+        let currentUser = null;
+        let isOnline = false;
+        let currentCourse = null;
+        let map = null;
+        let marker = null;
+        let directionsService = null;
+        let directionsRenderer = null;
+        let watchPositionId = null;
+        let chatListener = null;
+        let unreadMessages = 0;
+        
+        let stats = {
+            coursesJour: 0,
+            revenusJour: 0,
+            rating: 4.8,
+            coursesTotal: 0
+        };
+
+        // INITIALISATION GOOGLE MAPS
+        function initMap() {
+            console.log('🗺️ Initialisation de Google Maps...');
+            
+            // Carte principale du dashboard
+            const mapOptions = {
+                center: { lat: 14.6937, lng: -17.4441 }, // Dakar
+                zoom: 14,
+                styles: [
+                    {
+                        featureType: "poi",
+                        elementType: "labels",
+                        stylers: [{ visibility: "off" }]
+                    }
+                ]
+            };
+            
+            map = new google.maps.Map(document.getElementById('map'), mapOptions);
+            
+            // Marker pour la position du chauffeur
+            marker = new google.maps.Marker({
+                map: map,
+                icon: {
+                    path: google.maps.SymbolPath.CIRCLE,
+                    scale: 10,
+                    fillColor: '#00A854',
+                    fillOpacity: 1,
+                    strokeColor: '#fff',
+                    strokeWeight: 3
+                }
+            });
+
+            // Services de direction pour la navigation
+            directionsService = new google.maps.DirectionsService();
+            directionsRenderer = new google.maps.DirectionsRenderer({
+                suppressMarkers: false,
+                polylineOptions: {
+                    strokeColor: '#00A854',
+                    strokeWeight: 5
+                }
+            });
+
+            console.log('✅ Google Maps initialisé');
+        }
+
+        // Charger Google Maps au démarrage
+        window.initMap = initMap;
+        loadGoogleMaps(); // ✅ Google Maps activé avec votre clé API!
+
+        // GÉOLOCALISATION EN TEMPS RÉEL
+        function startLocationTracking() {
+            if (!navigator.geolocation) {
+                showToast('Géolocalisation non supportée', 'error');
+                return;
+            }
+
+            const options = {
+                enableHighAccuracy: true,
+                timeout: 5000,
+                maximumAge: 0
+            };
+
+            watchPositionId = navigator.geolocation.watchPosition(
+                (position) => {
+                    const { latitude, longitude, accuracy } = position.coords;
+                    
+                    console.log(`📍 Position mise à jour: ${latitude}, ${longitude}`);
+                    
+                    // Mettre à jour le marker sur la carte
+                    if (marker && map) {
+                        const newPos = { lat: latitude, lng: longitude };
+                        marker.setPosition(newPos);
+                        map.panTo(newPos);
+                    }
+
+                    // Mettre à jour l'affichage
+                    document.getElementById('accuracy').textContent = `Précision: ${Math.round(accuracy)} m`;
+                    
+                    // Géocodage inverse pour obtenir l'adresse
+                    reverseGeocode(latitude, longitude);
+
+                    // Mettre à jour Firebase si connecté
+                    if (currentUser && isOnline) {
+                        db.collection('drivers').doc(currentUser.uid).update({
+                            position: {
+                                latitude,
+                                longitude,
+                                accuracy,
+                                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                            },
+                            derniereActivite: firebase.firestore.FieldValue.serverTimestamp()
+                        }).catch(err => console.error('Erreur MAJ position:', err));
+                    }
+                },
+                (error) => {
+                    console.error('Erreur géolocalisation:', error);
+                    showToast('Erreur de géolocalisation', 'error');
+                },
+                options
+            );
+        }
+
+        function stopLocationTracking() {
+            if (watchPositionId) {
+                navigator.geolocation.clearWatch(watchPositionId);
+                watchPositionId = null;
+                console.log('📍 Suivi de position arrêté');
+            }
+        }
+
+        // GÉOCODAGE INVERSE (obtenir l'adresse depuis les coordonnées)
+        async function reverseGeocode(lat, lng) {
+            try {
+                if (!google || !google.maps) {
+                    document.getElementById('currentAddress').textContent = `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+                    return;
+                }
+
+                const geocoder = new google.maps.Geocoder();
+                const latlng = { lat, lng };
+
+                geocoder.geocode({ location: latlng }, (results, status) => {
+                    if (status === 'OK' && results[0]) {
+                        document.getElementById('currentAddress').textContent = results[0].formatted_address;
+                    } else {
+                        document.getElementById('currentAddress').textContent = `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+                    }
+                });
+            } catch (error) {
+                console.error('Erreur géocodage:', error);
+                document.getElementById('currentAddress').textContent = `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+            }
+        }
+
+        // NAVIGATION GPS VERS LE CLIENT
+        function openGoogleMaps() {
+            if (!currentCourse) {
+                showToast('Aucune course active', 'error');
+                return;
+            }
+
+            // Ouvrir Google Maps avec navigation
+            const destination = encodeURIComponent(currentCourse.depart);
+            const url = `https://www.google.com/maps/dir/?api=1&destination=${destination}&travelmode=driving`;
+            window.open(url, '_blank');
+        }
+
+        function callClient() {
+            if (!currentCourse || !currentCourse.clientTelephone) {
+                showToast('Numéro client non disponible', 'error');
+                return;
+            }
+
+            window.location.href = `tel:${currentCourse.clientTelephone}`;
+        }
+
+        // AFFICHER L'ITINÉRAIRE SUR LA CARTE
+        function showRoute(origin, destination) {
+            if (!directionsService || !directionsRenderer || !google) {
+                console.log('⚠️ Google Maps non chargé');
+                return;
+            }
+
+            const activeCourseMap = new google.maps.Map(document.getElementById('activeCourseMap'), {
+                zoom: 13,
+                center: { lat: 14.6937, lng: -17.4441 }
+            });
+
+            directionsRenderer.setMap(activeCourseMap);
+
+            const request = {
+                origin: origin,
+                destination: destination,
+                travelMode: 'DRIVING'
+            };
+
+            directionsService.route(request, (result, status) => {
+                if (status === 'OK') {
+                    directionsRenderer.setDirections(result);
+                    
+                    // Afficher la durée et distance
+                    const route = result.routes[0].legs[0];
+                    document.getElementById('estimatedTime').textContent = `Temps estimé: ${route.duration.text}`;
+                    document.getElementById('remainingDistance').textContent = `Distance: ${route.distance.text}`;
+                } else {
+                    console.error('Erreur calcul itinéraire:', status);
+                }
+            });
+        }
+
+        // FONCTIONS DE NAVIGATION
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+
+            // Update navigation active state
+            document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+            if (screenId === 'dashboardScreen') {
+                document.querySelectorAll('.nav-item')[0].classList.add('active');
+            } else if (screenId === 'activeCourseScreen') {
+                document.querySelectorAll('.nav-item')[1].classList.add('active');
+            } else if (screenId === 'historyScreen') {
+                document.querySelectorAll('.nav-item')[2].classList.add('active');
+            } else if (screenId === 'profileScreen') {
+                document.querySelectorAll('.nav-item')[3].classList.add('active');
+            }
+
+            // Charger les données spécifiques à l'écran
+            if (screenId === 'activeCourseScreen' && currentCourse) {
+                displayActiveCourse();
+            }
+        }
+
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `<strong>${message}</strong>`;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.animation = 'slideInRight 0.3s reverse';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        function showLoading(text = 'Chargement...') {
+            const loading = document.createElement('div');
+            loading.className = 'loading-overlay';
+            loading.id = 'loadingOverlay';
+            loading.innerHTML = `
+                <div class="loading-spinner"></div>
+                <div class="loading-text">${text}</div>
+            `;
+            document.body.appendChild(loading);
+        }
+
+        function hideLoading() {
+            const loading = document.getElementById('loadingOverlay');
+            if (loading) loading.remove();
+        }
+
+        // CONNEXION
+        async function handleLogin() {
+            const phone = document.getElementById('loginPhone').value.trim();
+            const password = document.getElementById('loginPassword').value.trim();
+
+            if (!phone || !password) {
+                showToast('Veuillez remplir tous les champs', 'error');
+                return;
+            }
+
+            showLoading('Connexion en cours...');
+
+            try {
+                const cleanPhone = phone.replace(/\s/g, '').replace('+', '');
+                const email = cleanPhone + '@albourakh.sn';
+
+                await auth.signInWithEmailAndPassword(email, password);
+                const user = auth.currentUser;
+
+                const driverDoc = await db.collection('drivers').doc(user.uid).get();
+                
+                if (!driverDoc.exists) {
+                    await auth.signOut();
+                    hideLoading();
+                    showToast('Compte chauffeur non trouvé', 'error');
+                    return;
+                }
+
+                const driverData = driverDoc.data();
+                currentUser = { uid: user.uid, ...driverData };
+
+                hideLoading();
+                showToast('✅ Connexion réussie!', 'success');
+                
+                document.getElementById('bottomNav').style.display = 'flex';
+                showScreen('dashboardScreen');
+                loadDashboardData();
+                startLocationTracking();
+
+            } catch (error) {
+                console.error('Erreur connexion:', error);
+                hideLoading();
+                showToast('Téléphone ou mot de passe incorrect', 'error');
+            }
+        }
+
+        // DÉCONNEXION
+        async function handleLogout() {
+            if (confirm('Voulez-vous vraiment vous déconnecter ?')) {
+                showLoading('Déconnexion...');
+                
+                if (isOnline) {
+                    await toggleOnlineStatus();
+                }
+                
+                stopLocationTracking();
+                await auth.signOut();
+                currentUser = null;
+                currentCourse = null;
+                
+                hideLoading();
+                document.getElementById('bottomNav').style.display = 'none';
+                showScreen('loginScreen');
+                showToast('Déconnexion réussie', 'info');
+            }
+        }
+
+        // CHARGER LES DONNÉES DU DASHBOARD
+        async function loadDashboardData() {
+            try {
+                if (!currentUser) return;
+
+                const driverDoc = await db.collection('drivers').doc(currentUser.uid).get();
+                const driverData = driverDoc.data();
+
+                document.getElementById('profileName').textContent = 
+                    `${driverData.prenom || ''} ${driverData.nom || ''}`;
+                document.getElementById('profilePhone').textContent = driverData.telephone || '';
+                document.getElementById('rating').textContent = (driverData.rating || 4.8).toFixed(1);
+                document.getElementById('coursesTotal').textContent = driverData.coursesCompletees || 0;
+                document.getElementById('profileTotalCourses').textContent = driverData.coursesCompletees || 0;
+
+                // Charger les courses du jour
+                const aujourdhui = new Date();
+                aujourdhui.setHours(0, 0, 0, 0);
+
+                const coursesSnapshot = await db.collection('reservations')
+                    .where('chauffeurAssigne', '==', currentUser.uid)
+                    .where('timestamp', '>=', aujourdhui)
+                    .get();
+
+                let coursesJour = 0;
+                let revenusJour = 0;
+
+                coursesSnapshot.forEach(doc => {
+                    const data = doc.data();
+                    if (data.statut === 'terminee') {
+                        coursesJour++;
+                        revenusJour += data.prixEstime || 0;
+                    }
+                });
+
+                document.getElementById('coursesJour').textContent = coursesJour;
+                document.getElementById('revenusJour').textContent = revenusJour.toLocaleString();
+
+                stats = {
+                    coursesJour,
+                    revenusJour,
+                    rating: driverData.rating || 4.8,
+                    coursesTotal: driverData.coursesCompletees || 0
+                };
+
+                // Vérifier s'il y a une course en cours
+                if (driverData.reservationEnCours) {
+                    const courseDoc = await db.collection('reservations').doc(driverData.reservationEnCours).get();
+                    if (courseDoc.exists) {
+                        currentCourse = { id: courseDoc.id, ...courseDoc.data() };
+                        showScreen('activeCourseScreen');
+                    }
+                }
+
+                loadHistory();
+
+            } catch (error) {
+                console.error('Erreur chargement données:', error);
+            }
+        }
+
+        // TOGGLE EN LIGNE / HORS LIGNE
+        async function toggleOnlineStatus() {
+            if (!currentUser) {
+                showToast('Veuillez vous connecter', 'error');
+                return;
+            }
+
+            isOnline = !isOnline;
+            const toggle = document.getElementById('toggleSwitch');
+            const statusText = document.getElementById('statusText');
+
+            if (isOnline) {
+                toggle.classList.add('active');
+                statusText.textContent = '🟢 EN LIGNE';
+                statusText.classList.add('online');
+                showToast('✅ Vous êtes maintenant en ligne', 'success');
+
+                try {
+                    await db.collection('drivers').doc(currentUser.uid).update({
+                        statut: 'disponible',
+                        derniereActivite: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+
+                    startLocationTracking();
+                    listenForNewCourses();
+
+                } catch (error) {
+                    console.error('Erreur mise à jour statut:', error);
+                }
+
+            } else {
+                toggle.classList.remove('active');
+                statusText.textContent = '⚫ HORS LIGNE';
+                statusText.classList.remove('online');
+                showToast('Vous êtes maintenant hors ligne', 'info');
+
+                try {
+                    await db.collection('drivers').doc(currentUser.uid).update({
+                        statut: 'hors_ligne',
+                        derniereActivite: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    
+                    stopLocationTracking();
+                } catch (error) {
+                    console.error('Erreur mise à jour statut:', error);
+                }
+            }
+        }
+
+        // ÉCOUTER LES NOUVELLES COURSES
+        let courseListener = null;
+
+        function listenForNewCourses() {
+            if (!currentUser || !isOnline) return;
+
+            console.log('👂 Écoute des nouvelles courses...');
+
+            courseListener = db.collection('reservations')
+                .where('chauffeurAssigne', '==', currentUser.uid)
+                .where('statut', '==', 'assignee')
+                .onSnapshot(snapshot => {
+                    snapshot.docChanges().forEach(change => {
+                        if (change.type === 'added') {
+                            const course = { id: change.doc.id, ...change.doc.data() };
+                            console.log('🔔 Nouvelle course:', course);
+                            showCourseNotification(course);
+                        }
+                    });
+                });
+        }
+
+        // SIMULER UNE NOUVELLE COURSE
+        async function simulateNewCourse() {
+            if (!isOnline) {
+                showToast('Vous devez être en ligne pour recevoir des courses', 'error');
+                return;
+            }
+
+            showLoading('Création de la course de test...');
+
+            try {
+                const testReservation = {
+                    depart: 'Plateau, Dakar',
+                    destination: 'Almadies',
+                    prixEstime: 3500,
+                    distance: 12,
+                    dureeEstimee: 25,
+                    passagers: 2,
+                    statut: 'assignee',
+                    chauffeurAssigne: currentUser.uid,
+                    clientId: 'TEST_CLIENT',
+                    clientNom: 'Aminata Sow',
+                    clientTelephone: '+221 77 999 88 77',
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    typeVehicule: 'standard',
+                    modePaiement: 'especes',
+                    chauffeursRefuses: []
+                };
+
+                const docRef = await db.collection('reservations').add(testReservation);
+                console.log('✅ Réservation de test créée:', docRef.id);
+
+                hideLoading();
+
+                setTimeout(() => {
+                    const testCourse = {
+                        id: docRef.id,
+                        ...testReservation,
+                        distance: '12 km',
+                        client: {
+                            nom: 'Aminata Sow',
+                            telephone: '+221 77 999 88 77',
+                            rating: 4.9
+                        }
+                    };
+                    showCourseNotification(testCourse);
+                }, 500);
+
+            } catch (error) {
+                console.error('Erreur création course de test:', error);
+                hideLoading();
+                showToast('Erreur lors de la création de la course de test', 'error');
+            }
+        }
+
+        // AFFICHER LA NOTIFICATION DE COURSE
+        function showCourseNotification(course) {
+            try {
+                const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSOBzPDYizcIGWi77eeeTRAMUKfj8LZjHAY4ktfyy3ksBSR3x/DdkEAKFF606+uoVRQKRp/g8r5sIQUjgczw2Ik3CBlou+3nnk0QDFCn4/C2YxwGOJLX8st5LAUkd8fw3ZBAC');
+                audio.play().catch(() => {});
+            } catch (e) {}
+
+            if (navigator.vibrate) {
+                navigator.vibrate([200, 100, 200]);
+            }
+
+            const notification = document.createElement('div');
+            notification.className = 'course-notification';
+            notification.innerHTML = `
+                <div class="course-modal">
+                    <div class="course-timer" id="courseTimer">
+                        30
+                        <div class="course-timer-label">secondes</div>
+                    </div>
+
+                    <h2 class="course-title">🔔 NOUVELLE COURSE !</h2>
+
+                    <div class="course-client">
+                        <strong>Client:</strong> ${course.client?.nom || course.clientNom || 'Client Al Bourakh'}<br>
+                        ${course.client?.rating ? '⭐ ' + course.client.rating : ''}
+                    </div>
+
+                    <div class="course-route">
+                        <div class="route-point">
+                            <span class="route-icon">📍</span>
+                            <span>${course.depart}</span>
+                        </div>
+                        <div style="text-align: center; margin: 10px 0;">↓</div>
+                        <div class="route-point">
+                            <span class="route-icon">🎯</span>
+                            <span>${course.destination}</span>
+                        </div>
+                    </div>
+
+                    <div class="course-details">
+                        <div class="detail-item">
+                            <div class="detail-icon">💰</div>
+                            <div>${course.prixEstime?.toLocaleString() || 0} FCFA</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-icon">📏</div>
+                            <div>${course.distance || '5 km'}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-icon">👥</div>
+                            <div>${course.passagers || 1} pers.</div>
+                        </div>
+                    </div>
+
+                    <div class="course-actions">
+                        <button class="btn btn-refuse" onclick="refuseCourse('${course.id}')">
+                            ❌ REFUSER
+                        </button>
+                        <button class="btn btn-accept" onclick="acceptCourse('${course.id}')">
+                            ✅ ACCEPTER
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(notification);
+
+            let timeLeft = 30;
+            const timerInterval = setInterval(() => {
+                timeLeft--;
+                const timerElement = document.getElementById('courseTimer');
+                if (timerElement) {
+                    timerElement.innerHTML = `
+                        ${timeLeft}
+                        <div class="course-timer-label">secondes</div>
+                    `;
+                }
+
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    refuseCourse(course.id, true);
+                }
+            }, 1000);
+
+            notification.timerInterval = timerInterval;
+        }
+
+        // ACCEPTER UNE COURSE
+        async function acceptCourse(courseId) {
+            const notification = document.querySelector('.course-notification');
+            if (notification) {
+                clearInterval(notification.timerInterval);
+                notification.remove();
+            }
+
+            showLoading('Acceptation de la course...');
+
+            try {
+                const courseDoc = await db.collection('reservations').doc(courseId).get();
+                
+                if (!courseDoc.exists) {
+                    throw new Error('Réservation non trouvée');
+                }
+
+                await db.collection('reservations').doc(courseId).update({
+                    statut: 'acceptee',
+                    accepteeParChauffeur: true,
+                    dateAcceptation: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                await db.collection('drivers').doc(currentUser.uid).update({
+                    statut: 'en_course',
+                    reservationEnCours: courseId
+                });
+
+                currentCourse = { id: courseId, ...courseDoc.data() };
+
+                hideLoading();
+                showToast('✅ Course acceptée! Rendez-vous chez le client.', 'success');
+                
+                showScreen('activeCourseScreen');
+                displayActiveCourse();
+                
+                // Activer le chat
+                document.getElementById('chatFab').classList.add('active');
+                listenToChat(courseId);
+
+            } catch (error) {
+                console.error('Erreur acceptation:', error);
+                hideLoading();
+                showToast('Erreur lors de l\'acceptation', 'error');
+            }
+        }
+
+        // REFUSER UNE COURSE
+        async function refuseCourse(courseId, auto = false) {
+            const notification = document.querySelector('.course-notification');
+            if (notification) {
+                clearInterval(notification.timerInterval);
+                notification.remove();
+            }
+
+            if (!auto) {
+                showLoading('Refus de la course...');
+            }
+
+            try {
+                await db.collection('reservations').doc(courseId).update({
+                    chauffeursRefuses: firebase.firestore.FieldValue.arrayUnion(currentUser.uid),
+                    chauffeurAssigne: null,
+                    statut: 'en_attente'
+                });
+
+                if (!auto) {
+                    hideLoading();
+                    showToast('Course refusée', 'info');
+                } else {
+                    showToast('⏱️ Temps écoulé - Course réassignée', 'info');
+                }
+
+            } catch (error) {
+                console.error('Erreur refus:', error);
+                if (!auto) {
+                    hideLoading();
+                    showToast('Erreur lors du refus', 'error');
+                }
+            }
+        }
+
+        // AFFICHER LA COURSE ACTIVE
+        function displayActiveCourse() {
+            if (!currentCourse) return;
+
+            document.getElementById('clientName').textContent = currentCourse.clientNom || 'Client';
+            document.getElementById('clientPhone').textContent = currentCourse.clientTelephone || '';
+            document.getElementById('clientRating').textContent = currentCourse.clientRating ? `⭐ ${currentCourse.clientRating}` : '';
+            document.getElementById('activeDeparture').textContent = currentCourse.depart;
+            document.getElementById('activeDestination').textContent = currentCourse.destination;
+            document.getElementById('activePrice').textContent = `${currentCourse.prixEstime?.toLocaleString()} FCFA`;
+
+            // Afficher l'itinéraire sur la carte
+            if (google && google.maps) {
+                showRoute(currentCourse.depart, currentCourse.destination);
+            }
+        }
+
+        // METTRE À JOUR LE STATUT DE LA COURSE
+        async function updateCourseStatus(newStatus) {
+            if (!currentCourse) return;
+
+            showLoading('Mise à jour...');
+
+            try {
+                await db.collection('reservations').doc(currentCourse.id).update({
+                    statut: newStatus,
+                    derniereModification: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                currentCourse.statut = newStatus;
+
+                const statusMessages = {
+                    'arrive': '✅ Vous êtes arrivé sur place',
+                    'en_cours': '🚗 Course démarrée',
+                };
+
+                hideLoading();
+                showToast(statusMessages[newStatus] || 'Statut mis à jour', 'success');
+
+                // Mettre à jour l'affichage
+                const statusBadge = document.getElementById('courseStatus');
+                const statusTitle = document.getElementById('courseStatusTitle');
+
+                if (newStatus === 'arrive') {
+                    statusBadge.className = 'status-badge arrive';
+                    statusBadge.textContent = '📍 Arrivé sur place';
+                    statusTitle.textContent = 'En attente du client';
+                } else if (newStatus === 'en_cours') {
+                    statusBadge.className = 'status-badge en-cours';
+                    statusBadge.textContent = '🚗 Course en cours';
+                    statusTitle.textContent = 'Direction: ' + currentCourse.destination;
+                }
+
+            } catch (error) {
+                console.error('Erreur mise à jour statut:', error);
+                hideLoading();
+                showToast('Erreur lors de la mise à jour', 'error');
+            }
+        }
+
+        // TERMINER LA COURSE
+        async function completeCourse() {
+            if (!currentCourse) return;
+
+            // Afficher le modal de paiement
+            document.getElementById('paymentAmount').textContent = `${currentCourse.prixEstime?.toLocaleString()} FCFA`;
+            document.getElementById('paymentModal').classList.add('active');
+        }
+
+        let selectedPaymentMethod = null;
+
+        function selectPaymentMethod(method) {
+            selectedPaymentMethod = method;
+            
+            // Retirer la sélection des autres
+            document.querySelectorAll('.payment-method').forEach(m => m.classList.remove('selected'));
+            
+            // Sélectionner la méthode choisie
+            event.currentTarget.classList.add('selected');
+        }
+
+        function closePaymentModal() {
+            document.getElementById('paymentModal').classList.remove('active');
+            selectedPaymentMethod = null;
+        }
+
+        async function confirmPayment() {
+            if (!selectedPaymentMethod) {
+                showToast('Veuillez sélectionner un mode de paiement', 'error');
+                return;
+            }
+
+            closePaymentModal();
+            showLoading('Finalisation de la course...');
+
+            try {
+                await db.collection('reservations').doc(currentCourse.id).update({
+                    statut: 'terminee',
+                    modePaiementFinal: selectedPaymentMethod,
+                    dateFin: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                await db.collection('drivers').doc(currentUser.uid).update({
+                    statut: 'disponible',
+                    reservationEnCours: null,
+                    coursesCompletees: firebase.firestore.FieldValue.increment(1),
+                    revenusTotal: firebase.firestore.FieldValue.increment(currentCourse.prixEstime || 0)
+                });
+
+                currentCourse = null;
+                
+                // Désactiver le chat
+                document.getElementById('chatFab').classList.remove('active');
+                document.getElementById('chatContainer').classList.remove('active');
+                if (chatListener) {
+                    chatListener();
+                    chatListener = null;
+                }
+
+                hideLoading();
+                showToast('✅ Course terminée avec succès!', 'success');
+                
+                showScreen('dashboardScreen');
+                loadDashboardData();
+
+            } catch (error) {
+                console.error('Erreur finalisation:', error);
+                hideLoading();
+                showToast('Erreur lors de la finalisation', 'error');
+            }
+        }
+
+        // ANNULER LA COURSE
+        async function cancelCourse() {
+            if (!confirm('Voulez-vous vraiment annuler cette course ?')) return;
+
+            showLoading('Annulation...');
+
+            try {
+                await db.collection('reservations').doc(currentCourse.id).update({
+                    statut: 'annulee',
+                    annuleePar: 'chauffeur',
+                    dateAnnulation: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                await db.collection('drivers').doc(currentUser.uid).update({
+                    statut: 'disponible',
+                    reservationEnCours: null
+                });
+
+                currentCourse = null;
+
+                hideLoading();
+                showToast('Course annulée', 'info');
+                
+                showScreen('dashboardScreen');
+
+            } catch (error) {
+                console.error('Erreur annulation:', error);
+                hideLoading();
+                showToast('Erreur lors de l\'annulation', 'error');
+            }
+        }
+
+        // CHAT EN TEMPS RÉEL
+        function toggleChat() {
+            const chatContainer = document.getElementById('chatContainer');
+            chatContainer.classList.toggle('active');
+            
+            if (chatContainer.classList.contains('active')) {
+                // Réinitialiser le compteur de messages non lus
+                unreadMessages = 0;
+                document.getElementById('chatBadge').style.display = 'none';
+                
+                // Focus sur l'input
+                document.getElementById('chatInput').focus();
+            }
+        }
+
+        function listenToChat(courseId) {
+            const messagesRef = db.collection('reservations').doc(courseId).collection('messages');
+            
+            chatListener = messagesRef.orderBy('timestamp', 'asc').onSnapshot(snapshot => {
+                const messagesContainer = document.getElementById('chatMessages');
+                messagesContainer.innerHTML = '';
+
+                snapshot.forEach(doc => {
+                    const msg = doc.data();
+                    addMessageToChat(msg);
+                });
+
+                // Scroll vers le bas
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+                // Compter les messages non lus
+                snapshot.docChanges().forEach(change => {
+                    if (change.type === 'added') {
+                        const msg = change.doc.data();
+                        if (msg.senderId !== currentUser.uid && !document.getElementById('chatContainer').classList.contains('active')) {
+                            unreadMessages++;
+                            const badge = document.getElementById('chatBadge');
+                            badge.textContent = unreadMessages;
+                            badge.style.display = 'flex';
+                        }
+                    }
+                });
+            });
+        }
+
+        function addMessageToChat(message) {
+            const messagesContainer = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `chat-message ${message.senderId === currentUser.uid ? 'sent' : 'received'}`;
+            
+            const time = message.timestamp ? message.timestamp.toDate().toLocaleTimeString('fr-FR', {hour: '2-digit', minute: '2-digit'}) : '';
+            
+            messageDiv.innerHTML = `
+                <div class="message-bubble ${message.senderId === currentUser.uid ? 'sent' : 'received'}">
+                    ${message.text}
+                </div>
+                <div class="message-time">${time}</div>
+            `;
+            
+            messagesContainer.appendChild(messageDiv);
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const text = input.value.trim();
+            
+            if (!text || !currentCourse) return;
+
+            try {
+                await db.collection('reservations').doc(currentCourse.id).collection('messages').add({
+                    text: text,
+                    senderId: currentUser.uid,
+                    senderType: 'driver',
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                input.value = '';
+
+            } catch (error) {
+                console.error('Erreur envoi message:', error);
+                showToast('Erreur d\'envoi du message', 'error');
+            }
+        }
+
+        function handleChatKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        // CHARGER L'HISTORIQUE
+        async function loadHistory() {
+            try {
+                if (!currentUser) return;
+
+                const historyList = document.getElementById('historyList');
+                historyList.innerHTML = '<p style="text-align: center; color: #999; padding: 40px;">Chargement...</p>';
+
+                const allCourses = [];
+
+                try {
+                    const acceptedSnapshot = await db.collection('reservations')
+                        .where('chauffeurAssigne', '==', currentUser.uid)
+                        .limit(50)
+                        .get();
+
+                    acceptedSnapshot.forEach(doc => {
+                        allCourses.push({ id: doc.id, ...doc.data(), source: 'accepted' });
+                    });
+                } catch (error) {
+                    console.error('Erreur requête courses acceptées:', error);
+                }
+
+                try {
+                    const refusedSnapshot = await db.collection('reservations')
+                        .where('chauffeursRefuses', 'array-contains', currentUser.uid)
+                        .limit(50)
+                        .get();
+
+                    refusedSnapshot.forEach(doc => {
+                        if (!allCourses.find(c => c.id === doc.id)) {
+                            allCourses.push({ id: doc.id, ...doc.data(), source: 'refused' });
+                        }
+                    });
+                } catch (error) {
+                    console.error('Erreur requête courses refusées:', error);
+                }
+
+                historyList.innerHTML = '';
+
+                if (allCourses.length === 0) {
+                    historyList.innerHTML = '<p style="text-align: center; color: #999; padding: 40px;">Aucune course pour le moment</p>';
+                    return;
+                }
+
+                allCourses.sort((a, b) => {
+                    const dateA = a.timestamp ? a.timestamp.toDate() : new Date(0);
+                    const dateB = b.timestamp ? b.timestamp.toDate() : new Date(0);
+                    return dateB - dateA;
+                });
+
+                allCourses.forEach(data => {
+                    const date = data.timestamp ? data.timestamp.toDate() : new Date();
+                    const isRefused = data.source === 'refused' && data.statut !== 'acceptee' && data.statut !== 'en_cours' && data.statut !== 'terminee';
+                    
+                    const item = document.createElement('div');
+                    item.className = 'history-item';
+                    item.style.opacity = isRefused ? '0.7' : '1';
+                    item.style.borderLeft = isRefused ? '3px solid #E30613' : '3px solid #00A854';
+                    
+                    item.innerHTML = `
+                        <div class="history-header">
+                            <span class="history-date">${date.toLocaleDateString('fr-FR')} ${date.toLocaleTimeString('fr-FR', {hour: '2-digit', minute: '2-digit'})}</span>
+                            <span class="history-price">${(data.prixEstime || 0).toLocaleString()} FCFA</span>
+                        </div>
+                        <div class="history-route">📍 ${data.depart}</div>
+                        <div class="history-route">🎯 ${data.destination}</div>
+                        <span class="history-status" style="background: ${isRefused ? '#E30613' : getStatusColor(data.statut)}">${isRefused ? '❌ Refusée' : getStatusLabel(data.statut)}</span>
+                    `;
+                    historyList.appendChild(item);
+                });
+
+                console.log(`✅ ${allCourses.length} course(s) au total dans l'historique`);
+
+            } catch (error) {
+                console.error('Erreur chargement historique:', error);
+                const historyList = document.getElementById('historyList');
+                historyList.innerHTML = `
+                    <p style="text-align: center; color: #E30613; padding: 40px;">
+                        ❌ Erreur de chargement<br>
+                        <span style="font-size: 0.9em; color: #666;">${error.message}</span>
+                    </p>
+                `;
+            }
+        }
+
+        function getStatusLabel(statut) {
+            const labels = {
+                'en_attente': 'En attente',
+                'assignee': 'Assignée',
+                'acceptee': 'Acceptée',
+                'en_cours': 'En cours',
+                'terminee': 'Terminée',
+                'annulee': 'Annulée'
+            };
+            return labels[statut] || statut;
+        }
+
+        function getStatusColor(statut) {
+            const colors = {
+                'en_attente': '#FFA500',
+                'assignee': '#2196F3',
+                'acceptee': '#00A854',
+                'en_cours': '#00A854',
+                'terminee': '#00A854',
+                'annulee': '#999'
+            };
+            return colors[statut] || '#00A854';
+        }
+
+        // INITIALISATION
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🚕 Al Bourakh Driver Pro App chargée!');
+            
+            // Pré-remplir pour les tests
+            document.getElementById('loginPhone').value = '+221771234567';
+            document.getElementById('loginPassword').value = 'test123456';
+
+            // Simuler Google Maps si pas disponible
+            if (typeof google === 'undefined' || !google.maps) {
+                console.log('⚠️ Google Maps non chargé - Mode simulation');
+                window.google = {
+                    maps: {
+                        Map: class { constructor() {} },
+                        Marker: class { constructor() {} setPosition() {} },
+                        DirectionsService: class {},
+                        DirectionsRenderer: class { setMap() {} setDirections() {} },
+                        Geocoder: class {},
+                        SymbolPath: { CIRCLE: 0 }
+                    }
+                };
+            }
+        });
+    </script>
+</body>
+</html>
