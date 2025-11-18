@@ -1083,7 +1083,7 @@
                 </a>
 
                 <p style="margin-top: 30px; color: #999; font-size: 0.9em;">
-                    Version 2.1.0 Pro (GPS Corrigé) - Al Bourakh © 2025
+                    Version 2.1.1 (Fix boucle GPS) - Al Bourakh © 2025
                 </p>
             </div>
         </div>
@@ -1489,6 +1489,7 @@
         let chatListener = null;
         let unreadMessages = 0;
         let gpsAttempts = 0;
+        let gpsActivated = false; // Flag pour éviter les notifications en boucle
         
         let stats = {
             coursesJour: 0,
@@ -1562,7 +1563,10 @@
             console.log('Protocole:', location.protocol);
             console.log('Hostname:', location.hostname);
             
-            showToast('📍 Activation de la localisation...', 'info');
+            // Ne montrer le toast de chargement qu'au démarrage
+            if (!gpsActivated) {
+                showToast('📍 Activation de la localisation...', 'info');
+            }
 
             // Options optimisées
             const options = {
@@ -1605,7 +1609,9 @@
                         }).catch(err => console.error('Erreur MAJ position:', err));
                     }
 
-                    if (gpsAttempts === 0) {
+                    // Afficher le toast de succès SEULEMENT la première fois
+                    if (!gpsActivated) {
+                        gpsActivated = true;
                         showToast('✅ Position GPS activée', 'success');
                     }
                 },
@@ -1701,7 +1707,11 @@
                         `⚠️ Précision réduite: ~${Math.round(accuracy)} m`;
                     reverseGeocode(latitude, longitude);
                     
-                    showToast('📍 Position obtenue (précision réseau)', 'info');
+                    // Marquer comme activé pour éviter les notifications répétées
+                    if (!gpsActivated) {
+                        gpsActivated = true;
+                        showToast('📍 Position obtenue (précision réseau)', 'info');
+                    }
                 },
                 (error) => {
                     console.error('❌ Échec même avec précision réduite:', error);
@@ -1767,6 +1777,7 @@
             if (watchPositionId) {
                 navigator.geolocation.clearWatch(watchPositionId);
                 watchPositionId = null;
+                gpsActivated = false; // Reset le flag pour permettre une nouvelle notification
                 console.log('🛑 Suivi de position arrêté');
                 showToast('📍 GPS désactivé', 'info');
             }
