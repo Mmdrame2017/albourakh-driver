@@ -271,6 +271,34 @@
             gap: 10px;
         }
 
+        .permission-guide {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+            display: none;
+        }
+
+        .permission-guide.show {
+            display: block;
+        }
+
+        .permission-guide h4 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+
+        .permission-guide ul {
+            text-align: left;
+            padding-left: 20px;
+            color: #856404;
+        }
+
+        .permission-guide li {
+            margin: 5px 0;
+        }
+
         .stats-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -389,13 +417,6 @@
             font-size: 1.5em;
             color: #00A854;
             margin-bottom: 20px;
-        }
-
-        .course-map-mini {
-            width: 100%;
-            height: 200px;
-            border-radius: 10px;
-            margin-bottom: 15px;
         }
 
         .course-client {
@@ -1062,7 +1083,7 @@
                 </a>
 
                 <p style="margin-top: 30px; color: #999; font-size: 0.9em;">
-                    Version 2.0.0 Pro - Al Bourakh © 2025
+                    Version 2.1.0 Pro (GPS Corrigé) - Al Bourakh © 2025
                 </p>
             </div>
         </div>
@@ -1099,6 +1120,20 @@
                             <i class="fas fa-crosshairs"></i>
                             <span id="accuracy">Précision: -- m</span>
                         </div>
+                    </div>
+                    
+                    <!-- Guide d'activation des permissions -->
+                    <div class="permission-guide" id="permissionGuide">
+                        <h4>🔓 Comment activer la localisation :</h4>
+                        <ul>
+                            <li><strong>Chrome/Edge</strong> : Cliquez sur 🔒 dans la barre d'adresse → Autoriser localisation</li>
+                            <li><strong>Firefox</strong> : Paramètres → Permissions → Localisation</li>
+                            <li><strong>Safari iOS</strong> : Réglages → Safari → Localisation → Autoriser</li>
+                            <li><strong>Android</strong> : Paramètres → Applications → Autoriser localisation</li>
+                        </ul>
+                        <p style="margin-top: 10px; font-weight: bold;">
+                            💡 Rechargez la page après avoir activé les permissions
+                        </p>
                     </div>
                 </div>
 
@@ -1142,9 +1177,9 @@
                         <div>Profil</div>
                     </button>
 
-                    <button class="action-btn" onclick="showToast('Support: +221 77 000 00 00', 'info')">
-                        <div class="action-btn-icon">💬</div>
-                        <div>Support</div>
+                    <button class="action-btn" onclick="diagnosticGeolocation()">
+                        <div class="action-btn-icon">🔍</div>
+                        <div>Test GPS</div>
                     </button>
 
                     <button class="action-btn" onclick="simulateNewCourse()">
@@ -1417,7 +1452,6 @@
     
     <!-- Google Maps API -->
     <script>
-        // Créer dynamiquement le script Google Maps
         function loadGoogleMaps() {
             const script = document.createElement('script');
             script.src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyBI1svukv3Ts7fN97ke5OGfwo2V-vRUGHI&callback=initMap';
@@ -1454,6 +1488,7 @@
         let watchPositionId = null;
         let chatListener = null;
         let unreadMessages = 0;
+        let gpsAttempts = 0;
         
         let stats = {
             coursesJour: 0,
@@ -1466,9 +1501,8 @@
         function initMap() {
             console.log('🗺️ Initialisation de Google Maps...');
             
-            // Carte principale du dashboard
             const mapOptions = {
-                center: { lat: 14.6937, lng: -17.4441 }, // Dakar
+                center: { lat: 14.6937, lng: -17.4441 },
                 zoom: 14,
                 styles: [
                     {
@@ -1481,7 +1515,6 @@
             
             map = new google.maps.Map(document.getElementById('map'), mapOptions);
             
-            // Marker pour la position du chauffeur
             marker = new google.maps.Marker({
                 map: map,
                 icon: {
@@ -1494,7 +1527,6 @@
                 }
             });
 
-            // Services de direction pour la navigation
             directionsService = new google.maps.DirectionsService();
             directionsRenderer = new google.maps.DirectionsRenderer({
                 suppressMarkers: false,
@@ -1507,43 +1539,60 @@
             console.log('✅ Google Maps initialisé');
         }
 
-        // Charger Google Maps au démarrage
         window.initMap = initMap;
-        loadGoogleMaps(); // ✅ Google Maps activé avec votre clé API!
+        loadGoogleMaps();
 
-        // GÉOLOCALISATION EN TEMPS RÉEL
+        // ✅ GÉOLOCALISATION CORRIGÉE AVEC DIAGNOSTIC
         function startLocationTracking() {
             if (!navigator.geolocation) {
-                showToast('Géolocalisation non supportée', 'error');
+                showToast('❌ Géolocalisation non supportée par ce navigateur', 'error');
+                console.error('Navigator.geolocation non disponible');
                 return;
             }
 
+            // Vérifier HTTPS
+            if (location.protocol !== 'https:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
+                showToast('⚠️ HTTPS requis pour la géolocalisation', 'error');
+                console.error('La géolocalisation nécessite HTTPS. Protocole actuel:', location.protocol);
+                document.getElementById('permissionGuide').classList.add('show');
+                return;
+            }
+
+            console.log('📍 Démarrage du suivi de position...');
+            console.log('Protocole:', location.protocol);
+            console.log('Hostname:', location.hostname);
+            
+            showToast('📍 Activation de la localisation...', 'info');
+
+            // Options optimisées
             const options = {
                 enableHighAccuracy: true,
-                timeout: 5000,
-                maximumAge: 0
+                timeout: 15000,  // Augmenté à 15 secondes
+                maximumAge: 10000
             };
 
             watchPositionId = navigator.geolocation.watchPosition(
+                // SUCCESS
                 (position) => {
                     const { latitude, longitude, accuracy } = position.coords;
                     
-                    console.log(`📍 Position mise à jour: ${latitude}, ${longitude}`);
+                    console.log(`✅ Position obtenue: ${latitude.toFixed(6)}, ${longitude.toFixed(6)}`);
+                    console.log(`   Précision: ${Math.round(accuracy)}m`);
                     
-                    // Mettre à jour le marker sur la carte
+                    gpsAttempts = 0; // Reset le compteur d'erreurs
+                    
                     if (marker && map) {
                         const newPos = { lat: latitude, lng: longitude };
                         marker.setPosition(newPos);
                         map.panTo(newPos);
                     }
 
-                    // Mettre à jour l'affichage
-                    document.getElementById('accuracy').textContent = `Précision: ${Math.round(accuracy)} m`;
+                    let qualityIcon = accuracy < 50 ? '🟢' : accuracy < 100 ? '🟡' : '🔴';
+                    document.getElementById('accuracy').innerHTML = 
+                        `${qualityIcon} Précision: ${Math.round(accuracy)} m`;
                     
-                    // Géocodage inverse pour obtenir l'adresse
                     reverseGeocode(latitude, longitude);
 
-                    // Mettre à jour Firebase si connecté
                     if (currentUser && isOnline) {
                         db.collection('drivers').doc(currentUser.uid).update({
                             position: {
@@ -1555,12 +1604,162 @@
                             derniereActivite: firebase.firestore.FieldValue.serverTimestamp()
                         }).catch(err => console.error('Erreur MAJ position:', err));
                     }
+
+                    if (gpsAttempts === 0) {
+                        showToast('✅ Position GPS activée', 'success');
+                    }
                 },
+                
+                // ERROR - Diagnostic détaillé
                 (error) => {
-                    console.error('Erreur géolocalisation:', error);
-                    showToast('Erreur de géolocalisation', 'error');
+                    gpsAttempts++;
+                    console.error('❌ Erreur géolocalisation (tentative ' + gpsAttempts + '):', error);
+                    console.error('Code:', error.code);
+                    console.error('Message:', error.message);
+                    
+                    let errorMessage = '';
+                    let errorSolution = '';
+                    
+                    switch(error.code) {
+                        case error.PERMISSION_DENIED:
+                            errorMessage = '🔒 Permission refusée';
+                            errorSolution = 'Veuillez autoriser l\'accès à votre position dans les paramètres';
+                            console.error('PERMISSION_DENIED: L\'utilisateur a refusé la géolocalisation');
+                            document.getElementById('permissionGuide').classList.add('show');
+                            break;
+                            
+                        case error.POSITION_UNAVAILABLE:
+                            errorMessage = '📡 Position indisponible';
+                            errorSolution = 'Vérifiez que le GPS est activé et que vous êtes à l\'extérieur';
+                            console.error('POSITION_UNAVAILABLE: Impossible d\'obtenir la position');
+                            
+                            if (gpsAttempts === 1) {
+                                setTimeout(() => retryWithLowerAccuracy(), 2000);
+                            }
+                            break;
+                            
+                        case error.TIMEOUT:
+                            errorMessage = '⏱️ Délai d\'attente dépassé';
+                            errorSolution = 'La connexion GPS prend trop de temps';
+                            console.error('TIMEOUT: Temps d\'attente écoulé après 15 secondes');
+                            
+                            if (gpsAttempts === 1) {
+                                setTimeout(() => {
+                                    console.log('🔄 Nouvelle tentative...');
+                                    retryWithLowerAccuracy();
+                                }, 3000);
+                            }
+                            break;
+                            
+                        default:
+                            errorMessage = '❌ Erreur inconnue';
+                            errorSolution = 'Erreur technique. Code: ' + error.code;
+                            console.error('Erreur inconnue:', error);
+                    }
+                    
+                    if (gpsAttempts === 1) {
+                        showToast(`${errorMessage}\n${errorSolution}`, 'error');
+                    }
+                    
+                    document.getElementById('currentAddress').textContent = 
+                        'Position non disponible - Dakar (par défaut)';
+                    document.getElementById('accuracy').innerHTML = 
+                        '🔴 GPS désactivé ou indisponible';
+                    
+                    if (marker && map) {
+                        const defaultPos = { lat: 14.6937, lng: -17.4441 };
+                        marker.setPosition(defaultPos);
+                        map.panTo(defaultPos);
+                    }
                 },
                 options
+            );
+        }
+
+        // 🔄 Réessayer avec précision réduite
+        function retryWithLowerAccuracy() {
+            console.log('🔄 Tentative avec précision réduite (réseau)...');
+            
+            const fallbackOptions = {
+                enableHighAccuracy: false,  // Utiliser WiFi/cellulaire
+                timeout: 20000,
+                maximumAge: 30000
+            };
+            
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const { latitude, longitude, accuracy } = position.coords;
+                    console.log(`✅ Position (précision réduite): ${latitude.toFixed(6)}, ${longitude.toFixed(6)}`);
+                    
+                    if (marker && map) {
+                        const newPos = { lat: latitude, lng: longitude };
+                        marker.setPosition(newPos);
+                        map.panTo(newPos);
+                    }
+                    
+                    document.getElementById('accuracy').innerHTML = 
+                        `⚠️ Précision réduite: ~${Math.round(accuracy)} m`;
+                    reverseGeocode(latitude, longitude);
+                    
+                    showToast('📍 Position obtenue (précision réseau)', 'info');
+                },
+                (error) => {
+                    console.error('❌ Échec même avec précision réduite:', error);
+                    showToast('❌ GPS totalement indisponible. Vérifiez vos paramètres.', 'error');
+                    document.getElementById('permissionGuide').classList.add('show');
+                },
+                fallbackOptions
+            );
+        }
+
+        // 🔍 Diagnostic complet
+        function diagnosticGeolocation() {
+            console.log('🔍 === DIAGNOSTIC GÉOLOCALISATION ===');
+            console.log('Navigateur:', navigator.userAgent);
+            console.log('Protocole:', location.protocol);
+            console.log('Hostname:', location.hostname);
+            console.log('Géolocalisation disponible:', !!navigator.geolocation);
+            console.log('HTTPS:', location.protocol === 'https:');
+            
+            if (!navigator.geolocation) {
+                alert('❌ API Géolocalisation NON disponible sur ce navigateur');
+                return;
+            }
+            
+            if (location.protocol !== 'https:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
+                alert('⚠️ HTTPS requis!\n\nLa géolocalisation nécessite une connexion sécurisée (HTTPS) sauf sur localhost.\n\nProtocole actuel: ' + location.protocol);
+                return;
+            }
+            
+            showToast('🧪 Test de géolocalisation en cours...', 'info');
+            console.log('✅ API disponible. Test en cours...');
+            
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    console.log('✅ TEST RÉUSSI!');
+                    console.log('Position:', position.coords);
+                    console.log('Latitude:', position.coords.latitude);
+                    console.log('Longitude:', position.coords.longitude);
+                    console.log('Précision:', position.coords.accuracy, 'm');
+                    
+                    showToast('✅ Géolocalisation fonctionne parfaitement!', 'success');
+                    alert('✅ TEST GPS RÉUSSI!\n\nLatitude: ' + position.coords.latitude.toFixed(6) + 
+                          '\nLongitude: ' + position.coords.longitude.toFixed(6) + 
+                          '\nPrécision: ' + Math.round(position.coords.accuracy) + ' m');
+                },
+                (error) => {
+                    console.error('❌ TEST ÉCHOUÉ:', error);
+                    let msg = '';
+                    switch(error.code) {
+                        case 1: msg = 'Permission refusée par l\'utilisateur'; break;
+                        case 2: msg = 'Position indisponible'; break;
+                        case 3: msg = 'Timeout dépassé'; break;
+                        default: msg = 'Erreur inconnue';
+                    }
+                    showToast('❌ Test échoué: ' + msg, 'error');
+                    alert('❌ TEST GPS ÉCHOUÉ!\n\nErreur: ' + msg + '\nCode: ' + error.code + '\nMessage: ' + error.message);
+                },
+                { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
             );
         }
 
@@ -1568,11 +1767,12 @@
             if (watchPositionId) {
                 navigator.geolocation.clearWatch(watchPositionId);
                 watchPositionId = null;
-                console.log('📍 Suivi de position arrêté');
+                console.log('🛑 Suivi de position arrêté');
+                showToast('📍 GPS désactivé', 'info');
             }
         }
 
-        // GÉOCODAGE INVERSE (obtenir l'adresse depuis les coordonnées)
+        // GÉOCODAGE INVERSE
         async function reverseGeocode(lat, lng) {
             try {
                 if (!google || !google.maps) {
@@ -1596,14 +1796,13 @@
             }
         }
 
-        // NAVIGATION GPS VERS LE CLIENT
+        // NAVIGATION GPS
         function openGoogleMaps() {
             if (!currentCourse) {
                 showToast('Aucune course active', 'error');
                 return;
             }
 
-            // Ouvrir Google Maps avec navigation
             const destination = encodeURIComponent(currentCourse.depart);
             const url = `https://www.google.com/maps/dir/?api=1&destination=${destination}&travelmode=driving`;
             window.open(url, '_blank');
@@ -1618,7 +1817,6 @@
             window.location.href = `tel:${currentCourse.clientTelephone}`;
         }
 
-        // AFFICHER L'ITINÉRAIRE SUR LA CARTE
         function showRoute(origin, destination) {
             if (!directionsService || !directionsRenderer || !google) {
                 console.log('⚠️ Google Maps non chargé');
@@ -1642,7 +1840,6 @@
                 if (status === 'OK') {
                     directionsRenderer.setDirections(result);
                     
-                    // Afficher la durée et distance
                     const route = result.routes[0].legs[0];
                     document.getElementById('estimatedTime').textContent = `Temps estimé: ${route.duration.text}`;
                     document.getElementById('remainingDistance').textContent = `Distance: ${route.distance.text}`;
@@ -1657,7 +1854,6 @@
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(screenId).classList.add('active');
 
-            // Update navigation active state
             document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
             if (screenId === 'dashboardScreen') {
                 document.querySelectorAll('.nav-item')[0].classList.add('active');
@@ -1669,7 +1865,6 @@
                 document.querySelectorAll('.nav-item')[3].classList.add('active');
             }
 
-            // Charger les données spécifiques à l'écran
             if (screenId === 'activeCourseScreen' && currentCourse) {
                 displayActiveCourse();
             }
@@ -1770,7 +1965,7 @@
             }
         }
 
-        // CHARGER LES DONNÉES DU DASHBOARD
+        // CHARGER DONNÉES DASHBOARD
         async function loadDashboardData() {
             try {
                 if (!currentUser) return;
@@ -1785,7 +1980,6 @@
                 document.getElementById('coursesTotal').textContent = driverData.coursesCompletees || 0;
                 document.getElementById('profileTotalCourses').textContent = driverData.coursesCompletees || 0;
 
-                // Charger les courses du jour
                 const aujourdhui = new Date();
                 aujourdhui.setHours(0, 0, 0, 0);
 
@@ -1815,7 +2009,6 @@
                     coursesTotal: driverData.coursesCompletees || 0
                 };
 
-                // Vérifier s'il y a une course en cours
                 if (driverData.reservationEnCours) {
                     const courseDoc = await db.collection('reservations').doc(driverData.reservationEnCours).get();
                     if (courseDoc.exists) {
@@ -1831,7 +2024,7 @@
             }
         }
 
-        // TOGGLE EN LIGNE / HORS LIGNE
+        // TOGGLE EN LIGNE
         async function toggleOnlineStatus() {
             if (!currentUser) {
                 showToast('Veuillez vous connecter', 'error');
@@ -1880,7 +2073,7 @@
             }
         }
 
-        // ÉCOUTER LES NOUVELLES COURSES
+        // ÉCOUTER NOUVELLES COURSES
         let courseListener = null;
 
         function listenForNewCourses() {
@@ -1902,7 +2095,7 @@
                 });
         }
 
-        // SIMULER UNE NOUVELLE COURSE
+        // SIMULER COURSE
         async function simulateNewCourse() {
             if (!isOnline) {
                 showToast('Vous devez être en ligne pour recevoir des courses', 'error');
@@ -1956,7 +2149,7 @@
             }
         }
 
-        // AFFICHER LA NOTIFICATION DE COURSE
+        // NOTIFICATION COURSE
         function showCourseNotification(course) {
             try {
                 const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSOBzPDYizcIGWi77eeeTRAMUKfj8LZjHAY4ktfyy3ksBSR3x/DdkEAKFF606+uoVRQKRp/g8r5sIQUjgczw2Ik3CBlou+3nnk0QDFCn4/C2YxwGOJLX8st5LAUkd8fw3ZBAC');
@@ -2043,7 +2236,7 @@
             notification.timerInterval = timerInterval;
         }
 
-        // ACCEPTER UNE COURSE
+        // ACCEPTER COURSE
         async function acceptCourse(courseId) {
             const notification = document.querySelector('.course-notification');
             if (notification) {
@@ -2079,7 +2272,6 @@
                 showScreen('activeCourseScreen');
                 displayActiveCourse();
                 
-                // Activer le chat
                 document.getElementById('chatFab').classList.add('active');
                 listenToChat(courseId);
 
@@ -2090,7 +2282,7 @@
             }
         }
 
-        // REFUSER UNE COURSE
+        // REFUSER COURSE
         async function refuseCourse(courseId, auto = false) {
             const notification = document.querySelector('.course-notification');
             if (notification) {
@@ -2125,7 +2317,7 @@
             }
         }
 
-        // AFFICHER LA COURSE ACTIVE
+        // AFFICHER COURSE ACTIVE
         function displayActiveCourse() {
             if (!currentCourse) return;
 
@@ -2136,13 +2328,12 @@
             document.getElementById('activeDestination').textContent = currentCourse.destination;
             document.getElementById('activePrice').textContent = `${currentCourse.prixEstime?.toLocaleString()} FCFA`;
 
-            // Afficher l'itinéraire sur la carte
             if (google && google.maps) {
                 showRoute(currentCourse.depart, currentCourse.destination);
             }
         }
 
-        // METTRE À JOUR LE STATUT DE LA COURSE
+        // METTRE À JOUR STATUT COURSE
         async function updateCourseStatus(newStatus) {
             if (!currentCourse) return;
 
@@ -2164,7 +2355,6 @@
                 hideLoading();
                 showToast(statusMessages[newStatus] || 'Statut mis à jour', 'success');
 
-                // Mettre à jour l'affichage
                 const statusBadge = document.getElementById('courseStatus');
                 const statusTitle = document.getElementById('courseStatusTitle');
 
@@ -2185,11 +2375,10 @@
             }
         }
 
-        // TERMINER LA COURSE
+        // TERMINER COURSE
         async function completeCourse() {
             if (!currentCourse) return;
 
-            // Afficher le modal de paiement
             document.getElementById('paymentAmount').textContent = `${currentCourse.prixEstime?.toLocaleString()} FCFA`;
             document.getElementById('paymentModal').classList.add('active');
         }
@@ -2199,10 +2388,8 @@
         function selectPaymentMethod(method) {
             selectedPaymentMethod = method;
             
-            // Retirer la sélection des autres
             document.querySelectorAll('.payment-method').forEach(m => m.classList.remove('selected'));
             
-            // Sélectionner la méthode choisie
             event.currentTarget.classList.add('selected');
         }
 
@@ -2236,7 +2423,6 @@
 
                 currentCourse = null;
                 
-                // Désactiver le chat
                 document.getElementById('chatFab').classList.remove('active');
                 document.getElementById('chatContainer').classList.remove('active');
                 if (chatListener) {
@@ -2257,7 +2443,7 @@
             }
         }
 
-        // ANNULER LA COURSE
+        // ANNULER COURSE
         async function cancelCourse() {
             if (!confirm('Voulez-vous vraiment annuler cette course ?')) return;
 
@@ -2289,17 +2475,15 @@
             }
         }
 
-        // CHAT EN TEMPS RÉEL
+        // CHAT
         function toggleChat() {
             const chatContainer = document.getElementById('chatContainer');
             chatContainer.classList.toggle('active');
             
             if (chatContainer.classList.contains('active')) {
-                // Réinitialiser le compteur de messages non lus
                 unreadMessages = 0;
                 document.getElementById('chatBadge').style.display = 'none';
                 
-                // Focus sur l'input
                 document.getElementById('chatInput').focus();
             }
         }
@@ -2316,10 +2500,8 @@
                     addMessageToChat(msg);
                 });
 
-                // Scroll vers le bas
                 messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
-                // Compter les messages non lus
                 snapshot.docChanges().forEach(change => {
                     if (change.type === 'added') {
                         const msg = change.doc.data();
@@ -2379,7 +2561,7 @@
             }
         }
 
-        // CHARGER L'HISTORIQUE
+        // HISTORIQUE
         async function loadHistory() {
             try {
                 if (!currentUser) return;
@@ -2492,6 +2674,11 @@
         // INITIALISATION
         document.addEventListener('DOMContentLoaded', () => {
             console.log('🚕 Al Bourakh Driver Pro App chargée!');
+            console.log('📍 Version avec géolocalisation corrigée');
+            
+            // Pré-remplir pour les tests
+            document.getElementById('loginPhone').value = '+221771234567';
+            document.getElementById('loginPassword').value = 'test123456';
 
             // Simuler Google Maps si pas disponible
             if (typeof google === 'undefined' || !google.maps) {
