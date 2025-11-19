@@ -1078,12 +1078,23 @@
                     Se connecter
                 </button>
 
+                <div style="background: #e8f5e9; padding: 15px; border-radius: 10px; margin-top: 20px; border-left: 4px solid #4CAF50;">
+                    <p style="margin: 0 0 8px 0; color: #2e7d32; font-size: 0.9em;">
+                        <strong>🔐 Mode Réel :</strong> 
+                        <br>Téléphone + mot de passe : <code style="background: #fff; padding: 2px 6px; border-radius: 3px; color: #000;">Admin2025</code>
+                    </p>
+                    <p style="margin: 0; color: #2e7d32; font-size: 0.9em;">
+                        <strong>🧪 Mode Démo :</strong> 
+                        <br>N'importe quel numéro + <code style="background: #fff; padding: 2px 6px; border-radius: 3px; color: #000;">demo123</code>
+                    </p>
+                </div>
+
                 <a class="link-text" onclick="showToast('Contactez l\'admin: +221 77 000 00 00', 'info')">
                     Mot de passe oublié ?
                 </a>
 
                 <p style="margin-top: 30px; color: #999; font-size: 0.9em;">
-                    Version 2.1.1 (Fix boucle GPS) - Al Bourakh © 2025
+                    Version 2.3.0 (Auth Firestore) - Al Bourakh © 2025
                 </p>
             </div>
         </div>
@@ -1597,7 +1608,8 @@
                     
                     reverseGeocode(latitude, longitude);
 
-                    if (currentUser && isOnline) {
+                    // Mettre à jour Firebase si connecté (sauf en mode démo)
+                    if (currentUser && isOnline && !currentUser.uid.startsWith('DEMO_USER_')) {
                         db.collection('drivers').doc(currentUser.uid).update({
                             position: {
                                 latitude,
@@ -1919,29 +1931,93 @@
                 return;
             }
 
+            // MODE TEST : Connexion sans Firebase si mot de passe = "demo123"
+            if (password === 'demo123') {
+                console.log('🧪 MODE DEMO ACTIVÉ');
+                showLoading('Connexion en mode démo...');
+                
+                setTimeout(() => {
+                    currentUser = {
+                        uid: 'DEMO_USER_' + Date.now(),
+                        telephone: phone,
+                        prenom: 'Chauffeur',
+                        nom: 'Demo',
+                        email: phone + '@demo.sn',
+                        rating: 4.8,
+                        coursesCompletees: 42,
+                        revenusTotal: 150000,
+                        vehicule: 'Toyota Corolla (Demo)',
+                        immatriculation: 'DK-9999-DEMO'
+                    };
+                    
+                    hideLoading();
+                    showToast('✅ Connexion démo réussie!', 'success');
+                    
+                    document.getElementById('bottomNav').style.display = 'flex';
+                    showScreen('dashboardScreen');
+                    loadDashboardDataDemo();
+                    startLocationTracking();
+                }, 1000);
+                
+                return;
+            }
+
+            // MODE RÉEL : Connexion directe via Firestore Database
             showLoading('Connexion en cours...');
+            console.log('🔐 Mode réel : Connexion via Firestore Database...');
 
             try {
-                const cleanPhone = phone.replace(/\s/g, '').replace('+', '');
-                const email = cleanPhone + '@albourakh.sn';
+                // Nettoyer le numéro de téléphone
+                const cleanPhone = phone.replace(/\s/g, '');
+                console.log('📞 Recherche du chauffeur avec le téléphone:', cleanPhone);
 
-                await auth.signInWithEmailAndPassword(email, password);
-                const user = auth.currentUser;
+                // Rechercher dans la collection "drivers" où telephone = cleanPhone
+                const driversSnapshot = await db.collection('drivers')
+                    .where('telephone', '==', cleanPhone)
+                    .limit(1)
+                    .get();
 
-                const driverDoc = await db.collection('drivers').doc(user.uid).get();
-                
-                if (!driverDoc.exists) {
-                    await auth.signOut();
+                if (driversSnapshot.empty) {
+                    console.error('❌ Aucun chauffeur trouvé avec ce numéro de téléphone');
                     hideLoading();
-                    showToast('Compte chauffeur non trouvé', 'error');
+                    showToast('❌ Aucun compte chauffeur trouvé avec ce numéro', 'error');
+                    showLoginHelp();
                     return;
                 }
 
+                // Récupérer le document du chauffeur
+                const driverDoc = driversSnapshot.docs[0];
                 const driverData = driverDoc.data();
-                currentUser = { uid: user.uid, ...driverData };
+                
+                console.log('✅ Chauffeur trouvé:', driverData.prenom, driverData.nom);
+                console.log('📋 ID du document:', driverDoc.id);
+
+                // Vérifier le mot de passe
+                if (password !== 'Admin2025') {
+                    console.error('❌ Mot de passe incorrect');
+                    hideLoading();
+                    showToast('❌ Mot de passe incorrect', 'error');
+                    return;
+                }
+
+                console.log('✅ Mot de passe correct!');
+
+                // Créer l'objet utilisateur
+                currentUser = {
+                    uid: driverDoc.id,
+                    ...driverData
+                };
+
+                console.log('✅ Utilisateur connecté:', currentUser);
+
+                // Mettre à jour le statut dans Firestore
+                await db.collection('drivers').doc(driverDoc.id).update({
+                    derniereConnexion: firebase.firestore.FieldValue.serverTimestamp(),
+                    statut: 'hors_ligne'
+                });
 
                 hideLoading();
-                showToast('✅ Connexion réussie!', 'success');
+                showToast('✅ Connexion réussie! Bienvenue ' + (driverData.prenom || 'Chauffeur'), 'success');
                 
                 document.getElementById('bottomNav').style.display = 'flex';
                 showScreen('dashboardScreen');
@@ -1949,10 +2025,123 @@
                 startLocationTracking();
 
             } catch (error) {
-                console.error('Erreur connexion:', error);
+                console.error('❌ ERREUR DE CONNEXION:', error);
+                console.error('Code erreur:', error.code);
+                console.error('Message:', error.message);
+                
                 hideLoading();
-                showToast('Téléphone ou mot de passe incorrect', 'error');
+                
+                let errorMsg = 'Erreur de connexion';
+                
+                // Messages d'erreur détaillés
+                if (error.code === 'permission-denied') {
+                    errorMsg = '❌ Accès refusé à la base de données. Vérifiez les règles Firestore.';
+                } else if (error.message.includes('Missing or insufficient permissions')) {
+                    errorMsg = '❌ Permissions insuffisantes. Contactez l\'administrateur.';
+                } else {
+                    errorMsg = '❌ ' + (error.message || 'Erreur inconnue');
+                }
+                
+                showToast(errorMsg + '\n\nUtilisez "demo123" comme mot de passe pour tester l\'app', 'error');
+                
+                // Afficher l'aide
+                showLoginHelp();
             }
+        }
+
+        // Fonction d'aide pour la connexion
+        function showLoginHelp() {
+            const helpMsg = `
+                <div style="background: #e3f2fd; padding: 15px; border-radius: 10px; margin-top: 20px; border-left: 4px solid #2196F3;">
+                    <h4 style="margin-bottom: 10px; color: #1976D2;">💡 Aide à la connexion</h4>
+                    <p style="margin: 5px 0; color: #333; font-size: 0.9em;">
+                        <strong>Mode Réel :</strong> 
+                        <br>• Identifiant : Votre numéro de téléphone (ex: +221771234567)
+                        <br>• Mot de passe : <code style="background: #fff; padding: 2px 6px; border-radius: 3px;">Admin2025</code>
+                    </p>
+                    <p style="margin: 5px 0; color: #333; font-size: 0.9em;">
+                        <strong>Mode Démo :</strong> 
+                        <br>• Mot de passe : <code style="background: #fff; padding: 2px 6px; border-radius: 3px;">demo123</code> avec n'importe quel numéro
+                    </p>
+                    <p style="margin: 10px 0 5px 0; color: #666; font-size: 0.85em;">
+                        ⚠️ Si vous n'arrivez pas à vous connecter, vérifiez que votre compte existe dans Firestore Database (collection "drivers").
+                    </p>
+                </div>
+            `;
+            
+            const loginScreen = document.querySelector('.login-screen');
+            const existingHelp = loginScreen.querySelector('.login-help');
+            if (existingHelp) existingHelp.remove();
+            
+            const helpDiv = document.createElement('div');
+            helpDiv.className = 'login-help';
+            helpDiv.innerHTML = helpMsg;
+            loginScreen.appendChild(helpDiv);
+        }
+
+        // Charger les données en mode démo
+        function loadDashboardDataDemo() {
+            console.log('📊 Chargement des données démo...');
+            
+            // Statistiques simulées
+            document.getElementById('profileName').textContent = 
+                `${currentUser.prenom} ${currentUser.nom}`;
+            document.getElementById('profilePhone').textContent = currentUser.telephone;
+            document.getElementById('rating').textContent = currentUser.rating.toFixed(1);
+            document.getElementById('coursesTotal').textContent = currentUser.coursesCompletees;
+            document.getElementById('profileTotalCourses').textContent = currentUser.coursesCompletees;
+            document.getElementById('profileRevenuTotal').textContent = currentUser.revenusTotal.toLocaleString() + ' FCFA';
+
+            // Statistiques du jour (simulées)
+            const coursesJour = Math.floor(Math.random() * 5) + 3;
+            const revenusJour = coursesJour * 3500;
+            
+            document.getElementById('coursesJour').textContent = coursesJour;
+            document.getElementById('revenusJour').textContent = revenusJour.toLocaleString();
+
+            stats = {
+                coursesJour,
+                revenusJour,
+                rating: currentUser.rating,
+                coursesTotal: currentUser.coursesCompletees
+            };
+
+            // Historique simulé
+            loadHistoryDemo();
+            
+            showToast('📊 Mode démo - Données simulées', 'info');
+        }
+
+        // Historique démo
+        function loadHistoryDemo() {
+            const historyList = document.getElementById('historyList');
+            historyList.innerHTML = '';
+            
+            const coursesDemo = [
+                { date: new Date(), depart: 'Plateau', destination: 'Almadies', prix: 3500, statut: 'terminee' },
+                { date: new Date(Date.now() - 2 * 60 * 60 * 1000), depart: 'Sacré-Cœur', destination: 'Yoff', prix: 4200, statut: 'terminee' },
+                { date: new Date(Date.now() - 5 * 60 * 60 * 1000), depart: 'Mermoz', destination: 'HLM', prix: 2800, statut: 'terminee' },
+                { date: new Date(Date.now() - 24 * 60 * 60 * 1000), depart: 'Ouakam', destination: 'Liberté 6', prix: 3200, statut: 'terminee' },
+            ];
+            
+            coursesDemo.forEach(course => {
+                const item = document.createElement('div');
+                item.className = 'history-item';
+                item.style.borderLeft = '3px solid #00A854';
+                
+                item.innerHTML = `
+                    <div class="history-header">
+                        <span class="history-date">${course.date.toLocaleDateString('fr-FR')} ${course.date.toLocaleTimeString('fr-FR', {hour: '2-digit', minute: '2-digit'})}</span>
+                        <span class="history-price">${course.prix.toLocaleString()} FCFA</span>
+                    </div>
+                    <div class="history-route">📍 ${course.depart}</div>
+                    <div class="history-route">🎯 ${course.destination}</div>
+                    <span class="history-status" style="background: #00A854">✅ Terminée (DEMO)</span>
+                `;
+                historyList.appendChild(item);
+            });
+            
+            console.log('✅ Historique démo chargé');
         }
 
         // DÉCONNEXION
@@ -1960,12 +2149,25 @@
             if (confirm('Voulez-vous vraiment vous déconnecter ?')) {
                 showLoading('Déconnexion...');
                 
-                if (isOnline) {
-                    await toggleOnlineStatus();
+                try {
+                    // Mettre à jour le statut dans Firestore avant de se déconnecter
+                    if (isOnline) {
+                        await toggleOnlineStatus();
+                    }
+                    
+                    // Mettre le chauffeur hors ligne dans Firestore (sauf en mode démo)
+                    if (currentUser && !currentUser.uid.startsWith('DEMO_USER_')) {
+                        await db.collection('drivers').doc(currentUser.uid).update({
+                            statut: 'hors_ligne',
+                            derniereDeconnexion: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                    }
+                    
+                } catch (error) {
+                    console.error('Erreur lors de la mise à jour du statut:', error);
                 }
                 
                 stopLocationTracking();
-                await auth.signOut();
                 currentUser = null;
                 currentCourse = null;
                 
@@ -1981,18 +2183,35 @@
             try {
                 if (!currentUser) return;
 
-                const driverDoc = await db.collection('drivers').doc(currentUser.uid).get();
-                const driverData = driverDoc.data();
+                console.log('📊 Chargement des données du dashboard...');
 
+                // Recharger les données du chauffeur depuis Firestore
+                const driverDoc = await db.collection('drivers').doc(currentUser.uid).get();
+                
+                if (!driverDoc.exists) {
+                    console.error('❌ Document chauffeur non trouvé');
+                    showToast('Erreur de chargement des données', 'error');
+                    return;
+                }
+
+                const driverData = driverDoc.data();
+                console.log('✅ Données chauffeur chargées:', driverData);
+
+                // Mettre à jour l'affichage du profil
                 document.getElementById('profileName').textContent = 
                     `${driverData.prenom || ''} ${driverData.nom || ''}`;
                 document.getElementById('profilePhone').textContent = driverData.telephone || '';
                 document.getElementById('rating').textContent = (driverData.rating || 4.8).toFixed(1);
                 document.getElementById('coursesTotal').textContent = driverData.coursesCompletees || 0;
                 document.getElementById('profileTotalCourses').textContent = driverData.coursesCompletees || 0;
+                document.getElementById('profileRevenuTotal').textContent = 
+                    (driverData.revenusTotal || 0).toLocaleString() + ' FCFA';
 
+                // Charger les statistiques du jour
                 const aujourdhui = new Date();
                 aujourdhui.setHours(0, 0, 0, 0);
+
+                console.log('📅 Chargement des courses du jour...');
 
                 const coursesSnapshot = await db.collection('reservations')
                     .where('chauffeurAssigne', '==', currentUser.uid)
@@ -2010,6 +2229,8 @@
                     }
                 });
 
+                console.log(`✅ Courses aujourd'hui: ${coursesJour}, Revenus: ${revenusJour} FCFA`);
+
                 document.getElementById('coursesJour').textContent = coursesJour;
                 document.getElementById('revenusJour').textContent = revenusJour.toLocaleString();
 
@@ -2020,18 +2241,23 @@
                     coursesTotal: driverData.coursesCompletees || 0
                 };
 
+                // Vérifier s'il y a une course en cours
                 if (driverData.reservationEnCours) {
+                    console.log('🚗 Course en cours détectée:', driverData.reservationEnCours);
                     const courseDoc = await db.collection('reservations').doc(driverData.reservationEnCours).get();
                     if (courseDoc.exists) {
                         currentCourse = { id: courseDoc.id, ...courseDoc.data() };
+                        console.log('📍 Redirection vers la course en cours');
                         showScreen('activeCourseScreen');
                     }
                 }
 
+                // Charger l'historique
                 loadHistory();
 
             } catch (error) {
-                console.error('Erreur chargement données:', error);
+                console.error('❌ Erreur chargement données:', error);
+                showToast('Erreur lors du chargement des données', 'error');
             }
         }
 
@@ -2052,6 +2278,14 @@
                 statusText.classList.add('online');
                 showToast('✅ Vous êtes maintenant en ligne', 'success');
 
+                // Mode démo : ne pas utiliser Firebase
+                if (currentUser.uid.startsWith('DEMO_USER_')) {
+                    console.log('🧪 Mode démo : statut en ligne simulé');
+                    startLocationTracking();
+                    // Ne pas écouter Firebase en mode démo
+                    return;
+                }
+
                 try {
                     await db.collection('drivers').doc(currentUser.uid).update({
                         statut: 'disponible',
@@ -2070,6 +2304,13 @@
                 statusText.textContent = '⚫ HORS LIGNE';
                 statusText.classList.remove('online');
                 showToast('Vous êtes maintenant hors ligne', 'info');
+
+                // Mode démo
+                if (currentUser.uid.startsWith('DEMO_USER_')) {
+                    console.log('🧪 Mode démo : statut hors ligne simulé');
+                    stopLocationTracking();
+                    return;
+                }
 
                 try {
                     await db.collection('drivers').doc(currentUser.uid).update({
@@ -2114,6 +2355,36 @@
             }
 
             showLoading('Création de la course de test...');
+
+            // MODE DÉMO : Simulation directe sans Firebase
+            if (currentUser.uid.startsWith('DEMO_USER_')) {
+                console.log('🧪 Mode démo : simulation de course');
+                
+                hideLoading();
+                
+                setTimeout(() => {
+                    const testCourse = {
+                        id: 'DEMO_COURSE_' + Date.now(),
+                        depart: 'Plateau, Dakar',
+                        destination: 'Almadies',
+                        prixEstime: 3500,
+                        distance: '12 km',
+                        dureeEstimee: 25,
+                        passagers: 2,
+                        statut: 'assignee',
+                        clientNom: 'Aminata Sow (DEMO)',
+                        clientTelephone: '+221 77 999 88 77',
+                        client: {
+                            nom: 'Aminata Sow (DEMO)',
+                            telephone: '+221 77 999 88 77',
+                            rating: 4.9
+                        }
+                    };
+                    showCourseNotification(testCourse);
+                }, 500);
+                
+                return;
+            }
 
             try {
                 const testReservation = {
@@ -2257,6 +2528,38 @@
 
             showLoading('Acceptation de la course...');
 
+            // MODE DÉMO
+            if (currentUser.uid.startsWith('DEMO_USER_') || courseId.startsWith('DEMO_COURSE_')) {
+                console.log('🧪 Mode démo : acceptation de course simulée');
+                
+                // Récupérer les données de la course depuis la notification
+                const testCourseData = {
+                    id: courseId,
+                    depart: 'Plateau, Dakar',
+                    destination: 'Almadies',
+                    prixEstime: 3500,
+                    distance: '12 km',
+                    clientNom: 'Aminata Sow (DEMO)',
+                    clientTelephone: '+221 77 999 88 77',
+                    clientRating: 4.9,
+                    statut: 'acceptee'
+                };
+                
+                currentCourse = testCourseData;
+                
+                setTimeout(() => {
+                    hideLoading();
+                    showToast('✅ Course acceptée (DEMO)! Rendez-vous chez le client.', 'success');
+                    
+                    showScreen('activeCourseScreen');
+                    displayActiveCourse();
+                    
+                    document.getElementById('chatFab').classList.add('active');
+                }, 1000);
+                
+                return;
+            }
+
             try {
                 const courseDoc = await db.collection('reservations').doc(courseId).get();
                 
@@ -2299,6 +2602,17 @@
             if (notification) {
                 clearInterval(notification.timerInterval);
                 notification.remove();
+            }
+
+            // MODE DÉMO
+            if (currentUser.uid.startsWith('DEMO_USER_') || courseId.startsWith('DEMO_COURSE_')) {
+                console.log('🧪 Mode démo : refus de course simulé');
+                if (!auto) {
+                    showToast('Course refusée (DEMO)', 'info');
+                } else {
+                    showToast('⏱️ Temps écoulé - Course refusée (DEMO)', 'info');
+                }
+                return;
             }
 
             if (!auto) {
@@ -2686,10 +3000,12 @@
         document.addEventListener('DOMContentLoaded', () => {
             console.log('🚕 Al Bourakh Driver Pro App chargée!');
             console.log('📍 Version avec géolocalisation corrigée');
+            console.log('🔐 MODE RÉEL : Mot de passe = Admin2025');
+            console.log('🧪 MODE DÉMO : Mot de passe = demo123');
             
-            // Pré-remplir pour les tests
-            document.getElementById('loginPhone').value = '+221771234567';
-            document.getElementById('loginPassword').value = 'test123456';
+            // Pré-remplir avec le mode réel par défaut
+            document.getElementById('loginPhone').value = '+221 77 123 45 67';
+            document.getElementById('loginPassword').value = 'Admin2025';
 
             // Simuler Google Maps si pas disponible
             if (typeof google === 'undefined' || !google.maps) {
