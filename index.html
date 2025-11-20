@@ -828,6 +828,119 @@
             color: white;
         }
 
+        /* MODAL CHANGER MOT DE PASSE */
+        .password-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+        }
+
+        .password-modal.active {
+            display: flex;
+        }
+
+        .password-content {
+            background: white;
+            width: 90%;
+            max-width: 400px;
+            border-radius: 20px;
+            padding: 30px;
+            animation: slideUp 0.3s;
+        }
+
+        .password-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .password-header h2 {
+            color: #00A854;
+            margin-bottom: 10px;
+        }
+
+        .password-input-group {
+            margin-bottom: 20px;
+        }
+
+        .password-input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .password-input-group input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+
+        .password-input-group input:focus {
+            outline: none;
+            border-color: #00A854;
+            box-shadow: 0 0 15px rgba(0,168,84,0.2);
+        }
+
+        .password-strength {
+            margin-top: 10px;
+            height: 5px;
+            background: #e0e0e0;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .password-strength-bar {
+            height: 100%;
+            width: 0%;
+            transition: all 0.3s;
+        }
+
+        .strength-weak {
+            background: #E30613;
+            width: 33%;
+        }
+
+        .strength-medium {
+            background: #FFA500;
+            width: 66%;
+        }
+
+        .strength-strong {
+            background: #00A854;
+            width: 100%;
+        }
+
+        .password-requirements {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            font-size: 0.9em;
+        }
+
+        .password-requirements ul {
+            margin: 10px 0 0 20px;
+            color: #666;
+        }
+
+        .password-requirements li {
+            margin: 5px 0;
+        }
+
+        .requirement-met {
+            color: #00A854;
+        }
+
         /* HISTORIQUE */
         .history-list {
             padding: 20px;
@@ -1094,7 +1207,7 @@
                 </a>
 
                 <p style="margin-top: 30px; color: #999; font-size: 0.9em;">
-                    Version 2.3.0 (Auth Firestore) - Al Bourakh © 2025
+                    Version 3.0.0 (Firebase Auth) - Al Bourakh © 2025
                 </p>
             </div>
         </div>
@@ -1347,7 +1460,11 @@
                     <span class="info-value" id="profileRevenuTotal">0 FCFA</span>
                 </div>
 
-                <button class="btn btn-primary" onclick="handleLogout()" style="margin-top: 20px;">
+                <button class="btn btn-primary" onclick="showPasswordModal()" style="margin-top: 20px;">
+                    <i class="fas fa-key"></i> Changer le mot de passe
+                </button>
+
+                <button class="btn btn-primary" onclick="handleLogout()" style="margin-top: 10px; background: #E30613;">
                     <i class="fas fa-sign-out-alt"></i> Déconnexion
                 </button>
             </div>
@@ -1451,6 +1568,50 @@
             </button>
 
             <button class="btn" onclick="closePaymentModal()" style="margin-top: 10px; background: #999; color: white;">
+                Annuler
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL CHANGER MOT DE PASSE -->
+    <div class="password-modal" id="passwordModal">
+        <div class="password-content">
+            <div class="password-header">
+                <h2>🔒 Changer le mot de passe</h2>
+                <p style="color: #666; margin-top: 5px;">Sécurisez votre compte avec un nouveau mot de passe</p>
+            </div>
+
+            <div class="password-input-group">
+                <label>Mot de passe actuel</label>
+                <input type="password" id="currentPassword" placeholder="Entrez votre mot de passe actuel">
+            </div>
+
+            <div class="password-input-group">
+                <label>Nouveau mot de passe</label>
+                <input type="password" id="newPassword" placeholder="Entrez un nouveau mot de passe" oninput="checkPasswordStrength()">
+                <div class="password-strength">
+                    <div class="password-strength-bar" id="passwordStrengthBar"></div>
+                </div>
+            </div>
+
+            <div class="password-input-group">
+                <label>Confirmer le nouveau mot de passe</label>
+                <input type="password" id="confirmPassword" placeholder="Confirmez le nouveau mot de passe">
+            </div>
+
+            <div class="password-requirements">
+                <strong>Exigences du mot de passe :</strong>
+                <ul id="passwordRequirements">
+                    <li id="req-length">Au moins 6 caractères</li>
+                    <li id="req-match">Les mots de passe correspondent</li>
+                </ul>
+            </div>
+
+            <button class="btn btn-primary" onclick="changePassword()">
+                <i class="fas fa-check"></i> Changer le mot de passe
+            </button>
+
+            <button class="btn" onclick="closePasswordModal()" style="margin-top: 10px; background: #999; color: white;">
                 Annuler
             </button>
         </div>
@@ -1931,7 +2092,7 @@
                 return;
             }
 
-            // MODE TEST : Connexion sans Firebase si mot de passe = "demo123"
+            // MODE DÉMO : Connexion sans Firebase si mot de passe = "demo123"
             if (password === 'demo123') {
                 console.log('🧪 MODE DEMO ACTIVÉ');
                 showLoading('Connexion en mode démo...');
@@ -1962,62 +2123,50 @@
                 return;
             }
 
-            // MODE RÉEL : Connexion directe via Firestore Database
+            // MODE RÉEL : Connexion via Firebase Auth
             showLoading('Connexion en cours...');
-            console.log('🔐 Mode réel : Connexion via Firestore Database...');
+            console.log('🔐 Connexion Firebase Auth...');
 
             try {
-                // Nettoyer le numéro de téléphone
-                const cleanPhone = phone.replace(/\s/g, '');
-                console.log('📞 Recherche du chauffeur avec le téléphone:', cleanPhone);
-
-                // Rechercher dans la collection "drivers" où telephone = cleanPhone
-                const driversSnapshot = await db.collection('drivers')
-                    .where('telephone', '==', cleanPhone)
-                    .limit(1)
-                    .get();
-
-                if (driversSnapshot.empty) {
-                    console.error('❌ Aucun chauffeur trouvé avec ce numéro de téléphone');
-                    hideLoading();
-                    showToast('❌ Aucun compte chauffeur trouvé avec ce numéro', 'error');
-                    showLoginHelp();
-                    return;
-                }
-
-                // Récupérer le document du chauffeur
-                const driverDoc = driversSnapshot.docs[0];
-                const driverData = driverDoc.data();
+                // Générer l'email depuis le téléphone
+                const cleanPhone = phone.replace(/\s/g, '').replace('+', '');
+                const email = cleanPhone + '@albourakh.sn';
                 
-                console.log('✅ Chauffeur trouvé:', driverData.prenom, driverData.nom);
-                console.log('📋 ID du document:', driverDoc.id);
+                console.log('📧 Email généré:', email);
+                console.log('🔑 Tentative de connexion Firebase Auth...');
 
-                // Vérifier le mot de passe
-                if (password !== 'Admin2025') {
-                    console.error('❌ Mot de passe incorrect');
+                // Se connecter avec Firebase Auth
+                const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                const user = userCredential.user;
+                const uid = user.uid;
+
+                console.log('✅ Authentification réussie! UID:', uid);
+                console.log('📂 Chargement du profil chauffeur depuis Firestore...');
+
+                // Charger les données du chauffeur depuis Firestore avec l'UID
+                const driverDoc = await db.collection('drivers').doc(uid).get();
+                
+                if (!driverDoc.exists) {
+                    console.error('❌ Document chauffeur non trouvé pour cet UID');
+                    await auth.signOut();
                     hideLoading();
-                    showToast('❌ Mot de passe incorrect', 'error');
+                    showToast('Profil chauffeur non trouvé. Contactez l\'admin.', 'error');
                     return;
                 }
 
-                console.log('✅ Mot de passe correct!');
+                const driverData = driverDoc.data();
+                currentUser = { uid: uid, ...driverData };
 
-                // Créer l'objet utilisateur
-                currentUser = {
-                    uid: driverDoc.id,
-                    ...driverData
-                };
-
-                console.log('✅ Utilisateur connecté:', currentUser);
-
-                // Mettre à jour le statut dans Firestore
-                await db.collection('drivers').doc(driverDoc.id).update({
+                console.log('✅ Profil chauffeur chargé:', currentUser);
+                
+                // Mettre à jour la dernière connexion
+                await db.collection('drivers').doc(uid).update({
                     derniereConnexion: firebase.firestore.FieldValue.serverTimestamp(),
                     statut: 'hors_ligne'
                 });
 
                 hideLoading();
-                showToast('✅ Connexion réussie! Bienvenue ' + (driverData.prenom || 'Chauffeur'), 'success');
+                showToast(`✅ Bienvenue ${driverData.prenom || 'Chauffeur'} !`, 'success');
                 
                 document.getElementById('bottomNav').style.display = 'flex';
                 showScreen('dashboardScreen');
@@ -2034,17 +2183,33 @@
                 let errorMsg = 'Erreur de connexion';
                 
                 // Messages d'erreur détaillés
-                if (error.code === 'permission-denied') {
-                    errorMsg = '❌ Accès refusé à la base de données. Vérifiez les règles Firestore.';
-                } else if (error.message.includes('Missing or insufficient permissions')) {
-                    errorMsg = '❌ Permissions insuffisantes. Contactez l\'administrateur.';
-                } else {
-                    errorMsg = '❌ ' + (error.message || 'Erreur inconnue');
+                switch(error.code) {
+                    case 'auth/wrong-password':
+                        errorMsg = '❌ Mot de passe incorrect';
+                        break;
+                    case 'auth/user-not-found':
+                        errorMsg = '❌ Aucun compte avec ce numéro.\nVotre candidature a-t-elle été acceptée ?';
+                        break;
+                    case 'auth/invalid-email':
+                        errorMsg = '❌ Format de numéro invalide';
+                        break;
+                    case 'auth/too-many-requests':
+                        errorMsg = '❌ Trop de tentatives. Réessayez dans 15 minutes';
+                        break;
+                    case 'auth/network-request-failed':
+                        errorMsg = '❌ Erreur réseau. Vérifiez votre connexion';
+                        break;
+                    case 'auth/invalid-credential':
+                        errorMsg = '❌ Numéro ou mot de passe incorrect';
+                        break;
+                    case 'auth/user-disabled':
+                        errorMsg = '❌ Compte désactivé. Contactez l\'admin';
+                        break;
+                    default:
+                        errorMsg = '❌ ' + (error.message || 'Erreur inconnue');
                 }
                 
-                showToast(errorMsg + '\n\nUtilisez "demo123" comme mot de passe pour tester l\'app', 'error');
-                
-                // Afficher l'aide
+                showToast(errorMsg, 'error');
                 showLoginHelp();
             }
         }
@@ -2056,15 +2221,16 @@
                     <h4 style="margin-bottom: 10px; color: #1976D2;">💡 Aide à la connexion</h4>
                     <p style="margin: 5px 0; color: #333; font-size: 0.9em;">
                         <strong>Mode Réel :</strong> 
-                        <br>• Identifiant : Votre numéro de téléphone (ex: +221771234567)
-                        <br>• Mot de passe : <code style="background: #fff; padding: 2px 6px; border-radius: 3px;">Admin2025</code>
+                        <br>• Votre numéro de téléphone (ex: +221771234567)
+                        <br>• Mot de passe par défaut : <code style="background: #fff; padding: 2px 6px; border-radius: 3px;">Admin2025</code>
                     </p>
                     <p style="margin: 5px 0; color: #333; font-size: 0.9em;">
                         <strong>Mode Démo :</strong> 
-                        <br>• Mot de passe : <code style="background: #fff; padding: 2px 6px; border-radius: 3px;">demo123</code> avec n'importe quel numéro
+                        <br>• N'importe quel numéro
+                        <br>• Mot de passe : <code style="background: #fff; padding: 2px 6px; border-radius: 3px;">demo123</code>
                     </p>
                     <p style="margin: 10px 0 5px 0; color: #666; font-size: 0.85em;">
-                        ⚠️ Si vous n'arrivez pas à vous connecter, vérifiez que votre compte existe dans Firestore Database (collection "drivers").
+                        ⚠️ Si vous n'arrivez pas à vous connecter, vérifiez que votre candidature a été acceptée par l'administrateur.
                     </p>
                 </div>
             `;
@@ -2161,10 +2327,14 @@
                             statut: 'hors_ligne',
                             derniereDeconnexion: firebase.firestore.FieldValue.serverTimestamp()
                         });
+
+                        // Se déconnecter de Firebase Auth
+                        await auth.signOut();
+                        console.log('✅ Déconnexion Firebase Auth réussie');
                     }
                     
                 } catch (error) {
-                    console.error('Erreur lors de la mise à jour du statut:', error);
+                    console.error('Erreur lors de la déconnexion:', error);
                 }
                 
                 stopLocationTracking();
@@ -2799,6 +2969,186 @@
                 showToast('Erreur lors de l\'annulation', 'error');
             }
         }
+
+        // ===== CHANGER MOT DE PASSE =====
+
+        function showPasswordModal() {
+            // Vérifier si en mode démo
+            if (currentUser && currentUser.uid.startsWith('DEMO_USER_')) {
+                showToast('❌ Fonctionnalité non disponible en mode démo', 'error');
+                return;
+            }
+
+            document.getElementById('passwordModal').classList.add('active');
+            
+            // Réinitialiser les champs
+            document.getElementById('currentPassword').value = '';
+            document.getElementById('newPassword').value = '';
+            document.getElementById('confirmPassword').value = '';
+            
+            // Réinitialiser la barre de force
+            const strengthBar = document.getElementById('passwordStrengthBar');
+            strengthBar.className = 'password-strength-bar';
+            strengthBar.style.width = '0%';
+        }
+
+        function closePasswordModal() {
+            document.getElementById('passwordModal').classList.remove('active');
+        }
+
+        function checkPasswordStrength() {
+            const password = document.getElementById('newPassword').value;
+            const strengthBar = document.getElementById('passwordStrengthBar');
+            const reqLength = document.getElementById('req-length');
+            
+            // Vérifier la longueur
+            if (password.length >= 6) {
+                reqLength.classList.add('requirement-met');
+            } else {
+                reqLength.classList.remove('requirement-met');
+            }
+
+            // Calculer la force du mot de passe
+            let strength = 0;
+            
+            if (password.length >= 6) strength += 1;
+            if (password.length >= 8) strength += 1;
+            if (/[A-Z]/.test(password)) strength += 1;
+            if (/[0-9]/.test(password)) strength += 1;
+            if (/[^A-Za-z0-9]/.test(password)) strength += 1;
+
+            // Afficher la force
+            strengthBar.className = 'password-strength-bar';
+            
+            if (strength <= 1) {
+                strengthBar.classList.add('strength-weak');
+            } else if (strength <= 3) {
+                strengthBar.classList.add('strength-medium');
+            } else {
+                strengthBar.classList.add('strength-strong');
+            }
+
+            // Vérifier la correspondance
+            checkPasswordMatch();
+        }
+
+        function checkPasswordMatch() {
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const reqMatch = document.getElementById('req-match');
+
+            if (confirmPassword && newPassword === confirmPassword) {
+                reqMatch.classList.add('requirement-met');
+            } else {
+                reqMatch.classList.remove('requirement-met');
+            }
+        }
+
+        async function changePassword() {
+            const currentPassword = document.getElementById('currentPassword').value.trim();
+            const newPassword = document.getElementById('newPassword').value.trim();
+            const confirmPassword = document.getElementById('confirmPassword').value.trim();
+
+            // Validations
+            if (!currentPassword || !newPassword || !confirmPassword) {
+                showToast('Veuillez remplir tous les champs', 'error');
+                return;
+            }
+
+            if (newPassword.length < 6) {
+                showToast('Le nouveau mot de passe doit contenir au moins 6 caractères', 'error');
+                return;
+            }
+
+            if (newPassword !== confirmPassword) {
+                showToast('Les mots de passe ne correspondent pas', 'error');
+                return;
+            }
+
+            if (currentPassword === newPassword) {
+                showToast('Le nouveau mot de passe doit être différent de l\'ancien', 'error');
+                return;
+            }
+
+            closePasswordModal();
+            showLoading('Changement du mot de passe...');
+
+            try {
+                const user = auth.currentUser;
+                
+                if (!user) {
+                    throw new Error('Utilisateur non connecté');
+                }
+
+                console.log('🔐 Changement de mot de passe pour:', user.email);
+
+                // Réauthentifier l'utilisateur avec le mot de passe actuel
+                const credential = firebase.auth.EmailAuthProvider.credential(
+                    user.email,
+                    currentPassword
+                );
+
+                console.log('🔑 Réauthentification...');
+                await user.reauthenticateWithCredential(credential);
+                console.log('✅ Réauthentification réussie');
+
+                // Changer le mot de passe
+                console.log('🔒 Mise à jour du mot de passe...');
+                await user.updatePassword(newPassword);
+                console.log('✅ Mot de passe mis à jour');
+
+                // Mettre à jour Firestore (optionnel - pour traçabilité)
+                await db.collection('drivers').doc(currentUser.uid).update({
+                    derniereModificationMotDePasse: firebase.firestore.FieldValue.serverTimestamp(),
+                    motDePasseParDefaut: false // Indique que le mot de passe a été changé
+                });
+
+                hideLoading();
+                showToast('✅ Mot de passe changé avec succès!', 'success');
+
+                // Afficher un message de confirmation
+                setTimeout(() => {
+                    alert('🔒 Votre mot de passe a été changé.\n\nVeuillez utiliser votre nouveau mot de passe lors de votre prochaine connexion.');
+                }, 500);
+
+            } catch (error) {
+                console.error('❌ Erreur changement mot de passe:', error);
+                hideLoading();
+
+                let errorMsg = 'Erreur lors du changement de mot de passe';
+
+                switch (error.code) {
+                    case 'auth/wrong-password':
+                        errorMsg = '❌ Mot de passe actuel incorrect';
+                        break;
+                    case 'auth/weak-password':
+                        errorMsg = '❌ Le nouveau mot de passe est trop faible';
+                        break;
+                    case 'auth/requires-recent-login':
+                        errorMsg = '⚠️ Veuillez vous reconnecter pour changer le mot de passe';
+                        // Déconnecter l'utilisateur
+                        setTimeout(() => {
+                            handleLogout();
+                        }, 2000);
+                        break;
+                    case 'auth/network-request-failed':
+                        errorMsg = '❌ Erreur réseau. Vérifiez votre connexion';
+                        break;
+                    default:
+                        errorMsg = '❌ ' + (error.message || 'Erreur inconnue');
+                }
+
+                showToast(errorMsg, 'error');
+            }
+        }
+
+        // Ajouter un écouteur pour vérifier la correspondance en temps réel
+        document.addEventListener('DOMContentLoaded', () => {
+            const confirmPasswordInput = document.getElementById('confirmPassword');
+            if (confirmPasswordInput) {
+                confirmPasswordInput.addEventListener('input', checkPasswordMatch);
+            }
+        });
 
         // CHAT
         function toggleChat() {
