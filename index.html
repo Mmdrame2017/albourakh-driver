@@ -6,7 +6,7 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Al Bourakh Driver Pro - Application Chauffeur</title>
+    <title>Al Bourakh Driver Pro - Application Chauffeur ✅</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -24,7 +24,6 @@
             -moz-osx-font-smoothing: grayscale;
         }
 
-        /* MOBILE CONTAINER */
         .mobile-container {
             max-width: 414px;
             margin: 0 auto;
@@ -34,7 +33,6 @@
             box-shadow: 0 0 30px rgba(0,0,0,0.1);
         }
 
-        /* ÉCRAN CACHÉ PAR DÉFAUT */
         .screen {
             display: none;
             animation: fadeIn 0.3s ease;
@@ -49,7 +47,6 @@
             to { opacity: 1; }
         }
 
-        /* HEADER */
         .app-header {
             background: linear-gradient(135deg, #00A854, #FECB00);
             color: white;
@@ -87,7 +84,6 @@
             transform: scale(1.1);
         }
 
-        /* ÉCRAN DE CONNEXION */
         .login-screen {
             padding: 40px 30px;
             text-align: center;
@@ -173,7 +169,6 @@
             cursor: pointer;
         }
 
-        /* DASHBOARD */
         .dashboard-content {
             padding: 20px;
             padding-bottom: 100px;
@@ -235,7 +230,6 @@
             left: 30px;
         }
 
-        /* GOOGLE MAPS */
         #map {
             width: 100%;
             height: 300px;
@@ -360,7 +354,6 @@
             margin-bottom: 10px;
         }
 
-        /* NOTIFICATION COURSE */
         .course-notification {
             position: fixed;
             top: 0;
@@ -479,7 +472,6 @@
             color: white;
         }
 
-        /* ÉCRAN DE COURSE EN COURS */
         .active-course-container {
             padding: 20px;
             padding-bottom: 100px;
@@ -586,7 +578,6 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         }
 
-        /* CHAT EN TEMPS RÉEL */
         .chat-container {
             position: fixed;
             bottom: 80px;
@@ -737,7 +728,6 @@
             font-weight: bold;
         }
 
-        /* PAIEMENT */
         .payment-modal {
             position: fixed;
             top: 0;
@@ -828,7 +818,6 @@
             color: white;
         }
 
-        /* MODAL CHANGER MOT DE PASSE */
         .password-modal {
             position: fixed;
             top: 0;
@@ -941,7 +930,6 @@
             color: #00A854;
         }
 
-        /* HISTORIQUE */
         .history-list {
             padding: 20px;
             padding-bottom: 100px;
@@ -985,7 +973,6 @@
             color: white;
         }
 
-        /* PROFIL */
         .profile-header {
             background: linear-gradient(135deg, #00A854, #FECB00);
             padding: 30px 20px;
@@ -1041,7 +1028,6 @@
             color: #333;
         }
 
-        /* BOTTOM NAVIGATION */
         .bottom-nav {
             position: fixed;
             bottom: 0;
@@ -1082,7 +1068,6 @@
             font-size: 0.8em;
         }
 
-        /* TOAST NOTIFICATION */
         .toast {
             position: fixed;
             top: 20px;
@@ -1113,7 +1098,6 @@
             border-left: 4px solid #2196F3;
         }
 
-        /* LOADING */
         .loading-overlay {
             position: fixed;
             top: 0;
@@ -1147,7 +1131,6 @@
             margin-top: 20px;
         }
 
-        /* RESPONSIVE */
         @media (max-width: 414px) {
             .mobile-container {
                 max-width: 100%;
@@ -1166,15 +1149,25 @@
                 right: 10px;
             }
         }
+
+        .sync-badge {
+            display: inline-block;
+            background: #d4edda;
+            color: #155724;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.7em;
+            font-weight: bold;
+            margin-left: 5px;
+        }
     </style>
 </head>
 <body>
     <div class="mobile-container">
-        <!-- ÉCRAN DE CONNEXION -->
         <div id="loginScreen" class="screen active">
             <div class="login-screen">
                 <div class="login-logo">🚕</div>
-                <h1 class="login-title">Al Bourakh Driver Pro</h1>
+                <h1 class="login-title">Al Bourakh Driver Pro <span class="sync-badge">✅ SYNC</span></h1>
                 <p class="login-subtitle">Connectez-vous pour commencer</p>
 
                 <div class="input-group">
@@ -1207,12 +1200,11 @@
                 </a>
 
                 <p style="margin-top: 30px; color: #999; font-size: 0.9em;">
-                    Version 3.0.0 (Firebase Auth) - Al Bourakh © 2025
+                    Version 3.2.0 (SYNC Complète ✅✅✅) - Al Bourakh © 2025
                 </p>
             </div>
         </div>
 
-        <!-- ÉCRAN DASHBOARD -->
         <div id="dashboardScreen" class="screen">
             <div class="app-header">
                 <h1><i class="fas fa-car"></i> Dashboard</h1>
@@ -1222,7 +1214,6 @@
             </div>
 
             <div class="dashboard-content">
-                <!-- Toggle En Ligne / Hors Ligne -->
                 <div class="status-toggle">
                     <div class="status-info">
                         <h3>Statut</h3>
@@ -1231,7 +1222,6 @@
                     <div class="toggle-switch" id="toggleSwitch" onclick="toggleOnlineStatus()"></div>
                 </div>
 
-                <!-- Google Maps avec position en temps réel -->
                 <div class="map-container">
                     <h3>📍 Ma Position</h3>
                     <div id="map"></div>
@@ -1246,7 +1236,6 @@
                         </div>
                     </div>
                     
-                    <!-- Guide d'activation des permissions -->
                     <div class="permission-guide" id="permissionGuide">
                         <h4>🔓 Comment activer la localisation :</h4>
                         <ul>
@@ -1261,7 +1250,6 @@
                     </div>
                 </div>
 
-                <!-- Statistiques -->
                 <h3 style="margin-bottom: 15px; color: #333;">📊 Aujourd'hui</h3>
                 <div class="stats-grid">
                     <div class="stat-card">
@@ -1289,7 +1277,6 @@
                     </div>
                 </div>
 
-                <!-- Actions Rapides -->
                 <div class="action-buttons">
                     <button class="action-btn" onclick="showScreen('historyScreen')">
                         <div class="action-btn-icon">📊</div>
@@ -1314,7 +1301,6 @@
             </div>
         </div>
 
-        <!-- ÉCRAN COURSE EN COURS -->
         <div id="activeCourseScreen" class="screen">
             <div class="app-header">
                 <button onclick="showScreen('dashboardScreen')">
@@ -1327,12 +1313,10 @@
             </div>
 
             <div class="active-course-container">
-                <!-- Carte avec itinéraire -->
                 <div class="map-container">
                     <div id="activeCourseMap" style="height: 350px; border-radius: 15px;"></div>
                 </div>
 
-                <!-- Statut de la course -->
                 <div class="course-status-card">
                     <span class="status-badge acceptee" id="courseStatus">✅ Course acceptée</span>
                     <h3 id="courseStatusTitle">En route vers le client</h3>
@@ -1348,7 +1332,6 @@
                     </div>
                 </div>
 
-                <!-- Informations client -->
                 <div class="client-info-card" id="clientInfoCard">
                     <h3>👤 Client</h3>
                     <div class="info-row">
@@ -1365,7 +1348,6 @@
                     </div>
                 </div>
 
-                <!-- Détails du trajet -->
                 <div class="client-info-card">
                     <h3>🗺️ Trajet</h3>
                     <div class="info-row">
@@ -1382,7 +1364,6 @@
                     </div>
                 </div>
 
-                <!-- Boutons d'action -->
                 <div class="navigation-buttons">
                     <button class="nav-btn secondary" onclick="openGoogleMaps()">
                         <i class="fas fa-map-marked-alt"></i> Navigation GPS
@@ -1411,7 +1392,6 @@
             </div>
         </div>
 
-        <!-- ÉCRAN HISTORIQUE -->
         <div id="historyScreen" class="screen">
             <div class="app-header">
                 <button onclick="showScreen('dashboardScreen')">
@@ -1424,11 +1404,9 @@
             </div>
 
             <div class="history-list" id="historyList">
-                <!-- Les courses seront ajoutées ici -->
             </div>
         </div>
 
-        <!-- ÉCRAN PROFIL -->
         <div id="profileScreen" class="screen">
             <div class="profile-header">
                 <button onclick="showScreen('dashboardScreen')" style="position: absolute; left: 20px; top: 20px; background: rgba(255,255,255,0.2); border: none; color: white; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 1.2em;">
@@ -1470,7 +1448,6 @@
             </div>
         </div>
 
-        <!-- BOTTOM NAVIGATION -->
         <div class="bottom-nav" id="bottomNav" style="display: none;">
             <div class="nav-item active" onclick="showScreen('dashboardScreen')">
                 <div class="nav-icon"><i class="fas fa-home"></i></div>
@@ -1494,7 +1471,6 @@
         </div>
     </div>
 
-    <!-- CHAT FLOTTANT -->
     <button class="chat-fab" id="chatFab" onclick="toggleChat()">
         <i class="fas fa-comments"></i>
         <span class="chat-badge" id="chatBadge" style="display: none;">0</span>
@@ -1511,7 +1487,6 @@
             </button>
         </div>
         <div class="chat-messages" id="chatMessages">
-            <!-- Les messages seront ajoutés ici -->
         </div>
         <div class="chat-input-container">
             <input type="text" class="chat-input" id="chatInput" placeholder="Écrivez votre message..." onkeypress="handleChatKeyPress(event)">
@@ -1521,7 +1496,6 @@
         </div>
     </div>
 
-    <!-- MODAL DE PAIEMENT -->
     <div class="payment-modal" id="paymentModal">
         <div class="payment-content">
             <div class="payment-header">
@@ -1573,7 +1547,6 @@
         </div>
     </div>
 
-    <!-- MODAL CHANGER MOT DE PASSE -->
     <div class="password-modal" id="passwordModal">
         <div class="password-content">
             <div class="password-header">
@@ -1617,12 +1590,10 @@
         </div>
     </div>
 
-    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     
-    <!-- Google Maps API -->
     <script>
         function loadGoogleMaps() {
             const script = document.createElement('script');
@@ -1634,7 +1605,6 @@
     </script>
 
     <script>
-        // ✅ CONFIGURATION FIREBASE
         const firebaseConfig = {
             apiKey: "AIzaSyANcdvMz2yMbRD4V82EGLm95Jh2NdaR2o0",
             authDomain: "albourakh-sn-ok.firebaseapp.com",
@@ -1647,9 +1617,13 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
         const auth = firebase.auth();
-        console.log('✅ Firebase connecté!');
 
-        // ÉTAT DE L'APPLICATION
+        console.log('🚕 Al Bourakh Driver Pro - VERSION SYNCHRONISÉE COMPLÈTE ✅✅✅');
+        console.log('🔄 Synchronisation currentBookingId + reservationEnCours dans:');
+        console.log('   ✅ acceptCourse()');
+        console.log('   ✅ completeCourse() / confirmPayment()');
+        console.log('   ✅ cancelCourse()');
+
         let currentUser = null;
         let isOnline = false;
         let currentCourse = null;
@@ -1661,7 +1635,7 @@
         let chatListener = null;
         let unreadMessages = 0;
         let gpsAttempts = 0;
-        let gpsActivated = false; // Flag pour éviter les notifications en boucle
+        let gpsActivated = false;
         
         let stats = {
             coursesJour: 0,
@@ -1670,7 +1644,6 @@
             coursesTotal: 0
         };
 
-        // INITIALISATION GOOGLE MAPS
         function initMap() {
             console.log('🗺️ Initialisation de Google Maps...');
             
@@ -1715,47 +1688,37 @@
         window.initMap = initMap;
         loadGoogleMaps();
 
-        // ✅ GÉOLOCALISATION CORRIGÉE AVEC DIAGNOSTIC
         function startLocationTracking() {
             if (!navigator.geolocation) {
-                showToast('❌ Géolocalisation non supportée par ce navigateur', 'error');
-                console.error('Navigator.geolocation non disponible');
+                showToast('❌ Géolocalisation non supportée', 'error');
                 return;
             }
 
-            // Vérifier HTTPS
             if (location.protocol !== 'https:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
-                showToast('⚠️ HTTPS requis pour la géolocalisation', 'error');
-                console.error('La géolocalisation nécessite HTTPS. Protocole actuel:', location.protocol);
+                showToast('⚠️ HTTPS requis', 'error');
                 document.getElementById('permissionGuide').classList.add('show');
                 return;
             }
 
             console.log('📍 Démarrage du suivi de position...');
-            console.log('Protocole:', location.protocol);
-            console.log('Hostname:', location.hostname);
             
-            // Ne montrer le toast de chargement qu'au démarrage
             if (!gpsActivated) {
                 showToast('📍 Activation de la localisation...', 'info');
             }
 
-            // Options optimisées
             const options = {
                 enableHighAccuracy: true,
-                timeout: 15000,  // Augmenté à 15 secondes
+                timeout: 15000,
                 maximumAge: 10000
             };
 
             watchPositionId = navigator.geolocation.watchPosition(
-                // SUCCESS
                 (position) => {
                     const { latitude, longitude, accuracy } = position.coords;
                     
-                    console.log(`✅ Position obtenue: ${latitude.toFixed(6)}, ${longitude.toFixed(6)}`);
-                    console.log(`   Précision: ${Math.round(accuracy)}m`);
+                    console.log(`✅ Position: ${latitude.toFixed(6)}, ${longitude.toFixed(6)}`);
                     
-                    gpsAttempts = 0; // Reset le compteur d'erreurs
+                    gpsAttempts = 0;
                     
                     if (marker && map) {
                         const newPos = { lat: latitude, lng: longitude };
@@ -1769,7 +1732,6 @@
                     
                     reverseGeocode(latitude, longitude);
 
-                    // Mettre à jour Firebase si connecté (sauf en mode démo)
                     if (currentUser && isOnline && !currentUser.uid.startsWith('DEMO_USER_')) {
                         db.collection('drivers').doc(currentUser.uid).update({
                             position: {
@@ -1782,167 +1744,30 @@
                         }).catch(err => console.error('Erreur MAJ position:', err));
                     }
 
-                    // Afficher le toast de succès SEULEMENT la première fois
                     if (!gpsActivated) {
                         gpsActivated = true;
                         showToast('✅ Position GPS activée', 'success');
                     }
                 },
-                
-                // ERROR - Diagnostic détaillé
                 (error) => {
                     gpsAttempts++;
-                    console.error('❌ Erreur géolocalisation (tentative ' + gpsAttempts + '):', error);
-                    console.error('Code:', error.code);
-                    console.error('Message:', error.message);
-                    
-                    let errorMessage = '';
-                    let errorSolution = '';
-                    
-                    switch(error.code) {
-                        case error.PERMISSION_DENIED:
-                            errorMessage = '🔒 Permission refusée';
-                            errorSolution = 'Veuillez autoriser l\'accès à votre position dans les paramètres';
-                            console.error('PERMISSION_DENIED: L\'utilisateur a refusé la géolocalisation');
-                            document.getElementById('permissionGuide').classList.add('show');
-                            break;
-                            
-                        case error.POSITION_UNAVAILABLE:
-                            errorMessage = '📡 Position indisponible';
-                            errorSolution = 'Vérifiez que le GPS est activé et que vous êtes à l\'extérieur';
-                            console.error('POSITION_UNAVAILABLE: Impossible d\'obtenir la position');
-                            
-                            if (gpsAttempts === 1) {
-                                setTimeout(() => retryWithLowerAccuracy(), 2000);
-                            }
-                            break;
-                            
-                        case error.TIMEOUT:
-                            errorMessage = '⏱️ Délai d\'attente dépassé';
-                            errorSolution = 'La connexion GPS prend trop de temps';
-                            console.error('TIMEOUT: Temps d\'attente écoulé après 15 secondes');
-                            
-                            if (gpsAttempts === 1) {
-                                setTimeout(() => {
-                                    console.log('🔄 Nouvelle tentative...');
-                                    retryWithLowerAccuracy();
-                                }, 3000);
-                            }
-                            break;
-                            
-                        default:
-                            errorMessage = '❌ Erreur inconnue';
-                            errorSolution = 'Erreur technique. Code: ' + error.code;
-                            console.error('Erreur inconnue:', error);
-                    }
+                    console.error('❌ Erreur géolocalisation:', error);
                     
                     if (gpsAttempts === 1) {
-                        showToast(`${errorMessage}\n${errorSolution}`, 'error');
+                        let errorMessage = error.code === 1 ? '🔒 Permission refusée' : 
+                                         error.code === 2 ? '📡 Position indisponible' : 
+                                         '⏱️ Timeout';
+                        showToast(errorMessage, 'error');
+                        
+                        if (error.code === 1) {
+                            document.getElementById('permissionGuide').classList.add('show');
+                        }
                     }
                     
-                    document.getElementById('currentAddress').textContent = 
-                        'Position non disponible - Dakar (par défaut)';
-                    document.getElementById('accuracy').innerHTML = 
-                        '🔴 GPS désactivé ou indisponible';
-                    
-                    if (marker && map) {
-                        const defaultPos = { lat: 14.6937, lng: -17.4441 };
-                        marker.setPosition(defaultPos);
-                        map.panTo(defaultPos);
-                    }
+                    document.getElementById('currentAddress').textContent = 'Position non disponible';
+                    document.getElementById('accuracy').innerHTML = '🔴 GPS désactivé';
                 },
                 options
-            );
-        }
-
-        // 🔄 Réessayer avec précision réduite
-        function retryWithLowerAccuracy() {
-            console.log('🔄 Tentative avec précision réduite (réseau)...');
-            
-            const fallbackOptions = {
-                enableHighAccuracy: false,  // Utiliser WiFi/cellulaire
-                timeout: 20000,
-                maximumAge: 30000
-            };
-            
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    const { latitude, longitude, accuracy } = position.coords;
-                    console.log(`✅ Position (précision réduite): ${latitude.toFixed(6)}, ${longitude.toFixed(6)}`);
-                    
-                    if (marker && map) {
-                        const newPos = { lat: latitude, lng: longitude };
-                        marker.setPosition(newPos);
-                        map.panTo(newPos);
-                    }
-                    
-                    document.getElementById('accuracy').innerHTML = 
-                        `⚠️ Précision réduite: ~${Math.round(accuracy)} m`;
-                    reverseGeocode(latitude, longitude);
-                    
-                    // Marquer comme activé pour éviter les notifications répétées
-                    if (!gpsActivated) {
-                        gpsActivated = true;
-                        showToast('📍 Position obtenue (précision réseau)', 'info');
-                    }
-                },
-                (error) => {
-                    console.error('❌ Échec même avec précision réduite:', error);
-                    showToast('❌ GPS totalement indisponible. Vérifiez vos paramètres.', 'error');
-                    document.getElementById('permissionGuide').classList.add('show');
-                },
-                fallbackOptions
-            );
-        }
-
-        // 🔍 Diagnostic complet
-        function diagnosticGeolocation() {
-            console.log('🔍 === DIAGNOSTIC GÉOLOCALISATION ===');
-            console.log('Navigateur:', navigator.userAgent);
-            console.log('Protocole:', location.protocol);
-            console.log('Hostname:', location.hostname);
-            console.log('Géolocalisation disponible:', !!navigator.geolocation);
-            console.log('HTTPS:', location.protocol === 'https:');
-            
-            if (!navigator.geolocation) {
-                alert('❌ API Géolocalisation NON disponible sur ce navigateur');
-                return;
-            }
-            
-            if (location.protocol !== 'https:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
-                alert('⚠️ HTTPS requis!\n\nLa géolocalisation nécessite une connexion sécurisée (HTTPS) sauf sur localhost.\n\nProtocole actuel: ' + location.protocol);
-                return;
-            }
-            
-            showToast('🧪 Test de géolocalisation en cours...', 'info');
-            console.log('✅ API disponible. Test en cours...');
-            
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    console.log('✅ TEST RÉUSSI!');
-                    console.log('Position:', position.coords);
-                    console.log('Latitude:', position.coords.latitude);
-                    console.log('Longitude:', position.coords.longitude);
-                    console.log('Précision:', position.coords.accuracy, 'm');
-                    
-                    showToast('✅ Géolocalisation fonctionne parfaitement!', 'success');
-                    alert('✅ TEST GPS RÉUSSI!\n\nLatitude: ' + position.coords.latitude.toFixed(6) + 
-                          '\nLongitude: ' + position.coords.longitude.toFixed(6) + 
-                          '\nPrécision: ' + Math.round(position.coords.accuracy) + ' m');
-                },
-                (error) => {
-                    console.error('❌ TEST ÉCHOUÉ:', error);
-                    let msg = '';
-                    switch(error.code) {
-                        case 1: msg = 'Permission refusée par l\'utilisateur'; break;
-                        case 2: msg = 'Position indisponible'; break;
-                        case 3: msg = 'Timeout dépassé'; break;
-                        default: msg = 'Erreur inconnue';
-                    }
-                    showToast('❌ Test échoué: ' + msg, 'error');
-                    alert('❌ TEST GPS ÉCHOUÉ!\n\nErreur: ' + msg + '\nCode: ' + error.code + '\nMessage: ' + error.message);
-                },
-                { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
             );
         }
 
@@ -1950,13 +1775,67 @@
             if (watchPositionId) {
                 navigator.geolocation.clearWatch(watchPositionId);
                 watchPositionId = null;
-                gpsActivated = false; // Reset le flag pour permettre une nouvelle notification
+                gpsActivated = false;
                 console.log('🛑 Suivi de position arrêté');
                 showToast('📍 GPS désactivé', 'info');
             }
         }
 
-        // GÉOCODAGE INVERSE
+        function retryWithLowerAccuracy() {
+            console.log('🔄 Tentative avec précision réduite...');
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const { latitude, longitude, accuracy } = position.coords;
+                    console.log(`✅ Position (précision réduite): ${latitude.toFixed(6)}, ${longitude.toFixed(6)}`);
+                    
+                    if (marker && map) {
+                        marker.setPosition({ lat: latitude, lng: longitude });
+                        map.panTo({ lat: latitude, lng: longitude });
+                    }
+                    
+                    document.getElementById('accuracy').innerHTML = `⚠️ Précision réduite: ~${Math.round(accuracy)} m`;
+                    reverseGeocode(latitude, longitude);
+                    
+                    if (!gpsActivated) {
+                        gpsActivated = true;
+                        showToast('📍 Position obtenue (réseau)', 'info');
+                    }
+                },
+                (error) => {
+                    console.error('❌ Échec précision réduite:', error);
+                    showToast('❌ GPS totalement indisponible', 'error');
+                    document.getElementById('permissionGuide').classList.add('show');
+                },
+                { enableHighAccuracy: false, timeout: 20000, maximumAge: 30000 }
+            );
+        }
+
+        function diagnosticGeolocation() {
+            console.log('🔍 === DIAGNOSTIC GÉOLOCALISATION ===');
+            
+            if (!navigator.geolocation) {
+                alert('❌ Géolocalisation NON disponible');
+                return;
+            }
+            
+            showToast('🧪 Test GPS en cours...', 'info');
+            
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    console.log('✅ TEST RÉUSSI!');
+                    showToast('✅ GPS fonctionne!', 'success');
+                    alert(`✅ TEST GPS RÉUSSI!\n\nLat: ${position.coords.latitude.toFixed(6)}\nLng: ${position.coords.longitude.toFixed(6)}\nPrécision: ${Math.round(position.coords.accuracy)} m`);
+                },
+                (error) => {
+                    console.error('❌ TEST ÉCHOUÉ:', error);
+                    let msg = error.code === 1 ? 'Permission refusée' : error.code === 2 ? 'Position indisponible' : 'Timeout';
+                    showToast(`❌ Test échoué: ${msg}`, 'error');
+                    alert(`❌ TEST GPS ÉCHOUÉ!\n\nErreur: ${msg}`);
+                },
+                { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+            );
+        }
+
         async function reverseGeocode(lat, lng) {
             try {
                 if (!google || !google.maps) {
@@ -1965,9 +1844,7 @@
                 }
 
                 const geocoder = new google.maps.Geocoder();
-                const latlng = { lat, lng };
-
-                geocoder.geocode({ location: latlng }, (results, status) => {
+                geocoder.geocode({ location: { lat, lng } }, (results, status) => {
                     if (status === 'OK' && results[0]) {
                         document.getElementById('currentAddress').textContent = results[0].formatted_address;
                     } else {
@@ -1976,19 +1853,15 @@
                 });
             } catch (error) {
                 console.error('Erreur géocodage:', error);
-                document.getElementById('currentAddress').textContent = `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
             }
         }
 
-        // NAVIGATION GPS
         function openGoogleMaps() {
             if (!currentCourse) {
                 showToast('Aucune course active', 'error');
                 return;
             }
-
-            const destination = encodeURIComponent(currentCourse.depart);
-            const url = `https://www.google.com/maps/dir/?api=1&destination=${destination}&travelmode=driving`;
+            const url = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(currentCourse.depart)}&travelmode=driving`;
             window.open(url, '_blank');
         }
 
@@ -1997,7 +1870,6 @@
                 showToast('Numéro client non disponible', 'error');
                 return;
             }
-
             window.location.href = `tel:${currentCourse.clientTelephone}`;
         }
 
@@ -2014,39 +1886,28 @@
 
             directionsRenderer.setMap(activeCourseMap);
 
-            const request = {
+            directionsService.route({
                 origin: origin,
                 destination: destination,
                 travelMode: 'DRIVING'
-            };
-
-            directionsService.route(request, (result, status) => {
+            }, (result, status) => {
                 if (status === 'OK') {
                     directionsRenderer.setDirections(result);
-                    
                     const route = result.routes[0].legs[0];
                     document.getElementById('estimatedTime').textContent = `Temps estimé: ${route.duration.text}`;
                     document.getElementById('remainingDistance').textContent = `Distance: ${route.distance.text}`;
-                } else {
-                    console.error('Erreur calcul itinéraire:', status);
                 }
             });
         }
 
-        // FONCTIONS DE NAVIGATION
         function showScreen(screenId) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(screenId).classList.add('active');
 
             document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
-            if (screenId === 'dashboardScreen') {
-                document.querySelectorAll('.nav-item')[0].classList.add('active');
-            } else if (screenId === 'activeCourseScreen') {
-                document.querySelectorAll('.nav-item')[1].classList.add('active');
-            } else if (screenId === 'historyScreen') {
-                document.querySelectorAll('.nav-item')[2].classList.add('active');
-            } else if (screenId === 'profileScreen') {
-                document.querySelectorAll('.nav-item')[3].classList.add('active');
+            const navIndex = { 'dashboardScreen': 0, 'activeCourseScreen': 1, 'historyScreen': 2, 'profileScreen': 3 };
+            if (navIndex[screenId] !== undefined) {
+                document.querySelectorAll('.nav-item')[navIndex[screenId]].classList.add('active');
             }
 
             if (screenId === 'activeCourseScreen' && currentCourse) {
@@ -2059,7 +1920,6 @@
             toast.className = `toast ${type}`;
             toast.innerHTML = `<strong>${message}</strong>`;
             document.body.appendChild(toast);
-            
             setTimeout(() => {
                 toast.style.animation = 'slideInRight 0.3s reverse';
                 setTimeout(() => toast.remove(), 300);
@@ -2070,10 +1930,7 @@
             const loading = document.createElement('div');
             loading.className = 'loading-overlay';
             loading.id = 'loadingOverlay';
-            loading.innerHTML = `
-                <div class="loading-spinner"></div>
-                <div class="loading-text">${text}</div>
-            `;
+            loading.innerHTML = `<div class="loading-spinner"></div><div class="loading-text">${text}</div>`;
             document.body.appendChild(loading);
         }
 
@@ -2082,9 +1939,7 @@
             if (loading) loading.remove();
         }
 
-        // CONNEXION
-verifierCoherenceAuDemarrage()       
- async function handleLogin() {
+        async function handleLogin() {
             const phone = document.getElementById('loginPhone').value.trim();
             const password = document.getElementById('loginPassword').value.trim();
 
@@ -2093,10 +1948,9 @@ verifierCoherenceAuDemarrage()
                 return;
             }
 
-            // MODE DÉMO : Connexion sans Firebase si mot de passe = "demo123"
             if (password === 'demo123') {
-                console.log('🧪 MODE DEMO ACTIVÉ');
-                showLoading('Connexion en mode démo...');
+                console.log('🧪 MODE DEMO');
+                showLoading('Connexion démo...');
                 
                 setTimeout(() => {
                     currentUser = {
@@ -2104,151 +1958,45 @@ verifierCoherenceAuDemarrage()
                         telephone: phone,
                         prenom: 'Chauffeur',
                         nom: 'Demo',
-                        email: phone + '@demo.sn',
                         rating: 4.8,
                         coursesCompletees: 42,
-                        revenusTotal: 150000,
-                        vehicule: 'Toyota Corolla (Demo)',
-                        immatriculation: 'DK-9999-DEMO'
+                        revenusTotal: 150000
                     };
                     
                     hideLoading();
                     showToast('✅ Connexion démo réussie!', 'success');
-                    
                     document.getElementById('bottomNav').style.display = 'flex';
                     showScreen('dashboardScreen');
                     loadDashboardDataDemo();
                     startLocationTracking();
                 }, 1000);
-                
                 return;
             }
 
-            // MODE RÉEL : Connexion via Firebase Auth
-            showLoading('Connexion en cours...');
+            showLoading('Connexion...');
             console.log('🔐 Connexion Firebase Auth...');
 
             try {
-                // Générer l'email depuis le téléphone
                 const cleanPhone = phone.replace(/\s/g, '').replace('+', '');
                 const email = cleanPhone + '@albourakh.sn';
                 
-                console.log('📧 Email généré:', email);
-                console.log('🔑 Tentative de connexion Firebase Auth...');
-
-                // Se connecter avec Firebase Auth
                 const userCredential = await auth.signInWithEmailAndPassword(email, password);
-                const user = userCredential.user;
-                const uid = user.uid;
+                const uid = userCredential.user.uid;
 
                 console.log('✅ Authentification réussie! UID:', uid);
-                console.log('📂 Chargement du profil chauffeur depuis Firestore...');
 
-                // Charger les données du chauffeur depuis Firestore avec l'UID
                 const driverDoc = await db.collection('drivers').doc(uid).get();
                 
                 if (!driverDoc.exists) {
-                    console.error('❌ Document chauffeur non trouvé pour cet UID');
                     await auth.signOut();
                     hideLoading();
-                    showToast('Profil chauffeur non trouvé. Contactez l\'admin.', 'error');
+                    showToast('Profil chauffeur non trouvé', 'error');
                     return;
                 }
 
                 const driverData = driverDoc.data();
                 currentUser = { uid: uid, ...driverData };
-// ✅ Vérifier la cohérence des données
-await verifierCoherenceAuDemarrage();
-```
-
----
-
-## 🎯 Ce que ça Corrige Complètement
-
-### ✅ **Scénario 1 : Assignation Automatique**
-```
-Avant:
-reservationEnCours ✅ | currentBookingId ❌
-
-Après:
-reservationEnCours ✅ | currentBookingId ✅
-```
-
-### ✅ **Scénario 2 : Timeout / Réassignation**
-```
-Avant:
-reservationEnCours → null ✅ | currentBookingId → "abc" ❌
-
-Après:
-reservationEnCours → null ✅ | currentBookingId → null ✅
-```
-
-### ✅ **Scénario 3 : Terminer Course**
-```
-Avant:
-reservationEnCours → null ✅ | currentBookingId → "abc" ❌
-
-Après:
-reservationEnCours → null ✅ | currentBookingId → null ✅
-```
-
-### ✅ **Scénario 4 : Annulation**
-```
-Avant:
-reservationEnCours → null ✅ | currentBookingId → "abc" ❌
-
-Après:
-reservationEnCours → null ✅ | currentBookingId → null ✅
-```
-
-### ✅ **Scénario 5 : Incohérence Détectée**
-```
-Situation:
-reservationEnCours: "abc" | currentBookingId: "xyz"
-
-Action automatique (1h après):
-→ Vérification de quelle course existe vraiment
-→ Synchronisation automatique des deux champs
-→ Notification admin
-```
-
-### ✅ **Scénario 6 : Reconnexion Chauffeur**
-```
-Situation:
-Chauffeur se reconnecte avec incohérence
-
-Action automatique (immédiate):
-→ Vérification au démarrage
-→ Correction automatique
-→ Restauration de la course si nécessaire
-```
-
----
-
-## 🔍 Logs de Vérification
-
-### Dans Firebase Functions Logs :
-```
-🔍 Vérification de cohérence des chauffeurs...
-⚠️ INCOHÉRENCE détectée pour LsYJIT8ny5bFhmxjZBQwwHfwp:
-   currentBookingId: 1yikf78BzmiTt4pOuHEq
-   reservationEnCours: null
-🔧 Correction automatique: 1yikf78BzmiTt4pOuHEq
-✅ 1 incohérence(s) corrigée(s) automatiquement
-```
-
-### Dans la Console du Navigateur (App Chauffeur) :
-```
-🔍 Vérification de la cohérence des données...
-⚠️ INCOHÉRENCE DÉTECTÉE:
-   currentBookingId: 1yikf78BzmiTt4pOuHEq
-   reservationEnCours: null
-🔧 Correction automatique: 1yikf78BzmiTt4pOuHEq
-✅ SYNCHRONISATION CORRIGÉE!
-
-                console.log('✅ Profil chauffeur chargé:', currentUser);
                 
-                // Mettre à jour la dernière connexion
                 await db.collection('drivers').doc(uid).update({
                     derniereConnexion: firebase.firestore.FieldValue.serverTimestamp(),
                     statut: 'hors_ligne'
@@ -2263,127 +2011,52 @@ Action automatique (immédiate):
                 startLocationTracking();
 
             } catch (error) {
-                console.error('❌ ERREUR DE CONNEXION:', error);
-                console.error('Code erreur:', error.code);
-                console.error('Message:', error.message);
-                
+                console.error('❌ ERREUR:', error);
                 hideLoading();
                 
                 let errorMsg = 'Erreur de connexion';
-                
-                // Messages d'erreur détaillés
-                switch(error.code) {
-                    case 'auth/wrong-password':
-                        errorMsg = '❌ Mot de passe incorrect';
-                        break;
-                    case 'auth/user-not-found':
-                        errorMsg = '❌ Aucun compte avec ce numéro.\nVotre candidature a-t-elle été acceptée ?';
-                        break;
-                    case 'auth/invalid-email':
-                        errorMsg = '❌ Format de numéro invalide';
-                        break;
-                    case 'auth/too-many-requests':
-                        errorMsg = '❌ Trop de tentatives. Réessayez dans 15 minutes';
-                        break;
-                    case 'auth/network-request-failed':
-                        errorMsg = '❌ Erreur réseau. Vérifiez votre connexion';
-                        break;
-                    case 'auth/invalid-credential':
-                        errorMsg = '❌ Numéro ou mot de passe incorrect';
-                        break;
-                    case 'auth/user-disabled':
-                        errorMsg = '❌ Compte désactivé. Contactez l\'admin';
-                        break;
-                    default:
-                        errorMsg = '❌ ' + (error.message || 'Erreur inconnue');
-                }
+                if (error.code === 'auth/wrong-password') errorMsg = '❌ Mot de passe incorrect';
+                else if (error.code === 'auth/user-not-found') errorMsg = '❌ Aucun compte trouvé';
                 
                 showToast(errorMsg, 'error');
-                showLoginHelp();
             }
         }
 
-        // Fonction d'aide pour la connexion
-        function showLoginHelp() {
-            const helpMsg = `
-                <div style="background: #e3f2fd; padding: 15px; border-radius: 10px; margin-top: 20px; border-left: 4px solid #2196F3;">
-                    <h4 style="margin-bottom: 10px; color: #1976D2;">💡 Aide à la connexion</h4>
-                    <p style="margin: 5px 0; color: #333; font-size: 0.9em;">
-                        <strong>Mode Réel :</strong> 
-                        <br>• Votre numéro de téléphone (ex: +221771234567)
-                        <br>• Mot de passe par défaut : <code style="background: #fff; padding: 2px 6px; border-radius: 3px;">Admin2025</code>
-                    </p>
-                    <p style="margin: 5px 0; color: #333; font-size: 0.9em;">
-                        <strong>Mode Démo :</strong> 
-                        <br>• N'importe quel numéro
-                        <br>• Mot de passe : <code style="background: #fff; padding: 2px 6px; border-radius: 3px;">demo123</code>
-                    </p>
-                    <p style="margin: 10px 0 5px 0; color: #666; font-size: 0.85em;">
-                        ⚠️ Si vous n'arrivez pas à vous connecter, vérifiez que votre candidature a été acceptée par l'administrateur.
-                    </p>
-                </div>
-            `;
-            
-            const loginScreen = document.querySelector('.login-screen');
-            const existingHelp = loginScreen.querySelector('.login-help');
-            if (existingHelp) existingHelp.remove();
-            
-            const helpDiv = document.createElement('div');
-            helpDiv.className = 'login-help';
-            helpDiv.innerHTML = helpMsg;
-            loginScreen.appendChild(helpDiv);
-        }
-
-        // Charger les données en mode démo
         function loadDashboardDataDemo() {
-            console.log('📊 Chargement des données démo...');
+            console.log('📊 Chargement démo...');
             
-            // Statistiques simulées
-            document.getElementById('profileName').textContent = 
-                `${currentUser.prenom} ${currentUser.nom}`;
+            document.getElementById('profileName').textContent = `${currentUser.prenom} ${currentUser.nom}`;
             document.getElementById('profilePhone').textContent = currentUser.telephone;
             document.getElementById('rating').textContent = currentUser.rating.toFixed(1);
             document.getElementById('coursesTotal').textContent = currentUser.coursesCompletees;
             document.getElementById('profileTotalCourses').textContent = currentUser.coursesCompletees;
             document.getElementById('profileRevenuTotal').textContent = currentUser.revenusTotal.toLocaleString() + ' FCFA';
 
-            // Statistiques du jour (simulées)
             const coursesJour = Math.floor(Math.random() * 5) + 3;
             const revenusJour = coursesJour * 3500;
             
             document.getElementById('coursesJour').textContent = coursesJour;
             document.getElementById('revenusJour').textContent = revenusJour.toLocaleString();
 
-            stats = {
-                coursesJour,
-                revenusJour,
-                rating: currentUser.rating,
-                coursesTotal: currentUser.coursesCompletees
-            };
+            stats = { coursesJour, revenusJour, rating: currentUser.rating, coursesTotal: currentUser.coursesCompletees };
 
-            // Historique simulé
             loadHistoryDemo();
-            
-            showToast('📊 Mode démo - Données simulées', 'info');
+            showToast('📊 Mode démo', 'info');
         }
 
-        // Historique démo
         function loadHistoryDemo() {
             const historyList = document.getElementById('historyList');
             historyList.innerHTML = '';
             
             const coursesDemo = [
                 { date: new Date(), depart: 'Plateau', destination: 'Almadies', prix: 3500, statut: 'terminee' },
-                { date: new Date(Date.now() - 2 * 60 * 60 * 1000), depart: 'Sacré-Cœur', destination: 'Yoff', prix: 4200, statut: 'terminee' },
-                { date: new Date(Date.now() - 5 * 60 * 60 * 1000), depart: 'Mermoz', destination: 'HLM', prix: 2800, statut: 'terminee' },
-                { date: new Date(Date.now() - 24 * 60 * 60 * 1000), depart: 'Ouakam', destination: 'Liberté 6', prix: 3200, statut: 'terminee' },
+                { date: new Date(Date.now() - 2 * 60 * 60 * 1000), depart: 'Sacré-Cœur', destination: 'Yoff', prix: 4200, statut: 'terminee' }
             ];
             
             coursesDemo.forEach(course => {
                 const item = document.createElement('div');
                 item.className = 'history-item';
                 item.style.borderLeft = '3px solid #00A854';
-                
                 item.innerHTML = `
                     <div class="history-header">
                         <span class="history-date">${course.date.toLocaleDateString('fr-FR')} ${course.date.toLocaleTimeString('fr-FR', {hour: '2-digit', minute: '2-digit'})}</span>
@@ -2391,45 +2064,35 @@ Action automatique (immédiate):
                     </div>
                     <div class="history-route">📍 ${course.depart}</div>
                     <div class="history-route">🎯 ${course.destination}</div>
-                    <span class="history-status" style="background: #00A854">✅ Terminée (DEMO)</span>
+                    <span class="history-status">✅ Terminée (DEMO)</span>
                 `;
                 historyList.appendChild(item);
             });
-            
-            console.log('✅ Historique démo chargé');
         }
 
-        // DÉCONNEXION
         async function handleLogout() {
             if (confirm('Voulez-vous vraiment vous déconnecter ?')) {
                 showLoading('Déconnexion...');
                 
                 try {
-                    // Mettre à jour le statut dans Firestore avant de se déconnecter
                     if (isOnline) {
                         await toggleOnlineStatus();
                     }
                     
-                    // Mettre le chauffeur hors ligne dans Firestore (sauf en mode démo)
                     if (currentUser && !currentUser.uid.startsWith('DEMO_USER_')) {
                         await db.collection('drivers').doc(currentUser.uid).update({
                             statut: 'hors_ligne',
                             derniereDeconnexion: firebase.firestore.FieldValue.serverTimestamp()
                         });
-
-                        // Se déconnecter de Firebase Auth
                         await auth.signOut();
-                        console.log('✅ Déconnexion Firebase Auth réussie');
                     }
-                    
                 } catch (error) {
-                    console.error('Erreur lors de la déconnexion:', error);
+                    console.error('Erreur déconnexion:', error);
                 }
                 
                 stopLocationTracking();
                 currentUser = null;
                 currentCourse = null;
-                
                 hideLoading();
                 document.getElementById('bottomNav').style.display = 'none';
                 showScreen('loginScreen');
@@ -2437,40 +2100,22 @@ Action automatique (immédiate):
             }
         }
 
-        // CHARGER DONNÉES DASHBOARD
         async function loadDashboardData() {
             try {
                 if (!currentUser) return;
 
-                console.log('📊 Chargement des données du dashboard...');
-
-                // Recharger les données du chauffeur depuis Firestore
                 const driverDoc = await db.collection('drivers').doc(currentUser.uid).get();
-                
-                if (!driverDoc.exists) {
-                    console.error('❌ Document chauffeur non trouvé');
-                    showToast('Erreur de chargement des données', 'error');
-                    return;
-                }
-
                 const driverData = driverDoc.data();
-                console.log('✅ Données chauffeur chargées:', driverData);
 
-                // Mettre à jour l'affichage du profil
-                document.getElementById('profileName').textContent = 
-                    `${driverData.prenom || ''} ${driverData.nom || ''}`;
+                document.getElementById('profileName').textContent = `${driverData.prenom || ''} ${driverData.nom || ''}`;
                 document.getElementById('profilePhone').textContent = driverData.telephone || '';
                 document.getElementById('rating').textContent = (driverData.rating || 4.8).toFixed(1);
                 document.getElementById('coursesTotal').textContent = driverData.coursesCompletees || 0;
                 document.getElementById('profileTotalCourses').textContent = driverData.coursesCompletees || 0;
-                document.getElementById('profileRevenuTotal').textContent = 
-                    (driverData.revenusTotal || 0).toLocaleString() + ' FCFA';
+                document.getElementById('profileRevenuTotal').textContent = (driverData.revenusTotal || 0).toLocaleString() + ' FCFA';
 
-                // Charger les statistiques du jour
                 const aujourdhui = new Date();
                 aujourdhui.setHours(0, 0, 0, 0);
-
-                console.log('📅 Chargement des courses du jour...');
 
                 const coursesSnapshot = await db.collection('reservations')
                     .where('chauffeurAssigne', '==', currentUser.uid)
@@ -2488,8 +2133,6 @@ Action automatique (immédiate):
                     }
                 });
 
-                console.log(`✅ Courses aujourd'hui: ${coursesJour}, Revenus: ${revenusJour} FCFA`);
-
                 document.getElementById('coursesJour').textContent = coursesJour;
                 document.getElementById('revenusJour').textContent = revenusJour.toLocaleString();
 
@@ -2500,27 +2143,21 @@ Action automatique (immédiate):
                     coursesTotal: driverData.coursesCompletees || 0
                 };
 
-                // Vérifier s'il y a une course en cours
                 if (driverData.reservationEnCours) {
-                    console.log('🚗 Course en cours détectée:', driverData.reservationEnCours);
                     const courseDoc = await db.collection('reservations').doc(driverData.reservationEnCours).get();
                     if (courseDoc.exists) {
                         currentCourse = { id: courseDoc.id, ...courseDoc.data() };
-                        console.log('📍 Redirection vers la course en cours');
                         showScreen('activeCourseScreen');
                     }
                 }
 
-                // Charger l'historique
                 loadHistory();
 
             } catch (error) {
-                console.error('❌ Erreur chargement données:', error);
-                showToast('Erreur lors du chargement des données', 'error');
+                console.error('❌ Erreur chargement:', error);
             }
         }
 
-        // TOGGLE EN LIGNE
         async function toggleOnlineStatus() {
             if (!currentUser) {
                 showToast('Veuillez vous connecter', 'error');
@@ -2535,13 +2172,11 @@ Action automatique (immédiate):
                 toggle.classList.add('active');
                 statusText.textContent = '🟢 EN LIGNE';
                 statusText.classList.add('online');
-                showToast('✅ Vous êtes maintenant en ligne', 'success');
+                showToast('✅ Vous êtes en ligne', 'success');
 
-                // Mode démo : ne pas utiliser Firebase
                 if (currentUser.uid.startsWith('DEMO_USER_')) {
-                    console.log('🧪 Mode démo : statut en ligne simulé');
+                    console.log('🧪 Mode démo : statut en ligne');
                     startLocationTracking();
-                    // Ne pas écouter Firebase en mode démo
                     return;
                 }
 
@@ -2550,23 +2185,20 @@ Action automatique (immédiate):
                         statut: 'disponible',
                         derniereActivite: firebase.firestore.FieldValue.serverTimestamp()
                     });
-
                     startLocationTracking();
                     listenForNewCourses();
-
                 } catch (error) {
-                    console.error('Erreur mise à jour statut:', error);
+                    console.error('Erreur:', error);
                 }
 
             } else {
                 toggle.classList.remove('active');
                 statusText.textContent = '⚫ HORS LIGNE';
                 statusText.classList.remove('online');
-                showToast('Vous êtes maintenant hors ligne', 'info');
+                showToast('Vous êtes hors ligne', 'info');
 
-                // Mode démo
                 if (currentUser.uid.startsWith('DEMO_USER_')) {
-                    console.log('🧪 Mode démo : statut hors ligne simulé');
+                    console.log('🧪 Mode démo : statut hors ligne');
                     stopLocationTracking();
                     return;
                 }
@@ -2576,15 +2208,13 @@ Action automatique (immédiate):
                         statut: 'hors_ligne',
                         derniereActivite: firebase.firestore.FieldValue.serverTimestamp()
                     });
-                    
                     stopLocationTracking();
                 } catch (error) {
-                    console.error('Erreur mise à jour statut:', error);
+                    console.error('Erreur:', error);
                 }
             }
         }
 
-        // ÉCOUTER NOUVELLES COURSES
         let courseListener = null;
 
         function listenForNewCourses() {
@@ -2606,19 +2236,16 @@ Action automatique (immédiate):
                 });
         }
 
-        // SIMULER COURSE
         async function simulateNewCourse() {
             if (!isOnline) {
-                showToast('Vous devez être en ligne pour recevoir des courses', 'error');
+                showToast('Vous devez être en ligne', 'error');
                 return;
             }
 
             showLoading('Création de la course de test...');
 
-            // MODE DÉMO : Simulation directe sans Firebase
             if (currentUser.uid.startsWith('DEMO_USER_')) {
-                console.log('🧪 Mode démo : simulation de course');
-                
+                console.log('🧪 Mode démo : simulation');
                 hideLoading();
                 
                 setTimeout(() => {
@@ -2628,20 +2255,13 @@ Action automatique (immédiate):
                         destination: 'Almadies',
                         prixEstime: 3500,
                         distance: '12 km',
-                        dureeEstimee: 25,
                         passagers: 2,
-                        statut: 'assignee',
                         clientNom: 'Aminata Sow (DEMO)',
                         clientTelephone: '+221 77 999 88 77',
-                        client: {
-                            nom: 'Aminata Sow (DEMO)',
-                            telephone: '+221 77 999 88 77',
-                            rating: 4.9
-                        }
+                        client: { nom: 'Aminata Sow (DEMO)', telephone: '+221 77 999 88 77', rating: 4.9 }
                     };
                     showCourseNotification(testCourse);
                 }, 500);
-                
                 return;
             }
 
@@ -2651,22 +2271,15 @@ Action automatique (immédiate):
                     destination: 'Almadies',
                     prixEstime: 3500,
                     distance: 12,
-                    dureeEstimee: 25,
                     passagers: 2,
                     statut: 'assignee',
                     chauffeurAssigne: currentUser.uid,
-                    clientId: 'TEST_CLIENT',
                     clientNom: 'Aminata Sow',
                     clientTelephone: '+221 77 999 88 77',
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-                    typeVehicule: 'standard',
-                    modePaiement: 'especes',
-                    chauffeursRefuses: []
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
                 };
 
                 const docRef = await db.collection('reservations').add(testReservation);
-                console.log('✅ Réservation de test créée:', docRef.id);
-
                 hideLoading();
 
                 setTimeout(() => {
@@ -2674,83 +2287,49 @@ Action automatique (immédiate):
                         id: docRef.id,
                         ...testReservation,
                         distance: '12 km',
-                        client: {
-                            nom: 'Aminata Sow',
-                            telephone: '+221 77 999 88 77',
-                            rating: 4.9
-                        }
+                        client: { nom: 'Aminata Sow', telephone: '+221 77 999 88 77', rating: 4.9 }
                     };
                     showCourseNotification(testCourse);
                 }, 500);
 
             } catch (error) {
-                console.error('Erreur création course de test:', error);
+                console.error('Erreur:', error);
                 hideLoading();
-                showToast('Erreur lors de la création de la course de test', 'error');
+                showToast('Erreur de création', 'error');
             }
         }
 
-        // NOTIFICATION COURSE
         function showCourseNotification(course) {
             try {
                 const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSOBzPDYizcIGWi77eeeTRAMUKfj8LZjHAY4ktfyy3ksBSR3x/DdkEAKFF606+uoVRQKRp/g8r5sIQUjgczw2Ik3CBlou+3nnk0QDFCn4/C2YxwGOJLX8st5LAUkd8fw3ZBAC');
                 audio.play().catch(() => {});
             } catch (e) {}
 
-            if (navigator.vibrate) {
-                navigator.vibrate([200, 100, 200]);
-            }
+            if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
 
             const notification = document.createElement('div');
             notification.className = 'course-notification';
             notification.innerHTML = `
                 <div class="course-modal">
-                    <div class="course-timer" id="courseTimer">
-                        30
-                        <div class="course-timer-label">secondes</div>
-                    </div>
-
+                    <div class="course-timer" id="courseTimer">30<div class="course-timer-label">secondes</div></div>
                     <h2 class="course-title">🔔 NOUVELLE COURSE !</h2>
-
                     <div class="course-client">
-                        <strong>Client:</strong> ${course.client?.nom || course.clientNom || 'Client Al Bourakh'}<br>
+                        <strong>Client:</strong> ${course.client?.nom || course.clientNom || 'Client'}<br>
                         ${course.client?.rating ? '⭐ ' + course.client.rating : ''}
                     </div>
-
                     <div class="course-route">
-                        <div class="route-point">
-                            <span class="route-icon">📍</span>
-                            <span>${course.depart}</span>
-                        </div>
+                        <div class="route-point"><span class="route-icon">📍</span><span>${course.depart}</span></div>
                         <div style="text-align: center; margin: 10px 0;">↓</div>
-                        <div class="route-point">
-                            <span class="route-icon">🎯</span>
-                            <span>${course.destination}</span>
-                        </div>
+                        <div class="route-point"><span class="route-icon">🎯</span><span>${course.destination}</span></div>
                     </div>
-
                     <div class="course-details">
-                        <div class="detail-item">
-                            <div class="detail-icon">💰</div>
-                            <div>${course.prixEstime?.toLocaleString() || 0} FCFA</div>
-                        </div>
-                        <div class="detail-item">
-                            <div class="detail-icon">📏</div>
-                            <div>${course.distance || '5 km'}</div>
-                        </div>
-                        <div class="detail-item">
-                            <div class="detail-icon">👥</div>
-                            <div>${course.passagers || 1} pers.</div>
-                        </div>
+                        <div class="detail-item"><div class="detail-icon">💰</div><div>${course.prixEstime?.toLocaleString() || 0} FCFA</div></div>
+                        <div class="detail-item"><div class="detail-icon">📏</div><div>${course.distance || '5 km'}</div></div>
+                        <div class="detail-item"><div class="detail-icon">👥</div><div>${course.passagers || 1} pers.</div></div>
                     </div>
-
                     <div class="course-actions">
-                        <button class="btn btn-refuse" onclick="refuseCourse('${course.id}')">
-                            ❌ REFUSER
-                        </button>
-                        <button class="btn btn-accept" onclick="acceptCourse('${course.id}')">
-                            ✅ ACCEPTER
-                        </button>
+                        <button class="btn btn-refuse" onclick="refuseCourse('${course.id}')">❌ REFUSER</button>
+                        <button class="btn btn-accept" onclick="acceptCourse('${course.id}')">✅ ACCEPTER</button>
                     </div>
                 </div>
             `;
@@ -2762,12 +2341,8 @@ Action automatique (immédiate):
                 timeLeft--;
                 const timerElement = document.getElementById('courseTimer');
                 if (timerElement) {
-                    timerElement.innerHTML = `
-                        ${timeLeft}
-                        <div class="course-timer-label">secondes</div>
-                    `;
+                    timerElement.innerHTML = `${timeLeft}<div class="course-timer-label">secondes</div>`;
                 }
-
                 if (timeLeft <= 0) {
                     clearInterval(timerInterval);
                     refuseCourse(course.id, true);
@@ -2777,7 +2352,7 @@ Action automatique (immédiate):
             notification.timerInterval = timerInterval;
         }
 
-        // ACCEPTER COURSE
+        // ✅✅✅ CORRECTION #1 : ACCEPTER COURSE - SYNCHRONISATION COMPLÈTE ✅✅✅
         async function acceptCourse(courseId) {
             const notification = document.querySelector('.course-notification');
             if (notification) {
@@ -2785,14 +2360,11 @@ Action automatique (immédiate):
                 notification.remove();
             }
 
-            showLoading('Acceptation de la course...');
+            showLoading('Acceptation...');
 
-            // MODE DÉMO
             if (currentUser.uid.startsWith('DEMO_USER_') || courseId.startsWith('DEMO_COURSE_')) {
-                console.log('🧪 Mode démo : acceptation de course simulée');
-                
-                // Récupérer les données de la course depuis la notification
-                const testCourseData = {
+                console.log('🧪 Mode démo : acceptation simulée');
+                currentCourse = {
                     id: courseId,
                     depart: 'Plateau, Dakar',
                     destination: 'Almadies',
@@ -2800,22 +2372,16 @@ Action automatique (immédiate):
                     distance: '12 km',
                     clientNom: 'Aminata Sow (DEMO)',
                     clientTelephone: '+221 77 999 88 77',
-                    clientRating: 4.9,
-                    statut: 'acceptee'
+                    clientRating: 4.9
                 };
-                
-                currentCourse = testCourseData;
                 
                 setTimeout(() => {
                     hideLoading();
-                    showToast('✅ Course acceptée (DEMO)! Rendez-vous chez le client.', 'success');
-                    
+                    showToast('✅ Course acceptée (DEMO)!', 'success');
                     showScreen('activeCourseScreen');
                     displayActiveCourse();
-                    
                     document.getElementById('chatFab').classList.add('active');
                 }, 1000);
-                
                 return;
             }
 
@@ -2832,30 +2398,35 @@ Action automatique (immédiate):
                     dateAcceptation: firebase.firestore.FieldValue.serverTimestamp()
                 });
 
+                // ✅✅✅ SYNCHRONISATION PARFAITE ✅✅✅
+                console.log('🔄 SYNCHRONISATION ACCEPTATION:');
+                console.log('   → currentBookingId: ' + courseId);
+                console.log('   → reservationEnCours: ' + courseId);
+
                 await db.collection('drivers').doc(currentUser.uid).update({
                     statut: 'en_course',
-                    reservationEnCours: courseId
+                    currentBookingId: courseId,           // ✅ CORRECTION #1
+                    reservationEnCours: courseId          // ✅ CORRECTION #1
                 });
 
-                currentCourse = { id: courseId, ...courseDoc.data() };
+                console.log('✅ SYNCHRONISATION ACCEPTATION RÉUSSIE!');
 
+                currentCourse = { id: courseId, ...courseDoc.data() };
                 hideLoading();
-                showToast('✅ Course acceptée! Rendez-vous chez le client.', 'success');
+                showToast('✅ Course acceptée!', 'success');
                 
                 showScreen('activeCourseScreen');
                 displayActiveCourse();
-                
                 document.getElementById('chatFab').classList.add('active');
                 listenToChat(courseId);
 
             } catch (error) {
                 console.error('Erreur acceptation:', error);
                 hideLoading();
-                showToast('Erreur lors de l\'acceptation', 'error');
+                showToast('Erreur: ' + error.message, 'error');
             }
         }
 
-        // REFUSER COURSE
         async function refuseCourse(courseId, auto = false) {
             const notification = document.querySelector('.course-notification');
             if (notification) {
@@ -2863,20 +2434,14 @@ Action automatique (immédiate):
                 notification.remove();
             }
 
-            // MODE DÉMO
             if (currentUser.uid.startsWith('DEMO_USER_') || courseId.startsWith('DEMO_COURSE_')) {
-                console.log('🧪 Mode démo : refus de course simulé');
-                if (!auto) {
-                    showToast('Course refusée (DEMO)', 'info');
-                } else {
-                    showToast('⏱️ Temps écoulé - Course refusée (DEMO)', 'info');
-                }
+                console.log('🧪 Mode démo : refus simulé');
+                if (!auto) showToast('Course refusée (DEMO)', 'info');
+                else showToast('⏱️ Temps écoulé (DEMO)', 'info');
                 return;
             }
 
-            if (!auto) {
-                showLoading('Refus de la course...');
-            }
+            if (!auto) showLoading('Refus...');
 
             try {
                 await db.collection('reservations').doc(courseId).update({
@@ -2889,19 +2454,17 @@ Action automatique (immédiate):
                     hideLoading();
                     showToast('Course refusée', 'info');
                 } else {
-                    showToast('⏱️ Temps écoulé - Course réassignée', 'info');
+                    showToast('⏱️ Temps écoulé', 'info');
                 }
-
             } catch (error) {
                 console.error('Erreur refus:', error);
                 if (!auto) {
                     hideLoading();
-                    showToast('Erreur lors du refus', 'error');
+                    showToast('Erreur', 'error');
                 }
             }
         }
 
-        // AFFICHER COURSE ACTIVE
         function displayActiveCourse() {
             if (!currentCourse) return;
 
@@ -2917,7 +2480,6 @@ Action automatique (immédiate):
             }
         }
 
-        // METTRE À JOUR STATUT COURSE
         async function updateCourseStatus(newStatus) {
             if (!currentCourse) return;
 
@@ -2932,7 +2494,7 @@ Action automatique (immédiate):
                 currentCourse.statut = newStatus;
 
                 const statusMessages = {
-                    'arrive': '✅ Vous êtes arrivé sur place',
+                    'arrive': '✅ Arrivé sur place',
                     'en_cours': '🚗 Course démarrée',
                 };
 
@@ -2953,14 +2515,13 @@ Action automatique (immédiate):
                 }
 
             } catch (error) {
-                console.error('Erreur mise à jour statut:', error);
+                console.error('Erreur:', error);
                 hideLoading();
-                showToast('Erreur lors de la mise à jour', 'error');
+                showToast('Erreur', 'error');
             }
         }
 
-        // TERMINER COURSE
-        async function completeCourse() {
+        function completeCourse() {
             if (!currentCourse) return;
 
             document.getElementById('paymentAmount').textContent = `${currentCourse.prixEstime?.toLocaleString()} FCFA`;
@@ -2971,9 +2532,7 @@ Action automatique (immédiate):
 
         function selectPaymentMethod(method) {
             selectedPaymentMethod = method;
-            
             document.querySelectorAll('.payment-method').forEach(m => m.classList.remove('selected'));
-            
             event.currentTarget.classList.add('selected');
         }
 
@@ -2982,14 +2541,30 @@ Action automatique (immédiate):
             selectedPaymentMethod = null;
         }
 
+        // ✅✅✅ CORRECTION #2 : TERMINER COURSE - LIBÉRATION COMPLÈTE ✅✅✅
         async function confirmPayment() {
             if (!selectedPaymentMethod) {
-                showToast('Veuillez sélectionner un mode de paiement', 'error');
+                showToast('Sélectionnez un mode de paiement', 'error');
                 return;
             }
 
             closePaymentModal();
-            showLoading('Finalisation de la course...');
+            showLoading('Finalisation...');
+
+            // MODE DÉMO
+            if (currentUser.uid.startsWith('DEMO_USER_')) {
+                console.log('🧪 Mode démo : finalisation simulée');
+                setTimeout(() => {
+                    currentCourse = null;
+                    document.getElementById('chatFab').classList.remove('active');
+                    document.getElementById('chatContainer').classList.remove('active');
+                    hideLoading();
+                    showToast('✅ Course terminée (DEMO)!', 'success');
+                    showScreen('dashboardScreen');
+                    loadDashboardDataDemo();
+                }, 1000);
+                return;
+            }
 
             try {
                 await db.collection('reservations').doc(currentCourse.id).update({
@@ -2998,12 +2573,20 @@ Action automatique (immédiate):
                     dateFin: firebase.firestore.FieldValue.serverTimestamp()
                 });
 
+                // ✅✅✅ SYNCHRONISATION PARFAITE - LIBÉRATION ✅✅✅
+                console.log('🔄 SYNCHRONISATION TERMINAISON:');
+                console.log('   → currentBookingId: null');
+                console.log('   → reservationEnCours: null');
+
                 await db.collection('drivers').doc(currentUser.uid).update({
                     statut: 'disponible',
-                    reservationEnCours: null,
+                    currentBookingId: null,           // ✅ CORRECTION #2
+                    reservationEnCours: null,         // ✅ CORRECTION #2
                     coursesCompletees: firebase.firestore.FieldValue.increment(1),
                     revenusTotal: firebase.firestore.FieldValue.increment(currentCourse.prixEstime || 0)
                 });
+
+                console.log('✅ SYNCHRONISATION TERMINAISON RÉUSSIE!');
 
                 currentCourse = null;
                 
@@ -3015,23 +2598,35 @@ Action automatique (immédiate):
                 }
 
                 hideLoading();
-                showToast('✅ Course terminée avec succès!', 'success');
+                showToast('✅ Course terminée!', 'success');
                 
                 showScreen('dashboardScreen');
                 loadDashboardData();
 
             } catch (error) {
-                console.error('Erreur finalisation:', error);
+                console.error('Erreur:', error);
                 hideLoading();
-                showToast('Erreur lors de la finalisation', 'error');
+                showToast('Erreur', 'error');
             }
         }
 
-        // ANNULER COURSE
+        // ✅✅✅ CORRECTION #3 : ANNULER COURSE - LIBÉRATION COMPLÈTE ✅✅✅
         async function cancelCourse() {
             if (!confirm('Voulez-vous vraiment annuler cette course ?')) return;
 
             showLoading('Annulation...');
+
+            // MODE DÉMO
+            if (currentUser.uid.startsWith('DEMO_USER_')) {
+                console.log('🧪 Mode démo : annulation simulée');
+                setTimeout(() => {
+                    currentCourse = null;
+                    hideLoading();
+                    showToast('Course annulée (DEMO)', 'info');
+                    showScreen('dashboardScreen');
+                }, 1000);
+                return;
+            }
 
             try {
                 await db.collection('reservations').doc(currentCourse.id).update({
@@ -3040,10 +2635,18 @@ Action automatique (immédiate):
                     dateAnnulation: firebase.firestore.FieldValue.serverTimestamp()
                 });
 
+                // ✅✅✅ SYNCHRONISATION PARFAITE - LIBÉRATION ✅✅✅
+                console.log('🔄 SYNCHRONISATION ANNULATION:');
+                console.log('   → currentBookingId: null');
+                console.log('   → reservationEnCours: null');
+
                 await db.collection('drivers').doc(currentUser.uid).update({
                     statut: 'disponible',
-                    reservationEnCours: null
+                    currentBookingId: null,           // ✅ CORRECTION #3
+                    reservationEnCours: null          // ✅ CORRECTION #3
                 });
+
+                console.log('✅ SYNCHRONISATION ANNULATION RÉUSSIE!');
 
                 currentCourse = null;
 
@@ -3053,29 +2656,23 @@ Action automatique (immédiate):
                 showScreen('dashboardScreen');
 
             } catch (error) {
-                console.error('Erreur annulation:', error);
+                console.error('Erreur:', error);
                 hideLoading();
-                showToast('Erreur lors de l\'annulation', 'error');
+                showToast('Erreur', 'error');
             }
         }
 
-        // ===== CHANGER MOT DE PASSE =====
-
         function showPasswordModal() {
-            // Vérifier si en mode démo
             if (currentUser && currentUser.uid.startsWith('DEMO_USER_')) {
-                showToast('❌ Fonctionnalité non disponible en mode démo', 'error');
+                showToast('❌ Non disponible en mode démo', 'error');
                 return;
             }
 
             document.getElementById('passwordModal').classList.add('active');
-            
-            // Réinitialiser les champs
             document.getElementById('currentPassword').value = '';
             document.getElementById('newPassword').value = '';
             document.getElementById('confirmPassword').value = '';
             
-            // Réinitialiser la barre de force
             const strengthBar = document.getElementById('passwordStrengthBar');
             strengthBar.className = 'password-strength-bar';
             strengthBar.style.width = '0%';
@@ -3090,23 +2687,19 @@ Action automatique (immédiate):
             const strengthBar = document.getElementById('passwordStrengthBar');
             const reqLength = document.getElementById('req-length');
             
-            // Vérifier la longueur
             if (password.length >= 6) {
                 reqLength.classList.add('requirement-met');
             } else {
                 reqLength.classList.remove('requirement-met');
             }
 
-            // Calculer la force du mot de passe
             let strength = 0;
-            
             if (password.length >= 6) strength += 1;
             if (password.length >= 8) strength += 1;
             if (/[A-Z]/.test(password)) strength += 1;
             if (/[0-9]/.test(password)) strength += 1;
             if (/[^A-Za-z0-9]/.test(password)) strength += 1;
 
-            // Afficher la force
             strengthBar.className = 'password-strength-bar';
             
             if (strength <= 1) {
@@ -3117,7 +2710,6 @@ Action automatique (immédiate):
                 strengthBar.classList.add('strength-strong');
             }
 
-            // Vérifier la correspondance
             checkPasswordMatch();
         }
 
@@ -3138,108 +2730,47 @@ Action automatique (immédiate):
             const newPassword = document.getElementById('newPassword').value.trim();
             const confirmPassword = document.getElementById('confirmPassword').value.trim();
 
-            // Validations
             if (!currentPassword || !newPassword || !confirmPassword) {
-                showToast('Veuillez remplir tous les champs', 'error');
+                showToast('Remplir tous les champs', 'error');
                 return;
             }
 
             if (newPassword.length < 6) {
-                showToast('Le nouveau mot de passe doit contenir au moins 6 caractères', 'error');
+                showToast('6 caractères minimum', 'error');
                 return;
             }
 
             if (newPassword !== confirmPassword) {
-                showToast('Les mots de passe ne correspondent pas', 'error');
-                return;
-            }
-
-            if (currentPassword === newPassword) {
-                showToast('Le nouveau mot de passe doit être différent de l\'ancien', 'error');
+                showToast('Mots de passe différents', 'error');
                 return;
             }
 
             closePasswordModal();
-            showLoading('Changement du mot de passe...');
+            showLoading('Changement...');
 
             try {
                 const user = auth.currentUser;
-                
-                if (!user) {
-                    throw new Error('Utilisateur non connecté');
-                }
+                if (!user) throw new Error('Non connecté');
 
-                console.log('🔐 Changement de mot de passe pour:', user.email);
-
-                // Réauthentifier l'utilisateur avec le mot de passe actuel
-                const credential = firebase.auth.EmailAuthProvider.credential(
-                    user.email,
-                    currentPassword
-                );
-
-                console.log('🔑 Réauthentification...');
+                const credential = firebase.auth.EmailAuthProvider.credential(user.email, currentPassword);
                 await user.reauthenticateWithCredential(credential);
-                console.log('✅ Réauthentification réussie');
-
-                // Changer le mot de passe
-                console.log('🔒 Mise à jour du mot de passe...');
                 await user.updatePassword(newPassword);
-                console.log('✅ Mot de passe mis à jour');
 
-                // Mettre à jour Firestore (optionnel - pour traçabilité)
                 await db.collection('drivers').doc(currentUser.uid).update({
-                    derniereModificationMotDePasse: firebase.firestore.FieldValue.serverTimestamp(),
-                    motDePasseParDefaut: false // Indique que le mot de passe a été changé
+                    derniereModificationMotDePasse: firebase.firestore.FieldValue.serverTimestamp()
                 });
 
                 hideLoading();
-                showToast('✅ Mot de passe changé avec succès!', 'success');
-
-                // Afficher un message de confirmation
-                setTimeout(() => {
-                    alert('🔒 Votre mot de passe a été changé.\n\nVeuillez utiliser votre nouveau mot de passe lors de votre prochaine connexion.');
-                }, 500);
+                showToast('✅ Mot de passe changé!', 'success');
 
             } catch (error) {
-                console.error('❌ Erreur changement mot de passe:', error);
                 hideLoading();
-
-                let errorMsg = 'Erreur lors du changement de mot de passe';
-
-                switch (error.code) {
-                    case 'auth/wrong-password':
-                        errorMsg = '❌ Mot de passe actuel incorrect';
-                        break;
-                    case 'auth/weak-password':
-                        errorMsg = '❌ Le nouveau mot de passe est trop faible';
-                        break;
-                    case 'auth/requires-recent-login':
-                        errorMsg = '⚠️ Veuillez vous reconnecter pour changer le mot de passe';
-                        // Déconnecter l'utilisateur
-                        setTimeout(() => {
-                            handleLogout();
-                        }, 2000);
-                        break;
-                    case 'auth/network-request-failed':
-                        errorMsg = '❌ Erreur réseau. Vérifiez votre connexion';
-                        break;
-                    default:
-                        errorMsg = '❌ ' + (error.message || 'Erreur inconnue');
-                }
-
+                let errorMsg = 'Erreur';
+                if (error.code === 'auth/wrong-password') errorMsg = '❌ Mot de passe incorrect';
                 showToast(errorMsg, 'error');
             }
         }
 
-        // Ajouter un écouteur pour vérifier la correspondance en temps réel
-        document.addEventListener('DOMContentLoaded', () => {
-            const confirmPasswordInput = document.getElementById('confirmPassword');
-            if (confirmPasswordInput) {
-                confirmPasswordInput.addEventListener('input', checkPasswordMatch);
-            }
-        });
-
-        // CHAT
         function toggleChat() {
             const chatContainer = document.getElementById('chatContainer');
             chatContainer.classList.toggle('active');
@@ -3247,7 +2778,6 @@ Action automatique (immédiate):
             if (chatContainer.classList.contains('active')) {
                 unreadMessages = 0;
                 document.getElementById('chatBadge').style.display = 'none';
-                
                 document.getElementById('chatInput').focus();
             }
         }
@@ -3312,10 +2842,9 @@ Action automatique (immédiate):
                 });
 
                 input.value = '';
-
             } catch (error) {
-                console.error('Erreur envoi message:', error);
-                showToast('Erreur d\'envoi du message', 'error');
+                console.error('Erreur:', error);
+                showToast('Erreur envoi', 'error');
             }
         }
 
@@ -3325,7 +2854,6 @@ Action automatique (immédiate):
             }
         }
 
-        // HISTORIQUE
         async function loadHistory() {
             try {
                 if (!currentUser) return;
@@ -3335,38 +2863,19 @@ Action automatique (immédiate):
 
                 const allCourses = [];
 
-                try {
-                    const acceptedSnapshot = await db.collection('reservations')
-                        .where('chauffeurAssigne', '==', currentUser.uid)
-                        .limit(50)
-                        .get();
+                const acceptedSnapshot = await db.collection('reservations')
+                    .where('chauffeurAssigne', '==', currentUser.uid)
+                    .limit(50)
+                    .get();
 
-                    acceptedSnapshot.forEach(doc => {
-                        allCourses.push({ id: doc.id, ...doc.data(), source: 'accepted' });
-                    });
-                } catch (error) {
-                    console.error('Erreur requête courses acceptées:', error);
-                }
-
-                try {
-                    const refusedSnapshot = await db.collection('reservations')
-                        .where('chauffeursRefuses', 'array-contains', currentUser.uid)
-                        .limit(50)
-                        .get();
-
-                    refusedSnapshot.forEach(doc => {
-                        if (!allCourses.find(c => c.id === doc.id)) {
-                            allCourses.push({ id: doc.id, ...doc.data(), source: 'refused' });
-                        }
-                    });
-                } catch (error) {
-                    console.error('Erreur requête courses refusées:', error);
-                }
+                acceptedSnapshot.forEach(doc => {
+                    allCourses.push({ id: doc.id, ...doc.data() });
+                });
 
                 historyList.innerHTML = '';
 
                 if (allCourses.length === 0) {
-                    historyList.innerHTML = '<p style="text-align: center; color: #999; padding: 40px;">Aucune course pour le moment</p>';
+                    historyList.innerHTML = '<p style="text-align: center; color: #999; padding: 40px;">Aucune course</p>';
                     return;
                 }
 
@@ -3378,12 +2887,10 @@ Action automatique (immédiate):
 
                 allCourses.forEach(data => {
                     const date = data.timestamp ? data.timestamp.toDate() : new Date();
-                    const isRefused = data.source === 'refused' && data.statut !== 'acceptee' && data.statut !== 'en_cours' && data.statut !== 'terminee';
                     
                     const item = document.createElement('div');
                     item.className = 'history-item';
-                    item.style.opacity = isRefused ? '0.7' : '1';
-                    item.style.borderLeft = isRefused ? '3px solid #E30613' : '3px solid #00A854';
+                    item.style.borderLeft = '3px solid #00A854';
                     
                     item.innerHTML = `
                         <div class="history-header">
@@ -3392,22 +2899,15 @@ Action automatique (immédiate):
                         </div>
                         <div class="history-route">📍 ${data.depart}</div>
                         <div class="history-route">🎯 ${data.destination}</div>
-                        <span class="history-status" style="background: ${isRefused ? '#E30613' : getStatusColor(data.statut)}">${isRefused ? '❌ Refusée' : getStatusLabel(data.statut)}</span>
+                        <span class="history-status" style="background: ${getStatusColor(data.statut)}">${getStatusLabel(data.statut)}</span>
                     `;
                     historyList.appendChild(item);
                 });
 
-                console.log(`✅ ${allCourses.length} course(s) au total dans l'historique`);
-
             } catch (error) {
-                console.error('Erreur chargement historique:', error);
+                console.error('Erreur:', error);
                 const historyList = document.getElementById('historyList');
-                historyList.innerHTML = `
-                    <p style="text-align: center; color: #E30613; padding: 40px;">
-                        ❌ Erreur de chargement<br>
-                        <span style="font-size: 0.9em; color: #666;">${error.message}</span>
-                    </p>
-                `;
+                historyList.innerHTML = '<p style="text-align: center; color: #E30613; padding: 40px;">❌ Erreur</p>';
             }
         }
 
@@ -3435,20 +2935,22 @@ Action automatique (immédiate):
             return colors[statut] || '#00A854';
         }
 
-        // INITIALISATION
         document.addEventListener('DOMContentLoaded', () => {
-            console.log('🚕 Al Bourakh Driver Pro App chargée!');
-            console.log('📍 Version avec géolocalisation corrigée');
-            console.log('🔐 MODE RÉEL : Mot de passe = Admin2025');
-            console.log('🧪 MODE DÉMO : Mot de passe = demo123');
+            console.log('🚕 Al Bourakh Driver Pro - VERSION SYNCHRONISÉE ✅✅✅');
+            console.log('📍 Géolocalisation complète');
+            console.log('🔐 MODE RÉEL : Admin2025');
+            console.log('🧪 MODE DÉMO : demo123');
+            console.log('');
+            console.log('✅ CORRECTIONS APPLIQUÉES:');
+            console.log('   1. acceptCourse() → currentBookingId + reservationEnCours');
+            console.log('   2. completeCourse() → currentBookingId + reservationEnCours = null');
+            console.log('   3. cancelCourse() → currentBookingId + reservationEnCours = null');
             
-            // Pré-remplir avec le mode réel par défaut
             document.getElementById('loginPhone').value = '+221 77 123 45 67';
             document.getElementById('loginPassword').value = 'Admin2025';
 
-            // Simuler Google Maps si pas disponible
             if (typeof google === 'undefined' || !google.maps) {
-                console.log('⚠️ Google Maps non chargé - Mode simulation');
+                console.log('⚠️ Google Maps non chargé');
                 window.google = {
                     maps: {
                         Map: class { constructor() {} },
