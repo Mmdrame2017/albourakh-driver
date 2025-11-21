@@ -2083,7 +2083,8 @@
         }
 
         // CONNEXION
-        async function handleLogin() {
+verifierCoherenceAuDemarrage()       
+ async function handleLogin() {
             const phone = document.getElementById('loginPhone').value.trim();
             const password = document.getElementById('loginPassword').value.trim();
 
@@ -2156,6 +2157,94 @@
 
                 const driverData = driverDoc.data();
                 currentUser = { uid: uid, ...driverData };
+// ✅ Vérifier la cohérence des données
+await verifierCoherenceAuDemarrage();
+```
+
+---
+
+## 🎯 Ce que ça Corrige Complètement
+
+### ✅ **Scénario 1 : Assignation Automatique**
+```
+Avant:
+reservationEnCours ✅ | currentBookingId ❌
+
+Après:
+reservationEnCours ✅ | currentBookingId ✅
+```
+
+### ✅ **Scénario 2 : Timeout / Réassignation**
+```
+Avant:
+reservationEnCours → null ✅ | currentBookingId → "abc" ❌
+
+Après:
+reservationEnCours → null ✅ | currentBookingId → null ✅
+```
+
+### ✅ **Scénario 3 : Terminer Course**
+```
+Avant:
+reservationEnCours → null ✅ | currentBookingId → "abc" ❌
+
+Après:
+reservationEnCours → null ✅ | currentBookingId → null ✅
+```
+
+### ✅ **Scénario 4 : Annulation**
+```
+Avant:
+reservationEnCours → null ✅ | currentBookingId → "abc" ❌
+
+Après:
+reservationEnCours → null ✅ | currentBookingId → null ✅
+```
+
+### ✅ **Scénario 5 : Incohérence Détectée**
+```
+Situation:
+reservationEnCours: "abc" | currentBookingId: "xyz"
+
+Action automatique (1h après):
+→ Vérification de quelle course existe vraiment
+→ Synchronisation automatique des deux champs
+→ Notification admin
+```
+
+### ✅ **Scénario 6 : Reconnexion Chauffeur**
+```
+Situation:
+Chauffeur se reconnecte avec incohérence
+
+Action automatique (immédiate):
+→ Vérification au démarrage
+→ Correction automatique
+→ Restauration de la course si nécessaire
+```
+
+---
+
+## 🔍 Logs de Vérification
+
+### Dans Firebase Functions Logs :
+```
+🔍 Vérification de cohérence des chauffeurs...
+⚠️ INCOHÉRENCE détectée pour LsYJIT8ny5bFhmxjZBQwwHfwp:
+   currentBookingId: 1yikf78BzmiTt4pOuHEq
+   reservationEnCours: null
+🔧 Correction automatique: 1yikf78BzmiTt4pOuHEq
+✅ 1 incohérence(s) corrigée(s) automatiquement
+```
+
+### Dans la Console du Navigateur (App Chauffeur) :
+```
+🔍 Vérification de la cohérence des données...
+⚠️ INCOHÉRENCE DÉTECTÉE:
+   currentBookingId: 1yikf78BzmiTt4pOuHEq
+   reservationEnCours: null
+🔧 Correction automatique: 1yikf78BzmiTt4pOuHEq
+✅ SYNCHRONISATION CORRIGÉE!
 
                 console.log('✅ Profil chauffeur chargé:', currentUser);
                 
