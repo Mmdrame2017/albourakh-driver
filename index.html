@@ -75,6 +75,14 @@
             color: #00A854;
         }
 
+        .form-container {
+            transition: all 0.3s ease;
+        }
+
+        .form-container.hidden {
+            display: none;
+        }
+
         .form-group {
             margin-bottom: 25px;
         }
@@ -172,6 +180,91 @@
             transform: none;
         }
 
+        .info-box {
+            background: #fff3cd;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            border-left: 4px solid #ffc107;
+        }
+
+        .info-box h3 {
+            color: #856404;
+            margin-bottom: 10px;
+            font-size: 1em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .info-box p {
+            color: #856404;
+            font-size: 0.9em;
+            margin: 5px 0;
+        }
+
+        .password-strength {
+            margin-top: 10px;
+        }
+
+        .strength-bar {
+            height: 5px;
+            background: #e0e0e0;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+
+        .strength-fill {
+            height: 100%;
+            width: 0%;
+            transition: all 0.3s;
+            border-radius: 3px;
+        }
+
+        .strength-weak { 
+            background: #dc3545;
+            width: 33%; 
+        }
+        .strength-medium { 
+            background: #ffc107;
+            width: 66%; 
+        }
+        .strength-strong { 
+            background: #00A854;
+            width: 100%; 
+        }
+
+        .strength-text {
+            font-size: 0.85em;
+            color: #666;
+            font-weight: 600;
+        }
+
+        .requirements-list {
+            margin-top: 10px;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            font-size: 0.85em;
+        }
+
+        .requirement-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 5px 0;
+            color: #666;
+        }
+
+        .requirement-item.met {
+            color: #00A854;
+        }
+
+        .requirement-item i {
+            font-size: 0.9em;
+        }
+
         .demo-section {
             background: #f0fff4;
             padding: 20px;
@@ -230,6 +323,26 @@
 
         .admin-section strong {
             color: #856404;
+        }
+
+        .back-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #666;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9em;
+            margin-bottom: 20px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .back-btn:hover {
+            background: #f8f9fa;
+            color: #00A854;
         }
 
         .toast {
@@ -341,70 +454,162 @@
 
         <div class="sync-badge">
             <i class="fas fa-check-circle"></i>
-            <span><strong>SYNC</strong></span>
+            <span><strong>SYSTÈME SYNCHRONISÉ</strong></span>
         </div>
 
-        <form id="loginForm">
-            <div class="form-group">
-                <label>
-                    <i class="fas fa-mobile-alt"></i>
-                    Téléphone
-                </label>
-                <input 
-                    type="text" 
-                    id="telephone" 
-                    name="telephone" 
-                    placeholder="771236547"
-                    autocomplete="tel"
-                    required
-                >
-                <div class="error-message" id="phoneError"></div>
-            </div>
-
-            <div class="form-group">
-                <label>
-                    <i class="fas fa-lock"></i>
-                    Mot de passe
-                </label>
-                <div class="password-toggle">
+        <!-- FORMULAIRE DE CONNEXION -->
+        <div id="loginFormContainer" class="form-container">
+            <form id="loginForm">
+                <div class="form-group">
+                    <label>
+                        <i class="fas fa-mobile-alt"></i>
+                        Téléphone
+                    </label>
                     <input 
-                        type="password" 
-                        id="password" 
-                        name="password" 
-                        placeholder="••••••••"
-                        autocomplete="current-password"
+                        type="text" 
+                        id="telephone" 
+                        name="telephone" 
+                        placeholder="771236547"
+                        autocomplete="tel"
                         required
                     >
-                    <button type="button" class="toggle-btn" onclick="togglePassword()">
-                        <i class="fas fa-eye" id="toggleIcon"></i>
-                    </button>
+                    <div class="error-message" id="phoneError"></div>
                 </div>
-                <div class="error-message" id="passwordError"></div>
+
+                <div class="form-group">
+                    <label>
+                        <i class="fas fa-lock"></i>
+                        Mot de passe
+                    </label>
+                    <div class="password-toggle">
+                        <input 
+                            type="password" 
+                            id="password" 
+                            name="password" 
+                            placeholder="••••••••"
+                            autocomplete="current-password"
+                            required
+                        >
+                        <button type="button" class="toggle-btn" onclick="togglePassword('password', 'toggleIconLogin')">
+                            <i class="fas fa-eye" id="toggleIconLogin"></i>
+                        </button>
+                    </div>
+                    <div class="error-message" id="passwordError"></div>
+                </div>
+
+                <button type="submit" class="btn-login" id="loginBtn">
+                    <span>Se connecter</span>
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+            </form>
+
+            <div class="demo-section">
+                <h3>
+                    <i class="fas fa-flask"></i>
+                    Mode Démo
+                </h3>
+                <div class="demo-credentials">
+                    <p><strong>Tout numéro sénégalais +</strong> <code>demo123</code></p>
+                    <p>Exemple: <strong>771234567</strong> ou <strong>+221 77 123 45 67</strong></p>
+                </div>
             </div>
 
-            <button type="submit" class="btn-login" id="loginBtn">
-                <span>Se connecter</span>
-                <i class="fas fa-arrow-right"></i>
-            </button>
-        </form>
-
-        <div class="demo-section">
-            <h3>
-                <i class="fas fa-flask"></i>
-                Mode Démo
-            </h3>
-            <div class="demo-credentials">
-                <p><strong>Tout numéro sénégalais +</strong> <code>demo123</code></p>
-                <p>Exemple: <strong>771234567</strong> ou <strong>+221 77 123 45 67</strong></p>
+            <div class="admin-section">
+                <h3>
+                    <i class="fas fa-user-shield"></i>
+                    Connexion Admin
+                </h3>
+                <p><strong>Tout numéro +</strong> <code>Admin2025</code></p>
             </div>
         </div>
 
-        <div class="admin-section">
-            <h3>
-                <i class="fas fa-user-shield"></i>
-                Connexion Admin
-            </h3>
-            <p><strong>Tout numéro +</strong> <code>Admin2025</code></p>
+        <!-- FORMULAIRE DE CHANGEMENT DE MOT DE PASSE -->
+        <div id="changePasswordContainer" class="form-container hidden">
+            <button class="back-btn" onclick="showLoginForm()">
+                <i class="fas fa-arrow-left"></i>
+                Retour
+            </button>
+
+            <div class="info-box">
+                <h3>
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Première connexion
+                </h3>
+                <p><strong>Vous devez changer votre mot de passe par défaut.</strong></p>
+                <p>Créez un nouveau mot de passe sécurisé pour protéger votre compte.</p>
+            </div>
+
+            <form id="changePasswordForm">
+                <div class="form-group">
+                    <label>
+                        <i class="fas fa-key"></i>
+                        Nouveau mot de passe
+                    </label>
+                    <div class="password-toggle">
+                        <input 
+                            type="password" 
+                            id="newPassword" 
+                            name="newPassword" 
+                            placeholder="Créer un mot de passe fort"
+                            required
+                        >
+                        <button type="button" class="toggle-btn" onclick="togglePassword('newPassword', 'toggleIconNew')">
+                            <i class="fas fa-eye" id="toggleIconNew"></i>
+                        </button>
+                    </div>
+                    <div class="password-strength">
+                        <div class="strength-bar">
+                            <div class="strength-fill" id="strengthFill"></div>
+                        </div>
+                        <div class="strength-text" id="strengthText"></div>
+                    </div>
+                    <div class="error-message" id="newPasswordError"></div>
+                </div>
+
+                <div class="form-group">
+                    <label>
+                        <i class="fas fa-check-circle"></i>
+                        Confirmer le mot de passe
+                    </label>
+                    <div class="password-toggle">
+                        <input 
+                            type="password" 
+                            id="confirmPassword" 
+                            name="confirmPassword" 
+                            placeholder="Répéter le mot de passe"
+                            required
+                        >
+                        <button type="button" class="toggle-btn" onclick="togglePassword('confirmPassword', 'toggleIconConfirm')">
+                            <i class="fas fa-eye" id="toggleIconConfirm"></i>
+                        </button>
+                    </div>
+                    <div class="error-message" id="confirmPasswordError"></div>
+                </div>
+
+                <div id="passwordRequirements" class="requirements-list">
+                    <div class="requirement-item" id="req-length">
+                        <i class="fas fa-circle"></i>
+                        <span>Au moins 8 caractères</span>
+                    </div>
+                    <div class="requirement-item" id="req-upper">
+                        <i class="fas fa-circle"></i>
+                        <span>Au moins une lettre majuscule</span>
+                    </div>
+                    <div class="requirement-item" id="req-lower">
+                        <i class="fas fa-circle"></i>
+                        <span>Au moins une lettre minuscule</span>
+                    </div>
+                    <div class="requirement-item" id="req-number">
+                        <i class="fas fa-circle"></i>
+                        <span>Au moins un chiffre</span>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-login" id="changePasswordBtn">
+                    <span>Changer le mot de passe</span>
+                    <i class="fas fa-check"></i>
+                </button>
+            </form>
         </div>
     </div>
 
@@ -422,9 +627,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 
     <script>
-        // ========================================
-        // CONFIGURATION FIREBASE
-        // ========================================
         const firebaseConfig = {
             apiKey: "AIzaSyANcdvMz2yMbRD4V82EGLm95Jh2NdaR2o0",
             authDomain: "albourakh-sn-ok.firebaseapp.com",
@@ -441,40 +643,32 @@
         const db = firebase.firestore();
         const auth = firebase.auth();
 
-        console.log('✅ Firebase initialisé');
+        let currentUser = null;
+        let driverData = null;
 
-        // ========================================
-        // NORMALISATION DES NUMÉROS
-        // ========================================
+        console.log('✅ Firebase initialisé - Système synchronisé');
+
         function normalizePhoneNumber(phone) {
-            // Supprimer tous les espaces, tirets et autres caractères
             let cleaned = phone.replace(/[\s\-\(\)]/g, '');
             
-            // Supprimer le + au début si présent
             if (cleaned.startsWith('+')) {
                 cleaned = cleaned.substring(1);
             }
             
-            // Si commence par 221 (indicatif Sénégal), on le garde
             if (cleaned.startsWith('221')) {
                 return cleaned;
             }
             
-            // Si commence par 7 (numéro local sénégalais), ajouter 221
             if (cleaned.startsWith('7') && cleaned.length === 9) {
                 return '221' + cleaned;
             }
             
-            // Sinon, supposer que c'est déjà normalisé
             return cleaned;
         }
 
-        // ========================================
-        // TOGGLE PASSWORD VISIBILITY
-        // ========================================
-        function togglePassword() {
-            const passwordInput = document.getElementById('password');
-            const toggleIcon = document.getElementById('toggleIcon');
+        function togglePassword(fieldId, iconId) {
+            const passwordInput = document.getElementById(fieldId);
+            const toggleIcon = document.getElementById(iconId);
             
             if (passwordInput.type === 'password') {
                 passwordInput.type = 'text';
@@ -487,9 +681,6 @@
             }
         }
 
-        // ========================================
-        // VALIDATION
-        // ========================================
         function validateForm() {
             clearErrors();
             let isValid = true;
@@ -497,7 +688,6 @@
             const phone = document.getElementById('telephone').value.trim();
             const password = document.getElementById('password').value;
 
-            // Valider le téléphone
             if (!phone) {
                 showFieldError('phoneError', 'Le numéro de téléphone est requis');
                 document.getElementById('telephone').classList.add('error');
@@ -511,7 +701,6 @@
                 }
             }
 
-            // Valider le mot de passe
             if (!password) {
                 showFieldError('passwordError', 'Le mot de passe est requis');
                 document.getElementById('password').classList.add('error');
@@ -520,6 +709,81 @@
 
             return isValid;
         }
+
+        function checkPasswordStrength(password) {
+            let strength = 0;
+            const requirements = {
+                length: password.length >= 8,
+                upper: /[A-Z]/.test(password),
+                lower: /[a-z]/.test(password),
+                number: /[0-9]/.test(password)
+            };
+
+            updateRequirements(requirements);
+
+            if (requirements.length) strength++;
+            if (requirements.upper) strength++;
+            if (requirements.lower) strength++;
+            if (requirements.number) strength++;
+            
+            return strength;
+        }
+
+        function updateRequirements(requirements) {
+            const reqElements = {
+                length: document.getElementById('req-length'),
+                upper: document.getElementById('req-upper'),
+                lower: document.getElementById('req-lower'),
+                number: document.getElementById('req-number')
+            };
+
+            for (const [key, element] of Object.entries(reqElements)) {
+                const icon = element.querySelector('i');
+                if (requirements[key]) {
+                    element.classList.add('met');
+                    icon.classList.remove('fa-circle');
+                    icon.classList.add('fa-check-circle');
+                } else {
+                    element.classList.remove('met');
+                    icon.classList.remove('fa-check-circle');
+                    icon.classList.add('fa-circle');
+                }
+            }
+        }
+
+        function validatePassword(password) {
+            const errors = [];
+            
+            if (password.length < 8) errors.push('Au moins 8 caractères');
+            if (!/[a-z]/.test(password)) errors.push('Une lettre minuscule');
+            if (!/[A-Z]/.test(password)) errors.push('Une lettre majuscule');
+            if (!/[0-9]/.test(password)) errors.push('Un chiffre');
+            
+            return errors;
+        }
+
+        document.getElementById('newPassword').addEventListener('input', (e) => {
+            const password = e.target.value;
+            const strength = checkPasswordStrength(password);
+            const strengthFill = document.getElementById('strengthFill');
+            const strengthText = document.getElementById('strengthText');
+            
+            strengthFill.className = 'strength-fill';
+            
+            if (strength <= 2) {
+                strengthFill.classList.add('strength-weak');
+                strengthText.textContent = 'Faible';
+                strengthText.style.color = '#dc3545';
+            } else if (strength <= 3) {
+                strengthFill.classList.add('strength-medium');
+                strengthText.textContent = 'Moyen';
+                strengthText.style.color = '#ffc107';
+            } else {
+                strengthFill.classList.add('strength-strong');
+                strengthText.textContent = 'Fort';
+                strengthText.style.color = '#00A854';
+            }
+        });
 
         function showFieldError(elementId, message) {
             const errorEl = document.getElementById(elementId);
@@ -537,9 +801,6 @@
             });
         }
 
-        // ========================================
-        // CONNEXION
-        // ========================================
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
 
@@ -554,22 +815,19 @@
             console.log('🔐 Tentative de connexion...');
 
             try {
-                // Normaliser le numéro
                 const normalizedPhone = normalizePhoneNumber(phoneInput);
-                console.log('📱 Numéro saisi:', phoneInput);
                 console.log('📱 Numéro normalisé:', normalizedPhone);
                 
-                // Créer l'email pour Firebase Auth
                 const email = normalizedPhone + '@albourakh.sn';
                 console.log('📧 Email généré:', email);
                 
-                // Tentative de connexion Firebase Auth
                 console.log('🔑 Connexion à Firebase Auth...');
                 const userCredential = await auth.signInWithEmailAndPassword(email, password);
                 console.log('✅ Authentification réussie');
                 console.log('👤 User ID:', userCredential.user.uid);
                 
-                // Vérifier que le chauffeur existe dans Firestore
+                currentUser = userCredential.user;
+                
                 console.log('🔍 Recherche du profil chauffeur...');
                 const driverDoc = await db.collection('drivers').doc(userCredential.user.uid).get();
                 
@@ -577,42 +835,28 @@
                     throw new Error('Profil chauffeur introuvable');
                 }
                 
-                const driverData = driverDoc.data();
+                driverData = driverDoc.data();
                 console.log('✅ Profil chauffeur trouvé:', driverData.prenom, driverData.nom);
                 
-                // Vérifier le statut du chauffeur
                 if (!driverData.actif) {
                     throw new Error('Votre compte est désactivé. Contactez le support.');
                 }
                 
-                // Mise à jour du statut à "en_ligne"
-                console.log('📝 Mise à jour du statut...');
-                await db.collection('drivers').doc(userCredential.user.uid).update({
-                    statut: 'en_ligne',
-                    derniereConnexion: firebase.firestore.FieldValue.serverTimestamp()
-                });
+                // VÉRIFIER SI PREMIÈRE CONNEXION
+                if (driverData.premiereConnexion === true) {
+                    console.log('🔒 Première connexion détectée - Changement de mot de passe requis');
+                    hideLoading();
+                    showChangePasswordForm();
+                    showToast('Bienvenue ! Veuillez créer un nouveau mot de passe.', 'info');
+                    return;
+                }
                 
-                // Stocker les infos en localStorage
-                localStorage.setItem('driverId', userCredential.user.uid);
-                localStorage.setItem('driverData', JSON.stringify(driverData));
-                
-                hideLoading();
-                showToast(`Bienvenue ${driverData.prenom} !`, 'success');
-                
-                console.log('✅ Connexion complète réussie!');
-                
-                // Redirection vers le dashboard chauffeur
-                setTimeout(() => {
-                    window.location.href = 'driver-dashboard.html';
-                }, 1000);
+                await finalizeLogin();
                 
             } catch (error) {
                 hideLoading();
                 console.error('❌ Erreur de connexion:', error);
-                console.error('Code:', error.code);
-                console.error('Message:', error.message);
                 
-                // Messages d'erreur personnalisés
                 let errorMessage = 'Erreur de connexion';
                 
                 switch (error.code) {
@@ -647,20 +891,111 @@
             }
         });
 
-        // ========================================
-        // AUTO-LOGIN EN MODE DÉMO
-        // ========================================
-        document.getElementById('telephone').addEventListener('input', (e) => {
+        document.getElementById('changePasswordForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
             clearErrors();
+            
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            const errors = validatePassword(newPassword);
+            
+            if (errors.length > 0) {
+                showFieldError('newPasswordError', 'Manque: ' + errors.join(', '));
+                return;
+            }
+            
+            if (newPassword !== confirmPassword) {
+                showFieldError('confirmPasswordError', 'Les mots de passe ne correspondent pas');
+                document.getElementById('confirmPassword').classList.add('error');
+                return;
+            }
+            
+            if (newPassword === 'Admin2025') {
+                showFieldError('newPasswordError', 'Vous devez choisir un mot de passe différent');
+                document.getElementById('newPassword').classList.add('error');
+                return;
+            }
+            
+            showLoading();
+            
+            try {
+                console.log('🔐 Changement du mot de passe...');
+                
+                await currentUser.updatePassword(newPassword);
+                console.log('✅ Mot de passe changé avec succès');
+                
+                await db.collection('drivers').doc(currentUser.uid).update({
+                    premiereConnexion: false,
+                    dateChangementMotDePasse: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                console.log('✅ Flag premiereConnexion mis à false');
+                
+                driverData.premiereConnexion = false;
+                
+                showToast('✅ Mot de passe changé avec succès!', 'success');
+                
+                setTimeout(async () => {
+                    await finalizeLogin();
+                }, 1500);
+                
+            } catch (error) {
+                hideLoading();
+                console.error('❌ Erreur changement mot de passe:', error);
+                
+                let errorMessage = 'Erreur lors du changement de mot de passe';
+                
+                if (error.code === 'auth/weak-password') {
+                    errorMessage = 'Le mot de passe est trop faible';
+                } else if (error.code === 'auth/requires-recent-login') {
+                    errorMessage = 'Veuillez vous reconnecter';
+                    setTimeout(() => {
+                        auth.signOut();
+                        location.reload();
+                    }, 2000);
+                }
+                
+                showToast(errorMessage, 'error');
+            }
         });
 
-        document.getElementById('password').addEventListener('input', (e) => {
-            clearErrors();
-        });
+        async function finalizeLogin() {
+            console.log('📝 Finalisation de la connexion...');
+            
+            await db.collection('drivers').doc(currentUser.uid).update({
+                statut: 'en_ligne',
+                derniereConnexion: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            
+            localStorage.setItem('driverId', currentUser.uid);
+            localStorage.setItem('driverData', JSON.stringify(driverData));
+            
+            hideLoading();
+            showToast(`Bienvenue ${driverData.prenom} !`, 'success');
+            
+            console.log('✅ Connexion complète réussie!');
+            
+            setTimeout(() => {
+                window.location.href = 'driver-dashboard.html';
+            }, 1000);
+        }
 
-        // ========================================
-        // UI HELPERS
-        // ========================================
+        function showChangePasswordForm() {
+            document.getElementById('loginFormContainer').classList.add('hidden');
+            document.getElementById('changePasswordContainer').classList.remove('hidden');
+        }
+
+        function showLoginForm() {
+            document.getElementById('changePasswordContainer').classList.add('hidden');
+            document.getElementById('loginFormContainer').classList.remove('hidden');
+            clearErrors();
+            document.getElementById('changePasswordForm').reset();
+        }
+
+        document.getElementById('telephone').addEventListener('input', clearErrors);
+        document.getElementById('password').addEventListener('input', clearErrors);
+
         function showToast(message, type = 'info') {
             const toast = document.getElementById('toast');
             const icons = {
@@ -680,33 +1015,28 @@
         function showLoading() {
             document.getElementById('loading').classList.add('show');
             document.getElementById('loginBtn').disabled = true;
+            if (document.getElementById('changePasswordBtn')) {
+                document.getElementById('changePasswordBtn').disabled = true;
+            }
         }
 
         function hideLoading() {
             document.getElementById('loading').classList.remove('show');
             document.getElementById('loginBtn').disabled = false;
+            if (document.getElementById('changePasswordBtn')) {
+                document.getElementById('changePasswordBtn').disabled = false;
+            }
         }
 
-        // ========================================
-        // VÉRIFICATION AUTO SI DÉJÀ CONNECTÉ
-        // ========================================
         auth.onAuthStateChanged((user) => {
             if (user) {
                 console.log('👤 Utilisateur déjà connecté:', user.uid);
-                const driverData = localStorage.getItem('driverData');
-                if (driverData) {
-                    console.log('🔄 Redirection automatique...');
-                    // Optionnel: rediriger automatiquement
-                    // window.location.href = 'driver-dashboard.html';
-                }
             }
         });
 
         console.log('✅ Page de connexion driver prête');
-        console.log('📱 Formats de téléphone acceptés:');
-        console.log('  - 771234567');
-        console.log('  - +221 77 123 45 67');
-        console.log('  - 221771234567');
+        console.log('📱 Formats acceptés: 771234567 / +221 77 123 45 67 / 221771234567');
+        console.log('🔐 Mot de passe par défaut: Admin2025');
     </script>
 </body>
 </html>
