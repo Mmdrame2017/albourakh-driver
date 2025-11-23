@@ -960,26 +960,48 @@
             }
         });
 
-        async function finalizeLogin() {
-            console.log('📝 Finalisation de la connexion...');
-            
-            await db.collection('drivers').doc(currentUser.uid).update({
-                statut: 'en_ligne',
-                derniereConnexion: firebase.firestore.FieldValue.serverTimestamp()
-            });
-            
-            localStorage.setItem('driverId', currentUser.uid);
-            localStorage.setItem('driverData', JSON.stringify(driverData));
-            
-            hideLoading();
-            showToast(`Bienvenue ${driverData.prenom} !`, 'success');
-            
-            console.log('✅ Connexion complète réussie!');
-            
-            setTimeout(() => {
-                window.location.href = 'driver-dashboard.html';
-            }, 1000);
-        }
+       // Dans le fichier driver-login.html, remplacer la fonction finalizeLogin()
+
+async function finalizeLogin() {
+    console.log('📝 Finalisation de la connexion...');
+    
+    await db.collection('drivers').doc(currentUser.uid).update({
+        statut: 'en_ligne',
+        derniereConnexion: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    
+    localStorage.setItem('driverId', currentUser.uid);
+    localStorage.setItem('driverData', JSON.stringify(driverData));
+    
+    hideLoading();
+    
+    // Afficher message de succès au lieu de rediriger
+    document.getElementById('loginFormContainer').innerHTML = `
+        <div style="text-align: center; padding: 40px 20px;">
+            <div style="width: 100px; height: 100px; background: linear-gradient(135deg, #00A854, #FECB00); 
+                        border-radius: 50%; display: flex; align-items: center; justify-content: center; 
+                        font-size: 3em; margin: 0 auto 20px;">✓</div>
+            <h2 style="color: #00A854; margin-bottom: 15px;">Connexion réussie !</h2>
+            <p style="color: #666; margin-bottom: 20px;">
+                Bienvenue ${driverData.prenom} ${driverData.nom}<br>
+                Votre compte est maintenant actif.
+            </p>
+            <div style="background: #d4edda; padding: 15px; border-radius: 10px; margin: 20px 0; text-align: left;">
+                <p style="color: #155724; margin: 5px 0;"><strong>✅ Mot de passe changé</strong></p>
+                <p style="color: #155724; margin: 5px 0;"><strong>✅ Compte activé</strong></p>
+                <p style="color: #155724; margin: 5px 0;"><strong>✅ Statut: En ligne</strong></p>
+            </div>
+            <button onclick="auth.signOut().then(() => location.reload())" 
+                    style="width: 100%; padding: 16px; background: linear-gradient(135deg, #00A854, #FECB00); 
+                           color: white; border: none; border-radius: 12px; font-size: 1.1em; 
+                           font-weight: bold; cursor: pointer;">
+                <i class="fas fa-sign-out-alt"></i> Se déconnecter
+            </button>
+        </div>
+    `;
+    
+    console.log('✅ Connexion complète réussie!');
+}
 
         function showChangePasswordForm() {
             document.getElementById('loginFormContainer').classList.add('hidden');
