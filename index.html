@@ -2,372 +2,1088 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Al Bourakh - Connexion Chauffeur</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Al Bourakh Driver Pro - Application Chauffeur ✅</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #00A854 0%, #FECB00 100%);
+            background: #f5f5f5;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .mobile-container {
+            max-width: 414px;
+            margin: 0 auto;
+            background: #fff;
             min-height: 100vh;
+            position: relative;
+            box-shadow: 0 0 30px rgba(0,0,0,0.1);
+        }
+
+        .screen {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .app-header {
+            background: linear-gradient(135deg, #00A854, #FECB00);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            position: relative;
+            z-index: 100;
+        }
+
+        .app-header h1 {
+            font-size: 1.3em;
+            font-weight: bold;
             display: flex;
             align-items: center;
-            justify-content: center;
-            padding: 20px;
+            gap: 10px;
         }
 
-        .login-container {
-            background: white;
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 15px 50px rgba(0,0,0,0.3);
-            max-width: 450px;
-            width: 100%;
+        .app-header button {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2em;
+            transition: all 0.3s;
         }
 
-        .logo {
-            width: 100px;
-            height: 100px;
+        .app-header button:hover {
+            background: rgba(255,255,255,0.3);
+            transform: scale(1.1);
+        }
+
+        .login-screen {
+            padding: 40px 30px;
+            text-align: center;
+        }
+
+        .login-logo {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 30px;
             background: linear-gradient(135deg, #00A854, #FECB00);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 3em;
-            margin: 0 auto 20px;
+            box-shadow: 0 8px 20px rgba(0,168,84,0.3);
         }
 
-        h1 {
-            text-align: center;
+        .login-title {
+            font-size: 2em;
             color: #00A854;
             margin-bottom: 10px;
-            font-size: 1.8em;
         }
 
-        .subtitle {
-            text-align: center;
+        .login-subtitle {
             color: #666;
-            margin-bottom: 30px;
-            font-size: 0.95em;
+            margin-bottom: 40px;
         }
 
-        .sync-badge {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            padding: 12px;
-            background: #d4edda;
-            border-radius: 10px;
-            margin-bottom: 25px;
-            font-size: 0.95em;
-            color: #155724;
+        .input-group {
+            margin-bottom: 20px;
+            text-align: left;
         }
 
-        .sync-badge i {
-            font-size: 1.3em;
-            color: #00A854;
-        }
-
-        .form-container {
-            transition: all 0.3s ease;
-        }
-
-        .form-container.hidden {
-            display: none;
-        }
-
-        .form-group {
-            margin-bottom: 25px;
-        }
-
-        .form-group label {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 10px;
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
             color: #333;
             font-weight: 600;
         }
 
-        .form-group label i {
-            color: #00A854;
-            font-size: 1.2em;
-        }
-
-        .form-group input {
+        .input-group input {
             width: 100%;
             padding: 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 12px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
             font-size: 1em;
             transition: all 0.3s;
         }
 
-        .form-group input:focus {
+        .input-group input:focus {
             outline: none;
             border-color: #00A854;
             box-shadow: 0 0 15px rgba(0,168,84,0.2);
         }
 
-        .form-group input.error {
-            border-color: #E30613;
-            background-color: #fff5f5;
-        }
-
-        .password-toggle {
-            position: relative;
-        }
-
-        .password-toggle input {
-            padding-right: 50px;
-        }
-
-        .password-toggle .toggle-btn {
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            color: #666;
-            cursor: pointer;
-            font-size: 1.2em;
-        }
-
-        .error-message {
-            color: #E30613;
-            font-size: 0.9em;
-            margin-top: 8px;
-            display: none;
-        }
-
-        .error-message.show {
-            display: block;
-        }
-
-        .btn-login {
+        .btn {
             width: 100%;
-            padding: 16px;
-            background: linear-gradient(135deg, #00A854, #FECB00);
-            color: white;
+            padding: 18px;
             border: none;
             border-radius: 12px;
             font-size: 1.1em;
             font-weight: bold;
             cursor: pointer;
             transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
+            margin-top: 10px;
         }
 
-        .btn-login:hover {
-            transform: translateY(-2px);
+        .btn-primary {
+            background: linear-gradient(135deg, #00A854, #FECB00);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: scale(1.02);
             box-shadow: 0 8px 25px rgba(0,168,84,0.3);
         }
 
-        .btn-login:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
+        .link-text {
+            color: #00A854;
+            margin-top: 20px;
+            display: inline-block;
+            cursor: pointer;
         }
 
-        .info-box {
-            background: #fff3cd;
+        .dashboard-content {
             padding: 20px;
-            border-radius: 12px;
-            margin-bottom: 25px;
-            border-left: 4px solid #ffc107;
+            padding-bottom: 100px;
         }
 
-        .info-box h3 {
-            color: #856404;
-            margin-bottom: 10px;
-            font-size: 1em;
+        .status-toggle {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .status-info h3 {
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .status-text {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #999;
+        }
+
+        .status-text.online {
+            color: #00A854;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 60px;
+            height: 34px;
+            background: #ccc;
+            border-radius: 34px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .toggle-switch.active {
+            background: #00A854;
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            width: 26px;
+            height: 26px;
+            background: white;
+            border-radius: 50%;
+            top: 4px;
+            left: 4px;
+            transition: all 0.3s;
+        }
+
+        .toggle-switch.active::after {
+            left: 30px;
+        }
+
+        #map {
+            width: 100%;
+            height: 300px;
+            border-radius: 15px;
+            margin: 20px 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .map-container {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .map-container h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .location-info {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+
+        .location-info div {
+            margin-bottom: 8px;
             display: flex;
             align-items: center;
             gap: 10px;
         }
 
-        .info-box p {
+        .permission-guide {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+            display: none;
+        }
+
+        .permission-guide.show {
+            display: block;
+        }
+
+        .permission-guide h4 {
             color: #856404;
-            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+
+        .permission-guide ul {
+            text-align: left;
+            padding-left: 20px;
+            color: #856404;
+        }
+
+        .permission-guide li {
             margin: 5px 0;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .stat-icon {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .stat-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #00A854;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .action-btn {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+            font-size: 1em;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+
+        .action-btn-icon {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .course-notification {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            animation: fadeIn 0.3s;
+        }
+
+        .course-modal {
+            background: white;
+            width: 90%;
+            max-width: 400px;
+            border-radius: 20px;
+            padding: 30px;
+            animation: slideUp 0.3s;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .course-timer {
+            background: linear-gradient(135deg, #E30613, #FF6B00);
+            color: white;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 2em;
+            font-weight: bold;
+            box-shadow: 0 8px 20px rgba(227,6,19,0.3);
+        }
+
+        .course-timer-label {
+            font-size: 0.4em;
+            margin-top: 5px;
+        }
+
+        .course-title {
+            text-align: center;
+            font-size: 1.5em;
+            color: #00A854;
+            margin-bottom: 20px;
+        }
+
+        .course-client {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .course-route {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .route-point {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .route-icon {
+            font-size: 1.5em;
+        }
+
+        .course-details {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            padding: 15px;
+            background: #f5f5f5;
+            border-radius: 10px;
+        }
+
+        .detail-item {
+            text-align: center;
+        }
+
+        .detail-icon {
+            font-size: 1.5em;
+            margin-bottom: 5px;
+        }
+
+        .course-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn-refuse {
+            background: #E30613;
+            color: white;
+        }
+
+        .btn-accept {
+            background: #00A854;
+            color: white;
+        }
+
+        .active-course-container {
+            padding: 20px;
+            padding-bottom: 100px;
+        }
+
+        .course-status-card {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .status-badge.acceptee {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-badge.en-route {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .status-badge.arrive {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-badge.en-cours {
+            background: #cce5ff;
+            color: #004085;
+        }
+
+        .client-info-card {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .client-info-card h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .navigation-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .nav-btn {
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+
+        .nav-btn.primary {
+            background: #00A854;
+            color: white;
+        }
+
+        .nav-btn.secondary {
+            background: #2196F3;
+            color: white;
+        }
+
+        .nav-btn.danger {
+            background: #E30613;
+            color: white;
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .chat-container {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            width: 350px;
+            max-width: calc(100% - 40px);
+            height: 500px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+            display: none;
+            flex-direction: column;
+            z-index: 9999;
+            animation: slideUp 0.3s;
+        }
+
+        .chat-container.active {
+            display: flex;
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, #00A854, #FECB00);
+            color: white;
+            padding: 15px;
+            border-radius: 15px 15px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+            background: #f5f5f5;
+        }
+
+        .chat-message {
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-message.sent {
+            align-items: flex-end;
+        }
+
+        .chat-message.received {
+            align-items: flex-start;
+        }
+
+        .message-bubble {
+            max-width: 70%;
+            padding: 10px 15px;
+            border-radius: 15px;
+            word-wrap: break-word;
+        }
+
+        .message-bubble.sent {
+            background: #00A854;
+            color: white;
+            border-bottom-right-radius: 5px;
+        }
+
+        .message-bubble.received {
+            background: white;
+            color: #333;
+            border-bottom-left-radius: 5px;
+        }
+
+        .message-time {
+            font-size: 0.75em;
+            color: #999;
+            margin-top: 5px;
+        }
+
+        .chat-input-container {
+            padding: 15px;
+            background: white;
+            border-radius: 0 0 15px 15px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 10px 15px;
+            border: 2px solid #ddd;
+            border-radius: 20px;
+            font-size: 1em;
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: #00A854;
+        }
+
+        .chat-send-btn {
+            width: 45px;
+            height: 45px;
+            background: #00A854;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+        }
+
+        .chat-fab {
+            position: fixed;
+            bottom: 100px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            background: #00A854;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            box-shadow: 0 4px 15px rgba(0,168,84,0.4);
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            z-index: 9998;
+        }
+
+        .chat-fab.active {
+            display: flex;
+        }
+
+        .chat-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #E30613;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75em;
+            font-weight: bold;
+        }
+
+        .payment-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+        }
+
+        .payment-modal.active {
+            display: flex;
+        }
+
+        .payment-content {
+            background: white;
+            width: 90%;
+            max-width: 400px;
+            border-radius: 20px;
+            padding: 30px;
+            animation: slideUp 0.3s;
+        }
+
+        .payment-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .payment-amount {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #00A854;
+            margin: 20px 0;
+        }
+
+        .payment-methods {
+            display: grid;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .payment-method {
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .payment-method:hover {
+            border-color: #00A854;
+            background: #f5fff5;
+        }
+
+        .payment-method.selected {
+            border-color: #00A854;
+            background: #f5fff5;
+        }
+
+        .payment-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+        }
+
+        .payment-icon.cash {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .payment-icon.orange {
+            background: #FF6B00;
+            color: white;
+        }
+
+        .payment-icon.wave {
+            background: #0066FF;
+            color: white;
+        }
+
+        .password-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+        }
+
+        .password-modal.active {
+            display: flex;
+        }
+
+        .password-content {
+            background: white;
+            width: 90%;
+            max-width: 400px;
+            border-radius: 20px;
+            padding: 30px;
+            animation: slideUp 0.3s;
+        }
+
+        .password-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .password-header h2 {
+            color: #00A854;
+            margin-bottom: 10px;
+        }
+
+        .password-input-group {
+            margin-bottom: 20px;
+        }
+
+        .password-input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .password-input-group input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+
+        .password-input-group input:focus {
+            outline: none;
+            border-color: #00A854;
+            box-shadow: 0 0 15px rgba(0,168,84,0.2);
         }
 
         .password-strength {
             margin-top: 10px;
-        }
-
-        .strength-bar {
             height: 5px;
             background: #e0e0e0;
             border-radius: 3px;
             overflow: hidden;
-            margin-bottom: 8px;
         }
 
-        .strength-fill {
+        .password-strength-bar {
             height: 100%;
             width: 0%;
             transition: all 0.3s;
-            border-radius: 3px;
         }
 
-        .strength-weak { 
-            background: #dc3545;
-            width: 33%; 
+        .strength-weak {
+            background: #E30613;
+            width: 33%;
         }
-        .strength-medium { 
-            background: #ffc107;
-            width: 66%; 
+
+        .strength-medium {
+            background: #FFA500;
+            width: 66%;
         }
-        .strength-strong { 
+
+        .strength-strong {
             background: #00A854;
-            width: 100%; 
+            width: 100%;
         }
 
-        .strength-text {
-            font-size: 0.85em;
-            color: #666;
-            font-weight: 600;
-        }
-
-        .requirements-list {
-            margin-top: 10px;
-            padding: 12px;
-            background: #f8f9fa;
-            border-radius: 8px;
-            font-size: 0.85em;
-        }
-
-        .requirement-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin: 5px 0;
-            color: #666;
-        }
-
-        .requirement-item.met {
-            color: #00A854;
-        }
-
-        .requirement-item i {
+        .password-requirements {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
             font-size: 0.9em;
         }
 
-        .demo-section {
-            background: #f0fff4;
-            padding: 20px;
-            border-radius: 12px;
-            margin-top: 25px;
-            border-left: 4px solid #00A854;
+        .password-requirements ul {
+            margin: 10px 0 0 20px;
+            color: #666;
         }
 
-        .demo-section h3 {
+        .password-requirements li {
+            margin: 5px 0;
+        }
+
+        .requirement-met {
             color: #00A854;
-            margin-bottom: 10px;
-            font-size: 1em;
-            display: flex;
-            align-items: center;
-            gap: 10px;
         }
 
-        .demo-credentials {
+        .history-list {
+            padding: 20px;
+            padding-bottom: 100px;
+        }
+
+        .history-item {
             background: white;
             padding: 15px;
-            border-radius: 8px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .history-date {
+            color: #666;
             font-size: 0.9em;
         }
 
-        .demo-credentials p {
-            margin: 8px 0;
+        .history-price {
+            font-weight: bold;
+            color: #00A854;
+        }
+
+        .history-route {
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .history-status {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            background: #00A854;
+            color: white;
+        }
+
+        .profile-header {
+            background: linear-gradient(135deg, #00A854, #FECB00);
+            padding: 30px 20px;
+            text-align: center;
+            color: white;
+        }
+
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            background: white;
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3em;
+            color: #00A854;
+        }
+
+        .profile-name {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .profile-rating {
+            font-size: 1.2em;
+        }
+
+        .profile-info {
+            padding: 20px;
+            padding-bottom: 100px;
+        }
+
+        .info-item {
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .info-label {
+            color: #666;
+        }
+
+        .info-value {
+            font-weight: bold;
             color: #333;
         }
 
-        .demo-credentials strong {
-            color: #00A854;
-        }
-
-        .admin-section {
-            background: #fff3cd;
-            padding: 20px;
-            border-radius: 12px;
-            margin-top: 15px;
-            border-left: 4px solid #ffc107;
-        }
-
-        .admin-section h3 {
-            color: #856404;
-            margin-bottom: 10px;
-            font-size: 1em;
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            box-shadow: 0 -4px 12px rgba(0,0,0,0.1);
             display: flex;
-            align-items: center;
-            gap: 10px;
+            justify-content: space-around;
+            padding: 10px 0;
+            max-width: 414px;
+            margin: 0 auto;
+            z-index: 1000;
         }
 
-        .admin-section p {
-            color: #856404;
-            font-size: 0.9em;
-            margin: 5px 0;
-        }
-
-        .admin-section strong {
-            color: #856404;
-        }
-
-        .back-btn {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: #666;
-            background: none;
-            border: none;
+        .nav-item {
+            text-align: center;
             cursor: pointer;
-            font-size: 0.9em;
-            margin-bottom: 20px;
-            padding: 8px 12px;
-            border-radius: 8px;
+            padding: 10px;
             transition: all 0.3s;
+            flex: 1;
         }
 
-        .back-btn:hover {
-            background: #f8f9fa;
+        .nav-item:hover {
+            background: #f5f5f5;
+        }
+
+        .nav-item.active {
             color: #00A854;
+        }
+
+        .nav-icon {
+            font-size: 1.5em;
+            margin-bottom: 5px;
+        }
+
+        .nav-label {
+            font-size: 0.8em;
         }
 
         .toast {
             position: fixed;
-            top: 30px;
-            right: 30px;
+            top: 20px;
+            right: 20px;
             background: white;
-            padding: 20px 25px;
-            border-radius: 12px;
+            padding: 15px 20px;
+            border-radius: 10px;
             box-shadow: 0 8px 25px rgba(0,0,0,0.2);
-            display: none;
             z-index: 9999;
-            min-width: 300px;
-            animation: slideIn 0.3s;
+            animation: slideInRight 0.3s;
+            max-width: 300px;
         }
 
-        @keyframes slideIn {
-            from { transform: translateX(400px); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-
-        .toast.show {
-            display: flex;
-            align-items: center;
-            gap: 15px;
+        @keyframes slideInRight {
+            from { transform: translateX(400px); }
+            to { transform: translateX(0); }
         }
 
         .toast.success {
@@ -389,18 +1105,14 @@
             width: 100%;
             height: 100%;
             background: rgba(0,0,0,0.8);
-            display: none;
+            display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             z-index: 9999;
-            flex-direction: column;
         }
 
-        .loading-overlay.show {
-            display: flex;
-        }
-
-        .spinner {
+        .loading-spinner {
             width: 60px;
             height: 60px;
             border: 6px solid rgba(255,255,255,0.3);
@@ -419,214 +1131,511 @@
             margin-top: 20px;
         }
 
-        @media (max-width: 500px) {
-            body {
-                padding: 10px;
+        @media (max-width: 414px) {
+            .mobile-container {
+                max-width: 100%;
             }
 
-            .login-container {
-                padding: 25px;
+            .bottom-nav {
+                max-width: 100%;
             }
 
-            .logo {
-                width: 80px;
-                height: 80px;
-                font-size: 2.5em;
-            }
-
-            h1 {
-                font-size: 1.5em;
-            }
-
-            .toast {
+            .chat-container {
                 right: 10px;
-                left: 10px;
-                min-width: auto;
+                width: calc(100% - 20px);
             }
+
+            .chat-fab {
+                right: 10px;
+            }
+        }
+
+        .sync-badge {
+            display: inline-block;
+            background: #d4edda;
+            color: #155724;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.7em;
+            font-weight: bold;
+            margin-left: 5px;
+        }
+
+        .debug-panel {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0,0,0,0.8);
+            color: #00ff00;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 11px;
+            max-width: 300px;
+            z-index: 9998;
+            display: none;
+        }
+
+        .debug-panel.show {
+            display: block;
         }
     </style>
 </head>
 <body>
-    <div class="login-container">
-        <div class="logo">🚕</div>
-        <h1>Al Bourakh Driver Pro</h1>
-        <p class="subtitle">Connectez-vous pour commencer</p>
+    <div class="mobile-container">
+        <div id="loginScreen" class="screen active">
+            <div class="login-screen">
+                <div class="login-logo">🚕</div>
+                <h1 class="login-title">Al Bourakh Driver Pro <span class="sync-badge">✅ SYNC</span></h1>
+                <p class="login-subtitle">Connectez-vous pour commencer</p>
 
-        <div class="sync-badge">
-            <i class="fas fa-check-circle"></i>
-            <span><strong>SYSTÈME SYNCHRONISÉ</strong></span>
-        </div>
-
-        <!-- FORMULAIRE DE CONNEXION -->
-        <div id="loginFormContainer" class="form-container">
-            <form id="loginForm">
-                <div class="form-group">
-                    <label>
-                        <i class="fas fa-mobile-alt"></i>
-                        Téléphone
-                    </label>
-                    <input 
-                        type="text" 
-                        id="telephone" 
-                        name="telephone" 
-                        placeholder="771236547"
-                        autocomplete="tel"
-                        required
-                    >
-                    <div class="error-message" id="phoneError"></div>
+                <div class="input-group">
+                    <label>📱 Téléphone</label>
+                    <input type="tel" id="loginPhone" placeholder="+221 77 123 45 67">
                 </div>
 
-                <div class="form-group">
-                    <label>
-                        <i class="fas fa-lock"></i>
-                        Mot de passe
-                    </label>
-                    <div class="password-toggle">
-                        <input 
-                            type="password" 
-                            id="password" 
-                            name="password" 
-                            placeholder="••••••••"
-                            autocomplete="current-password"
-                            required
-                        >
-                        <button type="button" class="toggle-btn" onclick="togglePassword('password', 'toggleIconLogin')">
-                            <i class="fas fa-eye" id="toggleIconLogin"></i>
-                        </button>
-                    </div>
-                    <div class="error-message" id="passwordError"></div>
+                <div class="input-group">
+                    <label>🔒 Mot de passe</label>
+                    <input type="password" id="loginPassword" placeholder="Votre mot de passe">
                 </div>
 
-                <button type="submit" class="btn-login" id="loginBtn">
-                    <span>Se connecter</span>
-                    <i class="fas fa-arrow-right"></i>
+                <button class="btn btn-primary" onclick="handleLogin()">
+                    Se connecter
                 </button>
-            </form>
 
-            <div class="demo-section">
-                <h3>
-                    <i class="fas fa-flask"></i>
-                    Mode Démo
-                </h3>
-                <div class="demo-credentials">
-                    <p><strong>Tout numéro sénégalais +</strong> <code>demo123</code></p>
-                    <p>Exemple: <strong>771234567</strong> ou <strong>+221 77 123 45 67</strong></p>
+                <div style="background: #e8f5e9; padding: 15px; border-radius: 10px; margin-top: 20px; border-left: 4px solid #4CAF50;">
+                    <p style="margin: 0 0 8px 0; color: #2e7d32; font-size: 0.9em;">
+                        <strong>🔐 Connexion :</strong> 
+                        <br>Tout numéro sénégalais + <code style="background: #fff; padding: 2px 6px; border-radius: 3px; color: #000;">Admin2025</code>
+                    </p>
+                    <p style="margin: 0; color: #2e7d32; font-size: 0.9em;">
+                        <strong>🧪 Mode Démo :</strong> 
+                        <br>N'importe quel numéro + <code style="background: #fff; padding: 2px 6px; border-radius: 3px; color: #000;">demo123</code>
+                    </p>
                 </div>
-            </div>
 
-            <div class="admin-section">
-                <h3>
-                    <i class="fas fa-user-shield"></i>
-                    Connexion Admin
-                </h3>
-                <p><strong>Tout numéro +</strong> <code>Admin2025</code></p>
+                <a class="link-text" onclick="resetPassword()">
+                    Mot de passe oublié ?
+                </a>
+
+                <div style="margin-top: 20px;">
+                    <button class="btn" style="background: #2196F3; color: white;" onclick="createTestAccount()">
+                        🔧 Créer compte test
+                    </button>
+                </div>
+
+                <p style="margin-top: 30px; color: #999; font-size: 0.9em;">
+                    Version 3.3.0 (OPTIMISÉE ✅✅✅) - Al Bourakh © 2025
+                </p>
             </div>
         </div>
 
-        <!-- FORMULAIRE DE CHANGEMENT DE MOT DE PASSE -->
-        <div id="changePasswordContainer" class="form-container hidden">
-            <button class="back-btn" onclick="showLoginForm()">
-                <i class="fas fa-arrow-left"></i>
-                Retour
-            </button>
-
-            <div class="info-box">
-                <h3>
-                    <i class="fas fa-exclamation-triangle"></i>
-                    Première connexion
-                </h3>
-                <p><strong>Vous devez changer votre mot de passe par défaut.</strong></p>
-                <p>Créez un nouveau mot de passe sécurisé pour protéger votre compte.</p>
+        <div id="dashboardScreen" class="screen">
+            <div class="app-header">
+                <h1><i class="fas fa-car"></i> Dashboard</h1>
+                <button onclick="showScreen('profileScreen')">
+                    <i class="fas fa-user"></i>
+                </button>
             </div>
 
-            <form id="changePasswordForm">
-                <div class="form-group">
-                    <label>
-                        <i class="fas fa-key"></i>
-                        Nouveau mot de passe
-                    </label>
-                    <div class="password-toggle">
-                        <input 
-                            type="password" 
-                            id="newPassword" 
-                            name="newPassword" 
-                            placeholder="Créer un mot de passe fort"
-                            required
-                        >
-                        <button type="button" class="toggle-btn" onclick="togglePassword('newPassword', 'toggleIconNew')">
-                            <i class="fas fa-eye" id="toggleIconNew"></i>
-                        </button>
+            <div class="dashboard-content">
+                <div class="status-toggle">
+                    <div class="status-info">
+                        <h3>Statut</h3>
+                        <div class="status-text" id="statusText">⚫ HORS LIGNE</div>
                     </div>
-                    <div class="password-strength">
-                        <div class="strength-bar">
-                            <div class="strength-fill" id="strengthFill"></div>
+                    <div class="toggle-switch" id="toggleSwitch" onclick="toggleOnlineStatus()"></div>
+                </div>
+
+                <div class="map-container">
+                    <h3>📍 Ma Position</h3>
+                    <div id="map"></div>
+                    <div class="location-info" id="locationInfo">
+                        <div>
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span id="currentAddress">En attente de localisation...</span>
                         </div>
-                        <div class="strength-text" id="strengthText"></div>
+                        <div>
+                            <i class="fas fa-crosshairs"></i>
+                            <span id="accuracy">Précision: -- m</span>
+                        </div>
                     </div>
-                    <div class="error-message" id="newPasswordError"></div>
-                </div>
-
-                <div class="form-group">
-                    <label>
-                        <i class="fas fa-check-circle"></i>
-                        Confirmer le mot de passe
-                    </label>
-                    <div class="password-toggle">
-                        <input 
-                            type="password" 
-                            id="confirmPassword" 
-                            name="confirmPassword" 
-                            placeholder="Répéter le mot de passe"
-                            required
-                        >
-                        <button type="button" class="toggle-btn" onclick="togglePassword('confirmPassword', 'toggleIconConfirm')">
-                            <i class="fas fa-eye" id="toggleIconConfirm"></i>
-                        </button>
-                    </div>
-                    <div class="error-message" id="confirmPasswordError"></div>
-                </div>
-
-                <div id="passwordRequirements" class="requirements-list">
-                    <div class="requirement-item" id="req-length">
-                        <i class="fas fa-circle"></i>
-                        <span>Au moins 8 caractères</span>
-                    </div>
-                    <div class="requirement-item" id="req-upper">
-                        <i class="fas fa-circle"></i>
-                        <span>Au moins une lettre majuscule</span>
-                    </div>
-                    <div class="requirement-item" id="req-lower">
-                        <i class="fas fa-circle"></i>
-                        <span>Au moins une lettre minuscule</span>
-                    </div>
-                    <div class="requirement-item" id="req-number">
-                        <i class="fas fa-circle"></i>
-                        <span>Au moins un chiffre</span>
+                    
+                    <div class="permission-guide" id="permissionGuide">
+                        <h4>🔓 Comment activer la localisation :</h4>
+                        <ul>
+                            <li><strong>Chrome/Edge</strong> : Cliquez sur 🔒 dans la barre d'adresse → Autoriser localisation</li>
+                            <li><strong>Firefox</strong> : Paramètres → Permissions → Localisation</li>
+                            <li><strong>Safari iOS</strong> : Réglages → Safari → Localisation → Autoriser</li>
+                            <li><strong>Android</strong> : Paramètres → Applications → Autoriser localisation</li>
+                        </ul>
+                        <p style="margin-top: 10px; font-weight: bold;">
+                            💡 Rechargez la page après avoir activé les permissions
+                        </p>
                     </div>
                 </div>
 
-                <button type="submit" class="btn-login" id="changePasswordBtn">
-                    <span>Changer le mot de passe</span>
-                    <i class="fas fa-check"></i>
+                <h3 style="margin-bottom: 15px; color: #333;">📊 Aujourd'hui</h3>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">🚗</div>
+                        <div class="stat-value" id="coursesJour">0</div>
+                        <div class="stat-label">Courses</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">💰</div>
+                        <div class="stat-value" id="revenusJour">0</div>
+                        <div class="stat-label">FCFA</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">⭐</div>
+                        <div class="stat-value" id="rating">4.8</div>
+                        <div class="stat-label">Note</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">📈</div>
+                        <div class="stat-value" id="coursesTotal">0</div>
+                        <div class="stat-label">Total</div>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="action-btn" onclick="showScreen('historyScreen')">
+                        <div class="action-btn-icon">📊</div>
+                        <div>Historique</div>
+                    </button>
+
+                    <button class="action-btn" onclick="showScreen('profileScreen')">
+                        <div class="action-btn-icon">👤</div>
+                        <div>Profil</div>
+                    </button>
+
+                    <button class="action-btn" onclick="diagnosticGeolocation()">
+                        <div class="action-btn-icon">🔍</div>
+                        <div>Test GPS</div>
+                    </button>
+
+                    <button class="action-btn" onclick="simulateNewCourse()">
+                        <div class="action-btn-icon">🔔</div>
+                        <div>Test Course</div>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="activeCourseScreen" class="screen">
+            <div class="app-header">
+                <button onclick="showScreen('dashboardScreen')">
+                    <i class="fas fa-arrow-left"></i>
                 </button>
-            </form>
+                <h1><i class="fas fa-route"></i> Course en cours</h1>
+                <button onclick="toggleChat()">
+                    <i class="fas fa-comments"></i>
+                </button>
+            </div>
+
+            <div class="active-course-container">
+                <div class="map-container">
+                    <div id="activeCourseMap" style="height: 350px; border-radius: 15px;"></div>
+                </div>
+
+                <div class="course-status-card">
+                    <span class="status-badge acceptee" id="courseStatus">✅ Course acceptée</span>
+                    <h3 id="courseStatusTitle">En route vers le client</h3>
+                    <div class="location-info">
+                        <div>
+                            <i class="fas fa-clock"></i>
+                            <span id="estimatedTime">Temps estimé: 12 min</span>
+                        </div>
+                        <div>
+                            <i class="fas fa-road"></i>
+                            <span id="remainingDistance">Distance: 3.2 km</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="client-info-card" id="clientInfoCard">
+                    <h3>👤 Client</h3>
+                    <div class="info-row">
+                        <span>Nom</span>
+                        <strong id="clientName">Aminata Sow</strong>
+                    </div>
+                    <div class="info-row">
+                        <span>Téléphone</span>
+                        <strong id="clientPhone">+221 77 999 88 77</strong>
+                    </div>
+                    <div class="info-row">
+                        <span>Note</span>
+                        <strong id="clientRating">⭐ 4.9</strong>
+                    </div>
+                </div>
+
+                <div class="client-info-card">
+                    <h3>🗺️ Trajet</h3>
+                    <div class="info-row">
+                        <span>📍 Départ</span>
+                        <strong id="activeDeparture">Plateau, Dakar</strong>
+                    </div>
+                    <div class="info-row">
+                        <span>🎯 Destination</span>
+                        <strong id="activeDestination">Almadies</strong>
+                    </div>
+                    <div class="info-row">
+                        <span>💰 Prix</span>
+                        <strong id="activePrice">3 500 FCFA</strong>
+                    </div>
+                </div>
+
+                <div class="navigation-buttons">
+                    <button class="nav-btn secondary" onclick="openGoogleMaps()">
+                        <i class="fas fa-map-marked-alt"></i> Navigation GPS
+                    </button>
+                    <button class="nav-btn primary" onclick="callClient()">
+                        <i class="fas fa-phone"></i> Appeler Client
+                    </button>
+                </div>
+
+                <div class="navigation-buttons" style="margin-top: 10px;">
+                    <button class="nav-btn primary" onclick="updateCourseStatus('arrive')">
+                        <i class="fas fa-map-pin"></i> Arrivé sur place
+                    </button>
+                    <button class="nav-btn primary" onclick="updateCourseStatus('en_cours')">
+                        <i class="fas fa-play"></i> Démarrer course
+                    </button>
+                </div>
+
+                <button class="btn btn-primary" onclick="completeCourse()" style="margin-top: 15px;">
+                    <i class="fas fa-check-circle"></i> Terminer la course
+                </button>
+
+                <button class="btn" onclick="cancelCourse()" style="margin-top: 10px; background: #E30613; color: white;">
+                    <i class="fas fa-times-circle"></i> Annuler la course
+                </button>
+            </div>
+        </div>
+
+        <div id="historyScreen" class="screen">
+            <div class="app-header">
+                <button onclick="showScreen('dashboardScreen')">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <h1><i class="fas fa-history"></i> Historique</h1>
+                <button onclick="loadHistory()">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+            </div>
+
+            <div class="history-list" id="historyList">
+            </div>
+        </div>
+
+        <div id="profileScreen" class="screen">
+            <div class="profile-header">
+                <button onclick="showScreen('dashboardScreen')" style="position: absolute; left: 20px; top: 20px; background: rgba(255,255,255,0.2); border: none; color: white; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 1.2em;">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <div class="profile-avatar">👤</div>
+                <div class="profile-name" id="profileName">Chauffeur Al Bourakh</div>
+                <div class="profile-rating">⭐ 4.8 • <span id="profileTotalCourses">0</span> courses</div>
+            </div>
+
+            <div class="profile-info">
+                <div class="info-item">
+                    <span class="info-label">📱 Téléphone</span>
+                    <span class="info-value" id="profilePhone">+221 77 123 45 67</span>
+                </div>
+
+                <div class="info-item">
+                    <span class="info-label">🚗 Véhicule</span>
+                    <span class="info-value">Toyota Corolla</span>
+                </div>
+
+                <div class="info-item">
+                    <span class="info-label">🔢 Immatriculation</span>
+                    <span class="info-value">DK-1234-AB</span>
+                </div>
+
+                <div class="info-item">
+                    <span class="info-label">💰 Revenus Total</span>
+                    <span class="info-value" id="profileRevenuTotal">0 FCFA</span>
+                </div>
+
+                <button class="btn btn-primary" onclick="showPasswordModal()" style="margin-top: 20px;">
+                    <i class="fas fa-key"></i> Changer le mot de passe
+                </button>
+
+                <button class="btn btn-primary" onclick="handleLogout()" style="margin-top: 10px; background: #E30613;">
+                    <i class="fas fa-sign-out-alt"></i> Déconnexion
+                </button>
+            </div>
+        </div>
+
+        <div class="bottom-nav" id="bottomNav" style="display: none;">
+            <div class="nav-item active" onclick="showScreen('dashboardScreen')">
+                <div class="nav-icon"><i class="fas fa-home"></i></div>
+                <div class="nav-label">Accueil</div>
+            </div>
+
+            <div class="nav-item" onclick="showScreen('activeCourseScreen')">
+                <div class="nav-icon"><i class="fas fa-route"></i></div>
+                <div class="nav-label">Course</div>
+            </div>
+
+            <div class="nav-item" onclick="showScreen('historyScreen')">
+                <div class="nav-icon"><i class="fas fa-history"></i></div>
+                <div class="nav-label">Historique</div>
+            </div>
+
+            <div class="nav-item" onclick="showScreen('profileScreen')">
+                <div class="nav-icon"><i class="fas fa-user"></i></div>
+                <div class="nav-label">Profil</div>
+            </div>
         </div>
     </div>
 
-    <div id="toast" class="toast"></div>
+    <button class="chat-fab" id="chatFab" onclick="toggleChat()">
+        <i class="fas fa-comments"></i>
+        <span class="chat-badge" id="chatBadge" style="display: none;">0</span>
+    </button>
 
-    <div id="loading" class="loading-overlay">
-        <div>
-            <div class="spinner"></div>
-            <div class="loading-text">Connexion en cours...</div>
+    <div class="chat-container" id="chatContainer">
+        <div class="chat-header">
+            <div>
+                <strong id="chatClientName">Client</strong>
+                <div style="font-size: 0.85em; opacity: 0.9;">En ligne</div>
+            </div>
+            <button onclick="toggleChat()" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 35px; height: 35px; border-radius: 50%; cursor: pointer;">
+                <i class="fas fa-times"></i>
+            </button>
         </div>
+        <div class="chat-messages" id="chatMessages">
+        </div>
+        <div class="chat-input-container">
+            <input type="text" class="chat-input" id="chatInput" placeholder="Écrivez votre message..." onkeypress="handleChatKeyPress(event)">
+            <button class="chat-send-btn" onclick="sendMessage()">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+
+    <div class="payment-modal" id="paymentModal">
+        <div class="payment-content">
+            <div class="payment-header">
+                <h2>💳 Paiement</h2>
+                <p style="color: #666; margin-top: 10px;">Sélectionnez le mode de paiement</p>
+            </div>
+
+            <div class="payment-amount" id="paymentAmount">3 500 FCFA</div>
+
+            <div class="payment-methods">
+                <div class="payment-method" onclick="selectPaymentMethod('cash')">
+                    <div class="payment-icon cash">
+                        <i class="fas fa-money-bill-wave"></i>
+                    </div>
+                    <div>
+                        <strong>Espèces</strong>
+                        <div style="font-size: 0.9em; color: #666;">Paiement en liquide</div>
+                    </div>
+                </div>
+
+                <div class="payment-method" onclick="selectPaymentMethod('orange')">
+                    <div class="payment-icon orange">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <div>
+                        <strong>Orange Money</strong>
+                        <div style="font-size: 0.9em; color: #666;">Paiement mobile</div>
+                    </div>
+                </div>
+
+                <div class="payment-method" onclick="selectPaymentMethod('wave')">
+                    <div class="payment-icon wave">
+                        <i class="fas fa-wallet"></i>
+                    </div>
+                    <div>
+                        <strong>Wave</strong>
+                        <div style="font-size: 0.9em; color: #666;">Portefeuille digital</div>
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn btn-primary" onclick="confirmPayment()">
+                Confirmer le paiement
+            </button>
+
+            <button class="btn" onclick="closePaymentModal()" style="margin-top: 10px; background: #999; color: white;">
+                Annuler
+            </button>
+        </div>
+    </div>
+
+    <div class="password-modal" id="passwordModal">
+        <div class="password-content">
+            <div class="password-header">
+                <h2>🔒 Changer le mot de passe</h2>
+                <p style="color: #666; margin-top: 5px;">Sécurisez votre compte avec un nouveau mot de passe</p>
+            </div>
+
+            <div class="password-input-group">
+                <label>Mot de passe actuel</label>
+                <input type="password" id="currentPassword" placeholder="Entrez votre mot de passe actuel">
+            </div>
+
+            <div class="password-input-group">
+                <label>Nouveau mot de passe</label>
+                <input type="password" id="newPassword" placeholder="Entrez un nouveau mot de passe" oninput="checkPasswordStrength()">
+                <div class="password-strength">
+                    <div class="password-strength-bar" id="passwordStrengthBar"></div>
+                </div>
+            </div>
+
+            <div class="password-input-group">
+                <label>Confirmer le nouveau mot de passe</label>
+                <input type="password" id="confirmPassword" placeholder="Confirmez le nouveau mot de passe">
+            </div>
+
+            <div class="password-requirements">
+                <strong>Exigences du mot de passe :</strong>
+                <ul id="passwordRequirements">
+                    <li id="req-length">Au moins 6 caractères</li>
+                    <li id="req-match">Les mots de passe correspondent</li>
+                </ul>
+            </div>
+
+            <button class="btn btn-primary" onclick="changePassword()">
+                <i class="fas fa-check"></i> Changer le mot de passe
+            </button>
+
+            <button class="btn" onclick="closePasswordModal()" style="margin-top: 10px; background: #999; color: white;">
+                Annuler
+            </button>
+        </div>
+    </div>
+
+    <div class="debug-panel" id="debugPanel">
+        <div>📊 DEBUG INFO</div>
+        <div id="debugContent"></div>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    
+    <script>
+        function loadGoogleMaps() {
+            const script = document.createElement('script');
+            script.src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyBI1svukv3Ts7fN97ke5OGfwo2V-vRUGHI&callback=initMap';
+            script.async = true;
+            script.defer = true;
+            document.head.appendChild(script);
+        }
+    </script>
 
     <script>
+        // ====== CONFIGURATION FIREBASE ======
         const firebaseConfig = {
             apiKey: "AIzaSyANcdvMz2yMbRD4V82EGLm95Jh2NdaR2o0",
             authDomain: "albourakh-sn-ok.firebaseapp.com",
@@ -636,407 +1645,1559 @@
             appId: "1:297875396274:web:82a466c4fce6fbb79b1bab"
         };
 
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
-
+        firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
         const auth = firebase.auth();
 
+        console.log('🚕 Al Bourakh Driver Pro - VERSION OPTIMISÉE 3.3.0 ✅✅✅');
+        console.log('🔄 Corrections appliquées:');
+        console.log('   ✅ Gestion multi-format téléphones');
+        console.log('   ✅ Création automatique comptes');
+        console.log('   ✅ Synchronisation complète Firebase');
+        console.log('   ✅ Debug et diagnostic intégrés');
+
+        // ====== VARIABLES GLOBALES ======
         let currentUser = null;
-        let driverData = null;
+        let isOnline = false;
+        let currentCourse = null;
+        let map = null;
+        let marker = null;
+        let directionsService = null;
+        let directionsRenderer = null;
+        let watchPositionId = null;
+        let chatListener = null;
+        let unreadMessages = 0;
+        let gpsAttempts = 0;
+        let gpsActivated = false;
+        
+        let stats = {
+            coursesJour: 0,
+            revenusJour: 0,
+            rating: 4.8,
+            coursesTotal: 0
+        };
 
-        console.log('✅ Firebase initialisé - Système synchronisé');
-
+        // ====== FONCTIONS UTILITAIRES ======
+        
+        /**
+         * Normalise un numéro de téléphone en retirant les caractères spéciaux
+         * et en générant plusieurs formats possibles
+         */
         function normalizePhoneNumber(phone) {
-            let cleaned = phone.replace(/[\s\-\(\)]/g, '');
+            // Nettoyer le numéro
+            phone = phone.replace(/[\s\-\(\)\.]/g, ''); // Enlever espaces et caractères
+            phone = phone.replace(/^\+/, ''); // Enlever le + au début
+            phone = phone.replace(/^00/, ''); // Enlever 00 au début
             
-            if (cleaned.startsWith('+')) {
-                cleaned = cleaned.substring(1);
-            }
+            // Générer les formats possibles
+            const formats = [];
             
-            if (cleaned.startsWith('221')) {
-                return cleaned;
-            }
-            
-            if (cleaned.startsWith('7') && cleaned.length === 9) {
-                return '221' + cleaned;
-            }
-            
-            return cleaned;
-        }
-
-        function togglePassword(fieldId, iconId) {
-            const passwordInput = document.getElementById(fieldId);
-            const toggleIcon = document.getElementById(iconId);
-            
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-                toggleIcon.classList.remove('fa-eye');
-                toggleIcon.classList.add('fa-eye-slash');
+            if (phone.startsWith('221')) {
+                // Format international complet
+                formats.push(phone); // 221771234567
+                formats.push(phone.substring(3)); // 771234567
+            } else if (phone.startsWith('00221')) {
+                // Format avec 00221
+                formats.push(phone.substring(5)); // 771234567
+                formats.push(phone.substring(2)); // 221771234567
+            } else if (phone.match(/^[67][0-8]/)) {
+                // Format local sénégalais (commence par 6, 70-78)
+                formats.push(phone); // 771234567
+                formats.push('221' + phone); // 221771234567
             } else {
-                passwordInput.type = 'password';
-                toggleIcon.classList.remove('fa-eye-slash');
-                toggleIcon.classList.add('fa-eye');
+                // Autres formats
+                formats.push(phone);
             }
-        }
-
-        function validateForm() {
-            clearErrors();
-            let isValid = true;
-
-            const phone = document.getElementById('telephone').value.trim();
-            const password = document.getElementById('password').value;
-
-            if (!phone) {
-                showFieldError('phoneError', 'Le numéro de téléphone est requis');
-                document.getElementById('telephone').classList.add('error');
-                isValid = false;
-            } else {
-                const normalized = normalizePhoneNumber(phone);
-                if (normalized.length < 9) {
-                    showFieldError('phoneError', 'Numéro de téléphone invalide');
-                    document.getElementById('telephone').classList.add('error');
-                    isValid = false;
-                }
-            }
-
-            if (!password) {
-                showFieldError('passwordError', 'Le mot de passe est requis');
-                document.getElementById('password').classList.add('error');
-                isValid = false;
-            }
-
-            return isValid;
-        }
-
-        function checkPasswordStrength(password) {
-            let strength = 0;
-            const requirements = {
-                length: password.length >= 8,
-                upper: /[A-Z]/.test(password),
-                lower: /[a-z]/.test(password),
-                number: /[0-9]/.test(password)
-            };
-
-            updateRequirements(requirements);
-
-            if (requirements.length) strength++;
-            if (requirements.upper) strength++;
-            if (requirements.lower) strength++;
-            if (requirements.number) strength++;
             
-            return strength;
+            // Enlever les doublons
+            return [...new Set(formats)];
         }
 
-        function updateRequirements(requirements) {
-            const reqElements = {
-                length: document.getElementById('req-length'),
-                upper: document.getElementById('req-upper'),
-                lower: document.getElementById('req-lower'),
-                number: document.getElementById('req-number')
-            };
+        // ====== FONCTION DE CONNEXION AMÉLIORÉE ======
+        async function handleLogin() {
+            let phone = document.getElementById('loginPhone').value.trim();
+            const password = document.getElementById('loginPassword').value.trim();
 
-            for (const [key, element] of Object.entries(reqElements)) {
-                const icon = element.querySelector('i');
-                if (requirements[key]) {
-                    element.classList.add('met');
-                    icon.classList.remove('fa-circle');
-                    icon.classList.add('fa-check-circle');
-                } else {
-                    element.classList.remove('met');
-                    icon.classList.remove('fa-check-circle');
-                    icon.classList.add('fa-circle');
-                }
-            }
-        }
-
-        function validatePassword(password) {
-            const errors = [];
-            
-            if (password.length < 8) errors.push('Au moins 8 caractères');
-            if (!/[a-z]/.test(password)) errors.push('Une lettre minuscule');
-            if (!/[A-Z]/.test(password)) errors.push('Une lettre majuscule');
-            if (!/[0-9]/.test(password)) errors.push('Un chiffre');
-            
-            return errors;
-        }
-
-        document.getElementById('newPassword').addEventListener('input', (e) => {
-            const password = e.target.value;
-            const strength = checkPasswordStrength(password);
-            const strengthFill = document.getElementById('strengthFill');
-            const strengthText = document.getElementById('strengthText');
-            
-            strengthFill.className = 'strength-fill';
-            
-            if (strength <= 2) {
-                strengthFill.classList.add('strength-weak');
-                strengthText.textContent = 'Faible';
-                strengthText.style.color = '#dc3545';
-            } else if (strength <= 3) {
-                strengthFill.classList.add('strength-medium');
-                strengthText.textContent = 'Moyen';
-                strengthText.style.color = '#ffc107';
-            } else {
-                strengthFill.classList.add('strength-strong');
-                strengthText.textContent = 'Fort';
-                strengthText.style.color = '#00A854';
-            }
-        });
-
-        function showFieldError(elementId, message) {
-            const errorEl = document.getElementById(elementId);
-            errorEl.textContent = message;
-            errorEl.classList.add('show');
-        }
-
-        function clearErrors() {
-            document.querySelectorAll('.error-message').forEach(el => {
-                el.classList.remove('show');
-                el.textContent = '';
-            });
-            document.querySelectorAll('.error').forEach(el => {
-                el.classList.remove('error');
-            });
-        }
-
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-
-            if (!validateForm()) {
+            if (!phone || !password) {
+                showToast('Veuillez remplir tous les champs', 'error');
                 return;
             }
 
-            const phoneInput = document.getElementById('telephone').value.trim();
-            const password = document.getElementById('password').value;
+            // MODE DEMO
+            if (password === 'demo123') {
+                console.log('🧪 MODE DEMO ACTIVÉ');
+                showLoading('Connexion démo...');
+                
+                setTimeout(() => {
+                    currentUser = {
+                        uid: 'DEMO_USER_' + Date.now(),
+                        telephone: phone,
+                        prenom: 'Chauffeur',
+                        nom: 'Demo',
+                        rating: 4.8,
+                        coursesCompletees: 42,
+                        revenusTotal: 150000,
+                        isDemo: true
+                    };
+                    
+                    hideLoading();
+                    showToast('✅ Connexion démo réussie!', 'success');
+                    document.getElementById('bottomNav').style.display = 'flex';
+                    showScreen('dashboardScreen');
+                    loadDashboardDataDemo();
+                    startLocationTracking();
+                }, 1000);
+                return;
+            }
 
-            showLoading();
+            showLoading('Connexion...');
             console.log('🔐 Tentative de connexion...');
 
-            try {
-                const normalizedPhone = normalizePhoneNumber(phoneInput);
-                console.log('📱 Numéro normalisé:', normalizedPhone);
-                
-                const email = normalizedPhone + '@albourakh.sn';
-                console.log('📧 Email généré:', email);
-                
-                console.log('🔑 Connexion à Firebase Auth...');
-                const userCredential = await auth.signInWithEmailAndPassword(email, password);
-                console.log('✅ Authentification réussie');
-                console.log('👤 User ID:', userCredential.user.uid);
-                
-                currentUser = userCredential.user;
-                
-                console.log('🔍 Recherche du profil chauffeur...');
-                const driverDoc = await db.collection('drivers').doc(userCredential.user.uid).get();
-                
-                if (!driverDoc.exists) {
-                    throw new Error('Profil chauffeur introuvable');
-                }
-                
-                driverData = driverDoc.data();
-                console.log('✅ Profil chauffeur trouvé:', driverData.prenom, driverData.nom);
-                
-                if (!driverData.actif) {
-                    throw new Error('Votre compte est désactivé. Contactez le support.');
-                }
-                
-                // VÉRIFIER SI PREMIÈRE CONNEXION
-                if (driverData.premiereConnexion === true) {
-                    console.log('🔒 Première connexion détectée - Changement de mot de passe requis');
+            // Obtenir tous les formats possibles
+            const phoneFormats = normalizePhoneNumber(phone);
+            console.log('📱 Formats testés:', phoneFormats);
+
+            let connectionSuccess = false;
+            let lastError = null;
+
+            // Essayer chaque format
+            for (const format of phoneFormats) {
+                try {
+                    const email = format + '@albourakh.sn';
+                    console.log(`📧 Test: ${email}`);
+                    
+                    // Tenter la connexion
+                    const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                    const uid = userCredential.user.uid;
+                    
+                    console.log('✅ Auth réussie avec:', email);
+                    
+                    // Vérifier/créer le document driver
+                    let driverDoc = await db.collection('drivers').doc(uid).get();
+                    
+                    if (!driverDoc.exists) {
+                        console.log('⚠️ Document driver manquant, création...');
+                        await db.collection('drivers').doc(uid).set({
+                            telephone: phone,
+                            prenom: 'Chauffeur',
+                            nom: 'Al Bourakh',
+                            email: email,
+                            statut: 'hors_ligne',
+                            rating: 4.8,
+                            coursesCompletees: 0,
+                            revenusTotal: 0,
+                            vehicule: {
+                                marque: 'Toyota',
+                                modele: 'Corolla',
+                                immatriculation: 'DK-1234-AB'
+                            },
+                            dateInscription: firebase.firestore.FieldValue.serverTimestamp(),
+                            actif: true
+                        });
+                        driverDoc = await db.collection('drivers').doc(uid).get();
+                    }
+                    
+                    const driverData = driverDoc.data();
+                    currentUser = { uid: uid, ...driverData };
+                    
+                    // Mettre à jour dernière connexion
+                    await db.collection('drivers').doc(uid).update({
+                        derniereConnexion: firebase.firestore.FieldValue.serverTimestamp(),
+                        statut: 'hors_ligne'
+                    });
+
                     hideLoading();
-                    showChangePasswordForm();
-                    showToast('Bienvenue ! Veuillez créer un nouveau mot de passe.', 'info');
-                    return;
-                }
-                
-                await finalizeLogin();
-                
-            } catch (error) {
-                hideLoading();
-                console.error('❌ Erreur de connexion:', error);
-                
-                let errorMessage = 'Erreur de connexion';
-                
-                switch (error.code) {
-                    case 'auth/invalid-credential':
-                    case 'auth/wrong-password':
-                    case 'auth/user-not-found':
-                    case 'auth/invalid-email':
-                        errorMessage = 'Numéro de téléphone ou mot de passe incorrect';
-                        showFieldError('phoneError', 'Vérifiez vos identifiants');
-                        showFieldError('passwordError', 'Mot de passe incorrect');
-                        break;
-                    case 'auth/too-many-requests':
-                        errorMessage = 'Trop de tentatives. Réessayez dans quelques minutes';
-                        break;
-                    case 'auth/network-request-failed':
-                        errorMessage = 'Problème de connexion internet';
-                        break;
-                    case 'auth/user-disabled':
-                        errorMessage = 'Ce compte a été désactivé';
-                        break;
-                    default:
-                        if (error.message.includes('introuvable')) {
-                            errorMessage = 'Profil chauffeur introuvable. Contactez le support.';
-                        } else if (error.message.includes('désactivé')) {
-                            errorMessage = error.message;
-                        } else {
-                            errorMessage = 'Erreur: ' + error.message;
+                    showToast(`✅ Bienvenue ${driverData.prenom || 'Chauffeur'} !`, 'success');
+                    
+                    document.getElementById('bottomNav').style.display = 'flex';
+                    showScreen('dashboardScreen');
+                    loadDashboardData();
+                    startLocationTracking();
+                    
+                    connectionSuccess = true;
+                    break;
+                    
+                } catch (error) {
+                    console.log(`❌ Échec ${format}:`, error.code);
+                    lastError = error;
+                    
+                    // Si le compte n'existe pas et qu'on utilise Admin2025, créer automatiquement
+                    if (error.code === 'auth/user-not-found' && password === 'Admin2025') {
+                        try {
+                            console.log('🔧 Création automatique du compte...');
+                            const email = format + '@albourakh.sn';
+                            
+                            const newUser = await auth.createUserWithEmailAndPassword(email, password);
+                            const uid = newUser.user.uid;
+                            
+                            // Créer le document driver
+                            await db.collection('drivers').doc(uid).set({
+                                telephone: phone,
+                                prenom: 'Chauffeur',
+                                nom: 'Al Bourakh',
+                                email: email,
+                                statut: 'hors_ligne',
+                                rating: 4.8,
+                                coursesCompletees: 0,
+                                revenusTotal: 0,
+                                vehicule: {
+                                    marque: 'Toyota',
+                                    modele: 'Corolla',
+                                    immatriculation: 'DK-1234-AB'
+                                },
+                                dateInscription: firebase.firestore.FieldValue.serverTimestamp(),
+                                actif: true
+                            });
+                            
+                            currentUser = {
+                                uid: uid,
+                                telephone: phone,
+                                prenom: 'Chauffeur',
+                                nom: 'Al Bourakh',
+                                email: email,
+                                rating: 4.8,
+                                coursesCompletees: 0,
+                                revenusTotal: 0
+                            };
+                            
+                            hideLoading();
+                            showToast('✅ Compte créé avec succès!', 'success');
+                            
+                            document.getElementById('bottomNav').style.display = 'flex';
+                            showScreen('dashboardScreen');
+                            loadDashboardData();
+                            startLocationTracking();
+                            
+                            connectionSuccess = true;
+                            break;
+                            
+                        } catch (createError) {
+                            console.error('Erreur création:', createError);
                         }
+                    }
+                }
+            }
+
+            if (!connectionSuccess) {
+                hideLoading();
+                let errorMsg = '❌ Identifiants incorrects';
+                
+                if (lastError) {
+                    if (lastError.code === 'auth/wrong-password') {
+                        errorMsg = '❌ Mot de passe incorrect';
+                    } else if (lastError.code === 'auth/user-not-found') {
+                        errorMsg = '❌ Compte non trouvé (utilisez Admin2025)';
+                    } else if (lastError.code === 'auth/too-many-requests') {
+                        errorMsg = '❌ Trop de tentatives, réessayez plus tard';
+                    }
                 }
                 
-                showToast(errorMessage, 'error');
+                showToast(errorMsg, 'error');
             }
-        });
+        }
 
-        document.getElementById('changePasswordForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
+        // ====== FONCTION DE CRÉATION DE COMPTE TEST ======
+        async function createTestAccount() {
+            const phone = prompt('Numéro de téléphone (ex: 771234567):');
+            if (!phone) return;
             
-            clearErrors();
-            
-            const newPassword = document.getElementById('newPassword').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
-            
-            const errors = validatePassword(newPassword);
-            
-            if (errors.length > 0) {
-                showFieldError('newPasswordError', 'Manque: ' + errors.join(', '));
-                return;
-            }
-            
-            if (newPassword !== confirmPassword) {
-                showFieldError('confirmPasswordError', 'Les mots de passe ne correspondent pas');
-                document.getElementById('confirmPassword').classList.add('error');
-                return;
-            }
-            
-            if (newPassword === 'Admin2025') {
-                showFieldError('newPasswordError', 'Vous devez choisir un mot de passe différent');
-                document.getElementById('newPassword').classList.add('error');
-                return;
-            }
-            
-            showLoading();
+            showLoading('Création du compte test...');
             
             try {
-                console.log('🔐 Changement du mot de passe...');
+                const formats = normalizePhoneNumber(phone);
+                const email = formats[0] + '@albourakh.sn';
                 
-                await currentUser.updatePassword(newPassword);
-                console.log('✅ Mot de passe changé avec succès');
+                // Créer le compte
+                const userCredential = await auth.createUserWithEmailAndPassword(email, 'Admin2025');
+                const uid = userCredential.user.uid;
                 
-                await db.collection('drivers').doc(currentUser.uid).update({
-                    premiereConnexion: false,
-                    dateChangementMotDePasse: firebase.firestore.FieldValue.serverTimestamp()
+                // Créer le document driver
+                await db.collection('drivers').doc(uid).set({
+                    telephone: phone,
+                    prenom: 'Test',
+                    nom: 'Chauffeur',
+                    email: email,
+                    statut: 'hors_ligne',
+                    rating: 4.8,
+                    coursesCompletees: 0,
+                    revenusTotal: 0,
+                    vehicule: {
+                        marque: 'Toyota',
+                        modele: 'Corolla',
+                        immatriculation: 'DK-TEST-' + Math.floor(Math.random() * 1000)
+                    },
+                    dateInscription: firebase.firestore.FieldValue.serverTimestamp(),
+                    actif: true
                 });
-                console.log('✅ Flag premiereConnexion mis à false');
                 
-                driverData.premiereConnexion = false;
+                hideLoading();
+                alert(`✅ Compte créé!\n\nEmail: ${email}\nMot de passe: Admin2025\nTéléphone: ${phone}`);
                 
-                showToast('✅ Mot de passe changé avec succès!', 'success');
-                
-                setTimeout(async () => {
-                    await finalizeLogin();
-                }, 1500);
+                // Remplir automatiquement les champs
+                document.getElementById('loginPhone').value = phone;
+                document.getElementById('loginPassword').value = 'Admin2025';
                 
             } catch (error) {
                 hideLoading();
-                console.error('❌ Erreur changement mot de passe:', error);
+                console.error('Erreur création:', error);
                 
-                let errorMessage = 'Erreur lors du changement de mot de passe';
-                
-                if (error.code === 'auth/weak-password') {
-                    errorMessage = 'Le mot de passe est trop faible';
-                } else if (error.code === 'auth/requires-recent-login') {
-                    errorMessage = 'Veuillez vous reconnecter';
-                    setTimeout(() => {
-                        auth.signOut();
-                        location.reload();
-                    }, 2000);
+                if (error.code === 'auth/email-already-in-use') {
+                    alert('❌ Ce numéro a déjà un compte');
+                } else {
+                    alert('❌ Erreur: ' + error.message);
                 }
-                
-                showToast(errorMessage, 'error');
             }
-        });
-
-        async function finalizeLogin() {
-            console.log('📝 Finalisation de la connexion...');
-            
-            await db.collection('drivers').doc(currentUser.uid).update({
-                statut: 'en_ligne',
-                derniereConnexion: firebase.firestore.FieldValue.serverTimestamp()
-            });
-            
-            localStorage.setItem('driverId', currentUser.uid);
-            localStorage.setItem('driverData', JSON.stringify(driverData));
-            
-            hideLoading();
-            showToast(`Bienvenue ${driverData.prenom} !`, 'success');
-            
-            console.log('✅ Connexion complète réussie!');
-            
-            setTimeout(() => {
-                window.location.href = 'driver-dashboard.html';
-            }, 1000);
         }
 
-        function showChangePasswordForm() {
-            document.getElementById('loginFormContainer').classList.add('hidden');
-            document.getElementById('changePasswordContainer').classList.remove('hidden');
+        // ====== FONCTION DE RÉINITIALISATION MOT DE PASSE ======
+        async function resetPassword() {
+            const phone = prompt('Votre numéro de téléphone:');
+            if (!phone) return;
+            
+            showToast('📧 Instructions envoyées (simulation)', 'info');
+            
+            // Dans un cas réel, vous pourriez envoyer un SMS ou email
+            alert('Nouveau mot de passe: Admin2025\n\n(En production, un SMS serait envoyé)');
         }
 
-        function showLoginForm() {
-            document.getElementById('changePasswordContainer').classList.add('hidden');
-            document.getElementById('loginFormContainer').classList.remove('hidden');
-            clearErrors();
-            document.getElementById('changePasswordForm').reset();
-        }
-
-        document.getElementById('telephone').addEventListener('input', clearErrors);
-        document.getElementById('password').addEventListener('input', clearErrors);
-
-        function showToast(message, type = 'info') {
-            const toast = document.getElementById('toast');
-            const icons = {
-                success: '<i class="fas fa-check-circle" style="color: #00A854; font-size: 1.5em;"></i>',
-                error: '<i class="fas fa-exclamation-circle" style="color: #E30613; font-size: 1.5em;"></i>',
-                info: '<i class="fas fa-info-circle" style="color: #2196F3; font-size: 1.5em;"></i>'
+        // ====== GOOGLE MAPS ======
+        function initMap() {
+            console.log('🗺️ Initialisation de Google Maps...');
+            
+            const mapOptions = {
+                center: { lat: 14.6937, lng: -17.4441 }, // Dakar
+                zoom: 14,
+                styles: [
+                    {
+                        featureType: "poi",
+                        elementType: "labels",
+                        stylers: [{ visibility: "off" }]
+                    }
+                ]
             };
             
-            toast.className = `toast ${type} show`;
-            toast.innerHTML = icons[type] + `<div>${message}</div>`;
+            map = new google.maps.Map(document.getElementById('map'), mapOptions);
             
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, 4000);
+            marker = new google.maps.Marker({
+                map: map,
+                icon: {
+                    path: google.maps.SymbolPath.CIRCLE,
+                    scale: 10,
+                    fillColor: '#00A854',
+                    fillOpacity: 1,
+                    strokeColor: '#fff',
+                    strokeWeight: 3
+                }
+            });
+
+            directionsService = new google.maps.DirectionsService();
+            directionsRenderer = new google.maps.DirectionsRenderer({
+                suppressMarkers: false,
+                polylineOptions: {
+                    strokeColor: '#00A854',
+                    strokeWeight: 5
+                }
+            });
+
+            console.log('✅ Google Maps initialisé');
         }
 
-        function showLoading() {
-            document.getElementById('loading').classList.add('show');
-            document.getElementById('loginBtn').disabled = true;
-            if (document.getElementById('changePasswordBtn')) {
-                document.getElementById('changePasswordBtn').disabled = true;
+        window.initMap = initMap;
+        loadGoogleMaps();
+
+        // ====== GÉOLOCALISATION ======
+        function startLocationTracking() {
+            if (!navigator.geolocation) {
+                showToast('❌ Géolocalisation non supportée', 'error');
+                return;
             }
+
+            console.log('📍 Démarrage du suivi de position...');
+            
+            const options = {
+                enableHighAccuracy: true,
+                timeout: 15000,
+                maximumAge: 10000
+            };
+
+            watchPositionId = navigator.geolocation.watchPosition(
+                (position) => {
+                    const { latitude, longitude, accuracy } = position.coords;
+                    
+                    console.log(`✅ Position: ${latitude.toFixed(6)}, ${longitude.toFixed(6)}`);
+                    
+                    if (marker && map) {
+                        const newPos = { lat: latitude, lng: longitude };
+                        marker.setPosition(newPos);
+                        map.panTo(newPos);
+                    }
+
+                    let qualityIcon = accuracy < 50 ? '🟢' : accuracy < 100 ? '🟡' : '🔴';
+                    document.getElementById('accuracy').innerHTML = 
+                        `${qualityIcon} Précision: ${Math.round(accuracy)} m`;
+                    
+                    reverseGeocode(latitude, longitude);
+
+                    // Mise à jour Firebase si en ligne et non démo
+                    if (currentUser && isOnline && !currentUser.isDemo) {
+                        db.collection('drivers').doc(currentUser.uid).update({
+                            position: {
+                                latitude,
+                                longitude,
+                                accuracy,
+                                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                            },
+                            derniereActivite: firebase.firestore.FieldValue.serverTimestamp()
+                        }).catch(err => console.error('Erreur MAJ position:', err));
+                    }
+
+                    if (!gpsActivated) {
+                        gpsActivated = true;
+                        showToast('✅ Position GPS activée', 'success');
+                    }
+                },
+                (error) => {
+                    gpsAttempts++;
+                    console.error('❌ Erreur géolocalisation:', error);
+                    
+                    let errorMessage = error.code === 1 ? '🔒 Permission refusée' : 
+                                     error.code === 2 ? '📡 Position indisponible' : 
+                                     '⏱️ Timeout';
+                    
+                    if (gpsAttempts === 1) {
+                        showToast(errorMessage, 'error');
+                        if (error.code === 1) {
+                            document.getElementById('permissionGuide').classList.add('show');
+                        }
+                    }
+                    
+                    document.getElementById('currentAddress').textContent = 'Position non disponible';
+                    document.getElementById('accuracy').innerHTML = '🔴 GPS désactivé';
+                },
+                options
+            );
+        }
+
+        function stopLocationTracking() {
+            if (watchPositionId) {
+                navigator.geolocation.clearWatch(watchPositionId);
+                watchPositionId = null;
+                gpsActivated = false;
+                console.log('🛑 Suivi de position arrêté');
+            }
+        }
+
+        async function reverseGeocode(lat, lng) {
+            try {
+                if (!google || !google.maps) {
+                    document.getElementById('currentAddress').textContent = `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+                    return;
+                }
+
+                const geocoder = new google.maps.Geocoder();
+                geocoder.geocode({ location: { lat, lng } }, (results, status) => {
+                    if (status === 'OK' && results[0]) {
+                        document.getElementById('currentAddress').textContent = results[0].formatted_address;
+                    } else {
+                        document.getElementById('currentAddress').textContent = `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+                    }
+                });
+            } catch (error) {
+                console.error('Erreur géocodage:', error);
+            }
+        }
+
+        function diagnosticGeolocation() {
+            console.log('🔍 === DIAGNOSTIC GÉOLOCALISATION ===');
+            
+            if (!navigator.geolocation) {
+                alert('❌ Géolocalisation NON disponible');
+                return;
+            }
+            
+            showToast('🧪 Test GPS en cours...', 'info');
+            
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    console.log('✅ TEST RÉUSSI!');
+                    showToast('✅ GPS fonctionne!', 'success');
+                    alert(`✅ TEST GPS RÉUSSI!\n\nLat: ${position.coords.latitude.toFixed(6)}\nLng: ${position.coords.longitude.toFixed(6)}\nPrécision: ${Math.round(position.coords.accuracy)} m`);
+                },
+                (error) => {
+                    console.error('❌ TEST ÉCHOUÉ:', error);
+                    let msg = error.code === 1 ? 'Permission refusée' : error.code === 2 ? 'Position indisponible' : 'Timeout';
+                    showToast(`❌ Test échoué: ${msg}`, 'error');
+                    alert(`❌ TEST GPS ÉCHOUÉ!\n\nErreur: ${msg}\n\nSolutions:\n1. Vérifiez les permissions\n2. Activez la localisation\n3. Rechargez la page`);
+                },
+                { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+            );
+        }
+
+        // ====== GESTION DES COURSES ======
+        async function toggleOnlineStatus() {
+            if (!currentUser) {
+                showToast('Veuillez vous connecter', 'error');
+                return;
+            }
+
+            isOnline = !isOnline;
+            const toggle = document.getElementById('toggleSwitch');
+            const statusText = document.getElementById('statusText');
+
+            if (isOnline) {
+                toggle.classList.add('active');
+                statusText.textContent = '🟢 EN LIGNE';
+                statusText.classList.add('online');
+                showToast('✅ Vous êtes en ligne', 'success');
+
+                if (!currentUser.isDemo) {
+                    try {
+                        await db.collection('drivers').doc(currentUser.uid).update({
+                            statut: 'disponible',
+                            derniereActivite: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                        startLocationTracking();
+                        listenForNewCourses();
+                    } catch (error) {
+                        console.error('Erreur:', error);
+                    }
+                }
+
+            } else {
+                toggle.classList.remove('active');
+                statusText.textContent = '⚫ HORS LIGNE';
+                statusText.classList.remove('online');
+                showToast('Vous êtes hors ligne', 'info');
+
+                if (!currentUser.isDemo) {
+                    try {
+                        await db.collection('drivers').doc(currentUser.uid).update({
+                            statut: 'hors_ligne',
+                            derniereActivite: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                        stopLocationTracking();
+                    } catch (error) {
+                        console.error('Erreur:', error);
+                    }
+                }
+            }
+        }
+
+        let courseListener = null;
+
+        function listenForNewCourses() {
+            if (!currentUser || !isOnline || currentUser.isDemo) return;
+
+            console.log('👂 Écoute des nouvelles courses...');
+
+            courseListener = db.collection('reservations')
+                .where('chauffeurAssigne', '==', currentUser.uid)
+                .where('statut', '==', 'assignee')
+                .onSnapshot(snapshot => {
+                    snapshot.docChanges().forEach(change => {
+                        if (change.type === 'added') {
+                            const course = { id: change.doc.id, ...change.doc.data() };
+                            console.log('🔔 Nouvelle course:', course);
+                            showCourseNotification(course);
+                        }
+                    });
+                });
+        }
+
+        async function simulateNewCourse() {
+            if (!isOnline) {
+                showToast('Vous devez être en ligne', 'error');
+                return;
+            }
+
+            showLoading('Création de la course de test...');
+
+            if (currentUser.isDemo) {
+                console.log('🧪 Mode démo : simulation');
+                hideLoading();
+                
+                setTimeout(() => {
+                    const testCourse = {
+                        id: 'DEMO_COURSE_' + Date.now(),
+                        depart: 'Plateau, Dakar',
+                        destination: 'Almadies',
+                        prixEstime: 3500,
+                        distance: '12 km',
+                        passagers: 2,
+                        clientNom: 'Aminata Sow (DEMO)',
+                        clientTelephone: '+221 77 999 88 77',
+                        client: { nom: 'Aminata Sow (DEMO)', telephone: '+221 77 999 88 77', rating: 4.9 }
+                    };
+                    showCourseNotification(testCourse);
+                }, 500);
+                return;
+            }
+
+            try {
+                const testReservation = {
+                    depart: 'Plateau, Dakar',
+                    destination: 'Almadies',
+                    prixEstime: 3500,
+                    distance: 12,
+                    passagers: 2,
+                    statut: 'assignee',
+                    chauffeurAssigne: currentUser.uid,
+                    clientNom: 'Aminata Sow',
+                    clientTelephone: '+221 77 999 88 77',
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                };
+
+                const docRef = await db.collection('reservations').add(testReservation);
+                hideLoading();
+
+                setTimeout(() => {
+                    const testCourse = {
+                        id: docRef.id,
+                        ...testReservation,
+                        distance: '12 km',
+                        client: { nom: 'Aminata Sow', telephone: '+221 77 999 88 77', rating: 4.9 }
+                    };
+                    showCourseNotification(testCourse);
+                }, 500);
+
+            } catch (error) {
+                console.error('Erreur:', error);
+                hideLoading();
+                showToast('Erreur de création', 'error');
+            }
+        }
+
+        function showCourseNotification(course) {
+            try {
+                const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSOBzPDYizcIGWi77eeeTRAMUKfj8LZjHAY4ktfyy3ksBSR3x/DdkEAKFF606+uoVRQKRp/g8r5sIQUjgczw2Ik3CBlou+3nnk0QDFCn4/C2YxwGOJLX8st5LAUkd8fw3ZBAC');
+                audio.play().catch(() => {});
+            } catch (e) {}
+
+            if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+
+            const notification = document.createElement('div');
+            notification.className = 'course-notification';
+            notification.innerHTML = `
+                <div class="course-modal">
+                    <div class="course-timer" id="courseTimer">30<div class="course-timer-label">secondes</div></div>
+                    <h2 class="course-title">🔔 NOUVELLE COURSE !</h2>
+                    <div class="course-client">
+                        <strong>Client:</strong> ${course.client?.nom || course.clientNom || 'Client'}<br>
+                        ${course.client?.rating ? '⭐ ' + course.client.rating : ''}
+                    </div>
+                    <div class="course-route">
+                        <div class="route-point"><span class="route-icon">📍</span><span>${course.depart}</span></div>
+                        <div style="text-align: center; margin: 10px 0;">↓</div>
+                        <div class="route-point"><span class="route-icon">🎯</span><span>${course.destination}</span></div>
+                    </div>
+                    <div class="course-details">
+                        <div class="detail-item"><div class="detail-icon">💰</div><div>${course.prixEstime?.toLocaleString() || 0} FCFA</div></div>
+                        <div class="detail-item"><div class="detail-icon">📏</div><div>${course.distance || '5 km'}</div></div>
+                        <div class="detail-item"><div class="detail-icon">👥</div><div>${course.passagers || 1} pers.</div></div>
+                    </div>
+                    <div class="course-actions">
+                        <button class="btn btn-refuse" onclick="refuseCourse('${course.id}')">❌ REFUSER</button>
+                        <button class="btn btn-accept" onclick="acceptCourse('${course.id}')">✅ ACCEPTER</button>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(notification);
+
+            let timeLeft = 30;
+            const timerInterval = setInterval(() => {
+                timeLeft--;
+                const timerElement = document.getElementById('courseTimer');
+                if (timerElement) {
+                    timerElement.innerHTML = `${timeLeft}<div class="course-timer-label">secondes</div>`;
+                }
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    refuseCourse(course.id, true);
+                }
+            }, 1000);
+
+            notification.timerInterval = timerInterval;
+        }
+
+        async function acceptCourse(courseId) {
+            const notification = document.querySelector('.course-notification');
+            if (notification) {
+                clearInterval(notification.timerInterval);
+                notification.remove();
+            }
+
+            showLoading('Acceptation...');
+
+            if (currentUser.isDemo || courseId.startsWith('DEMO_COURSE_')) {
+                console.log('🧪 Mode démo : acceptation simulée');
+                currentCourse = {
+                    id: courseId,
+                    depart: 'Plateau, Dakar',
+                    destination: 'Almadies',
+                    prixEstime: 3500,
+                    distance: '12 km',
+                    clientNom: 'Aminata Sow (DEMO)',
+                    clientTelephone: '+221 77 999 88 77',
+                    clientRating: 4.9
+                };
+                
+                setTimeout(() => {
+                    hideLoading();
+                    showToast('✅ Course acceptée (DEMO)!', 'success');
+                    showScreen('activeCourseScreen');
+                    displayActiveCourse();
+                    document.getElementById('chatFab').classList.add('active');
+                }, 1000);
+                return;
+            }
+
+            try {
+                const courseDoc = await db.collection('reservations').doc(courseId).get();
+                
+                if (!courseDoc.exists) {
+                    throw new Error('Réservation non trouvée');
+                }
+
+                await db.collection('reservations').doc(courseId).update({
+                    statut: 'acceptee',
+                    accepteeParChauffeur: true,
+                    dateAcceptation: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                console.log('🔄 SYNCHRONISATION:');
+                console.log('   → currentBookingId: ' + courseId);
+                console.log('   → reservationEnCours: ' + courseId);
+
+                await db.collection('drivers').doc(currentUser.uid).update({
+                    statut: 'en_course',
+                    currentBookingId: courseId,
+                    reservationEnCours: courseId
+                });
+
+                console.log('✅ SYNCHRONISATION RÉUSSIE!');
+
+                currentCourse = { id: courseId, ...courseDoc.data() };
+                hideLoading();
+                showToast('✅ Course acceptée!', 'success');
+                
+                showScreen('activeCourseScreen');
+                displayActiveCourse();
+                document.getElementById('chatFab').classList.add('active');
+                listenToChat(courseId);
+
+            } catch (error) {
+                console.error('Erreur acceptation:', error);
+                hideLoading();
+                showToast('Erreur: ' + error.message, 'error');
+            }
+        }
+
+        async function refuseCourse(courseId, auto = false) {
+            const notification = document.querySelector('.course-notification');
+            if (notification) {
+                clearInterval(notification.timerInterval);
+                notification.remove();
+            }
+
+            if (currentUser.isDemo || courseId.startsWith('DEMO_COURSE_')) {
+                console.log('🧪 Mode démo : refus simulé');
+                if (!auto) showToast('Course refusée (DEMO)', 'info');
+                else showToast('⏱️ Temps écoulé (DEMO)', 'info');
+                return;
+            }
+
+            if (!auto) showLoading('Refus...');
+
+            try {
+                await db.collection('reservations').doc(courseId).update({
+                    chauffeursRefuses: firebase.firestore.FieldValue.arrayUnion(currentUser.uid),
+                    chauffeurAssigne: null,
+                    statut: 'en_attente'
+                });
+
+                if (!auto) {
+                    hideLoading();
+                    showToast('Course refusée', 'info');
+                } else {
+                    showToast('⏱️ Temps écoulé', 'info');
+                }
+            } catch (error) {
+                console.error('Erreur refus:', error);
+                if (!auto) {
+                    hideLoading();
+                    showToast('Erreur', 'error');
+                }
+            }
+        }
+
+        function displayActiveCourse() {
+            if (!currentCourse) return;
+
+            document.getElementById('clientName').textContent = currentCourse.clientNom || 'Client';
+            document.getElementById('clientPhone').textContent = currentCourse.clientTelephone || '';
+            document.getElementById('clientRating').textContent = currentCourse.clientRating ? `⭐ ${currentCourse.clientRating}` : '';
+            document.getElementById('activeDeparture').textContent = currentCourse.depart;
+            document.getElementById('activeDestination').textContent = currentCourse.destination;
+            document.getElementById('activePrice').textContent = `${currentCourse.prixEstime?.toLocaleString()} FCFA`;
+
+            if (google && google.maps) {
+                showRoute(currentCourse.depart, currentCourse.destination);
+            }
+        }
+
+        function showRoute(origin, destination) {
+            if (!directionsService || !directionsRenderer || !google) {
+                console.log('⚠️ Google Maps non chargé');
+                return;
+            }
+
+            const activeCourseMap = new google.maps.Map(document.getElementById('activeCourseMap'), {
+                zoom: 13,
+                center: { lat: 14.6937, lng: -17.4441 }
+            });
+
+            directionsRenderer.setMap(activeCourseMap);
+
+            directionsService.route({
+                origin: origin,
+                destination: destination,
+                travelMode: 'DRIVING'
+            }, (result, status) => {
+                if (status === 'OK') {
+                    directionsRenderer.setDirections(result);
+                    const route = result.routes[0].legs[0];
+                    document.getElementById('estimatedTime').textContent = `Temps estimé: ${route.duration.text}`;
+                    document.getElementById('remainingDistance').textContent = `Distance: ${route.distance.text}`;
+                }
+            });
+        }
+
+        async function updateCourseStatus(newStatus) {
+            if (!currentCourse) return;
+
+            showLoading('Mise à jour...');
+
+            if (currentUser.isDemo) {
+                setTimeout(() => {
+                    currentCourse.statut = newStatus;
+                    hideLoading();
+                    showToast(statusMessages[newStatus] || 'Statut mis à jour', 'success');
+                    updateStatusDisplay(newStatus);
+                }, 500);
+                return;
+            }
+
+            try {
+                await db.collection('reservations').doc(currentCourse.id).update({
+                    statut: newStatus,
+                    derniereModification: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                currentCourse.statut = newStatus;
+
+                const statusMessages = {
+                    'arrive': '✅ Arrivé sur place',
+                    'en_cours': '🚗 Course démarrée',
+                };
+
+                hideLoading();
+                showToast(statusMessages[newStatus] || 'Statut mis à jour', 'success');
+                updateStatusDisplay(newStatus);
+
+            } catch (error) {
+                console.error('Erreur:', error);
+                hideLoading();
+                showToast('Erreur', 'error');
+            }
+        }
+
+        function updateStatusDisplay(status) {
+            const statusBadge = document.getElementById('courseStatus');
+            const statusTitle = document.getElementById('courseStatusTitle');
+
+            if (status === 'arrive') {
+                statusBadge.className = 'status-badge arrive';
+                statusBadge.textContent = '📍 Arrivé sur place';
+                statusTitle.textContent = 'En attente du client';
+            } else if (status === 'en_cours') {
+                statusBadge.className = 'status-badge en-cours';
+                statusBadge.textContent = '🚗 Course en cours';
+                statusTitle.textContent = 'Direction: ' + (currentCourse?.destination || 'Destination');
+            }
+        }
+
+        function completeCourse() {
+            if (!currentCourse) return;
+
+            document.getElementById('paymentAmount').textContent = `${currentCourse.prixEstime?.toLocaleString()} FCFA`;
+            document.getElementById('paymentModal').classList.add('active');
+        }
+
+        let selectedPaymentMethod = null;
+
+        function selectPaymentMethod(method) {
+            selectedPaymentMethod = method;
+            document.querySelectorAll('.payment-method').forEach(m => m.classList.remove('selected'));
+            event.currentTarget.classList.add('selected');
+        }
+
+        function closePaymentModal() {
+            document.getElementById('paymentModal').classList.remove('active');
+            selectedPaymentMethod = null;
+        }
+
+        async function confirmPayment() {
+            if (!selectedPaymentMethod) {
+                showToast('Sélectionnez un mode de paiement', 'error');
+                return;
+            }
+
+            closePaymentModal();
+            showLoading('Finalisation...');
+
+            if (currentUser.isDemo) {
+                console.log('🧪 Mode démo : finalisation simulée');
+                setTimeout(() => {
+                    currentCourse = null;
+                    document.getElementById('chatFab').classList.remove('active');
+                    document.getElementById('chatContainer').classList.remove('active');
+                    hideLoading();
+                    showToast('✅ Course terminée (DEMO)!', 'success');
+                    showScreen('dashboardScreen');
+                    loadDashboardDataDemo();
+                }, 1000);
+                return;
+            }
+
+            try {
+                await db.collection('reservations').doc(currentCourse.id).update({
+                    statut: 'terminee',
+                    modePaiementFinal: selectedPaymentMethod,
+                    dateFin: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                console.log('🔄 SYNCHRONISATION TERMINAISON');
+
+                await db.collection('drivers').doc(currentUser.uid).update({
+                    statut: 'disponible',
+                    currentBookingId: null,
+                    reservationEnCours: null,
+                    coursesCompletees: firebase.firestore.FieldValue.increment(1),
+                    revenusTotal: firebase.firestore.FieldValue.increment(currentCourse.prixEstime || 0)
+                });
+
+                console.log('✅ SYNCHRONISATION RÉUSSIE');
+
+                currentCourse = null;
+                
+                document.getElementById('chatFab').classList.remove('active');
+                document.getElementById('chatContainer').classList.remove('active');
+                if (chatListener) {
+                    chatListener();
+                    chatListener = null;
+                }
+
+                hideLoading();
+                showToast('✅ Course terminée!', 'success');
+                
+                showScreen('dashboardScreen');
+                loadDashboardData();
+
+            } catch (error) {
+                console.error('Erreur:', error);
+                hideLoading();
+                showToast('Erreur', 'error');
+            }
+        }
+
+        async function cancelCourse() {
+            if (!confirm('Voulez-vous vraiment annuler cette course ?')) return;
+
+            showLoading('Annulation...');
+
+            if (currentUser.isDemo) {
+                console.log('🧪 Mode démo : annulation simulée');
+                setTimeout(() => {
+                    currentCourse = null;
+                    hideLoading();
+                    showToast('Course annulée (DEMO)', 'info');
+                    showScreen('dashboardScreen');
+                }, 1000);
+                return;
+            }
+
+            try {
+                await db.collection('reservations').doc(currentCourse.id).update({
+                    statut: 'annulee',
+                    annuleePar: 'chauffeur',
+                    dateAnnulation: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                console.log('🔄 SYNCHRONISATION ANNULATION');
+
+                await db.collection('drivers').doc(currentUser.uid).update({
+                    statut: 'disponible',
+                    currentBookingId: null,
+                    reservationEnCours: null
+                });
+
+                console.log('✅ SYNCHRONISATION RÉUSSIE');
+
+                currentCourse = null;
+
+                hideLoading();
+                showToast('Course annulée', 'info');
+                
+                showScreen('dashboardScreen');
+
+            } catch (error) {
+                console.error('Erreur:', error);
+                hideLoading();
+                showToast('Erreur', 'error');
+            }
+        }
+
+        function openGoogleMaps() {
+            if (!currentCourse) {
+                showToast('Aucune course active', 'error');
+                return;
+            }
+            const url = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(currentCourse.depart)}&travelmode=driving`;
+            window.open(url, '_blank');
+        }
+
+        function callClient() {
+            if (!currentCourse || !currentCourse.clientTelephone) {
+                showToast('Numéro client non disponible', 'error');
+                return;
+            }
+            window.location.href = `tel:${currentCourse.clientTelephone}`;
+        }
+
+        // ====== CHAT ======
+        function toggleChat() {
+            const chatContainer = document.getElementById('chatContainer');
+            chatContainer.classList.toggle('active');
+            
+            if (chatContainer.classList.contains('active')) {
+                unreadMessages = 0;
+                document.getElementById('chatBadge').style.display = 'none';
+                document.getElementById('chatInput').focus();
+            }
+        }
+
+        function listenToChat(courseId) {
+            const messagesRef = db.collection('reservations').doc(courseId).collection('messages');
+            
+            chatListener = messagesRef.orderBy('timestamp', 'asc').onSnapshot(snapshot => {
+                const messagesContainer = document.getElementById('chatMessages');
+                messagesContainer.innerHTML = '';
+
+                snapshot.forEach(doc => {
+                    const msg = doc.data();
+                    addMessageToChat(msg);
+                });
+
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+                snapshot.docChanges().forEach(change => {
+                    if (change.type === 'added') {
+                        const msg = change.doc.data();
+                        if (msg.senderId !== currentUser.uid && !document.getElementById('chatContainer').classList.contains('active')) {
+                            unreadMessages++;
+                            const badge = document.getElementById('chatBadge');
+                            badge.textContent = unreadMessages;
+                            badge.style.display = 'flex';
+                        }
+                    }
+                });
+            });
+        }
+
+        function addMessageToChat(message) {
+            const messagesContainer = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `chat-message ${message.senderId === currentUser.uid ? 'sent' : 'received'}`;
+            
+            const time = message.timestamp ? message.timestamp.toDate().toLocaleTimeString('fr-FR', {hour: '2-digit', minute: '2-digit'}) : '';
+            
+            messageDiv.innerHTML = `
+                <div class="message-bubble ${message.senderId === currentUser.uid ? 'sent' : 'received'}">
+                    ${message.text}
+                </div>
+                <div class="message-time">${time}</div>
+            `;
+            
+            messagesContainer.appendChild(messageDiv);
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const text = input.value.trim();
+            
+            if (!text || !currentCourse) return;
+
+            if (currentUser.isDemo) {
+                addMessageToChat({
+                    text: text,
+                    senderId: currentUser.uid,
+                    senderType: 'driver',
+                    timestamp: { toDate: () => new Date() }
+                });
+                input.value = '';
+                return;
+            }
+
+            try {
+                await db.collection('reservations').doc(currentCourse.id).collection('messages').add({
+                    text: text,
+                    senderId: currentUser.uid,
+                    senderType: 'driver',
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                input.value = '';
+            } catch (error) {
+                console.error('Erreur:', error);
+                showToast('Erreur envoi', 'error');
+            }
+        }
+
+        function handleChatKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        // ====== DASHBOARD ======
+        async function loadDashboardData() {
+            try {
+                if (!currentUser || currentUser.isDemo) return;
+
+                const driverDoc = await db.collection('drivers').doc(currentUser.uid).get();
+                const driverData = driverDoc.data();
+
+                document.getElementById('profileName').textContent = `${driverData.prenom || ''} ${driverData.nom || ''}`;
+                document.getElementById('profilePhone').textContent = driverData.telephone || '';
+                document.getElementById('rating').textContent = (driverData.rating || 4.8).toFixed(1);
+                document.getElementById('coursesTotal').textContent = driverData.coursesCompletees || 0;
+                document.getElementById('profileTotalCourses').textContent = driverData.coursesCompletees || 0;
+                document.getElementById('profileRevenuTotal').textContent = (driverData.revenusTotal || 0).toLocaleString() + ' FCFA';
+
+                const aujourdhui = new Date();
+                aujourdhui.setHours(0, 0, 0, 0);
+
+                const coursesSnapshot = await db.collection('reservations')
+                    .where('chauffeurAssigne', '==', currentUser.uid)
+                    .where('timestamp', '>=', aujourdhui)
+                    .get();
+
+                let coursesJour = 0;
+                let revenusJour = 0;
+
+                coursesSnapshot.forEach(doc => {
+                    const data = doc.data();
+                    if (data.statut === 'terminee') {
+                        coursesJour++;
+                        revenusJour += data.prixEstime || 0;
+                    }
+                });
+
+                document.getElementById('coursesJour').textContent = coursesJour;
+                document.getElementById('revenusJour').textContent = revenusJour.toLocaleString();
+
+                stats = {
+                    coursesJour,
+                    revenusJour,
+                    rating: driverData.rating || 4.8,
+                    coursesTotal: driverData.coursesCompletees || 0
+                };
+
+                if (driverData.reservationEnCours) {
+                    const courseDoc = await db.collection('reservations').doc(driverData.reservationEnCours).get();
+                    if (courseDoc.exists) {
+                        currentCourse = { id: courseDoc.id, ...courseDoc.data() };
+                        showScreen('activeCourseScreen');
+                    }
+                }
+
+                loadHistory();
+
+            } catch (error) {
+                console.error('❌ Erreur chargement:', error);
+            }
+        }
+
+        function loadDashboardDataDemo() {
+            console.log('📊 Chargement démo...');
+            
+            document.getElementById('profileName').textContent = `${currentUser.prenom} ${currentUser.nom}`;
+            document.getElementById('profilePhone').textContent = currentUser.telephone;
+            document.getElementById('rating').textContent = currentUser.rating.toFixed(1);
+            document.getElementById('coursesTotal').textContent = currentUser.coursesCompletees;
+            document.getElementById('profileTotalCourses').textContent = currentUser.coursesCompletees;
+            document.getElementById('profileRevenuTotal').textContent = currentUser.revenusTotal.toLocaleString() + ' FCFA';
+
+            const coursesJour = Math.floor(Math.random() * 5) + 3;
+            const revenusJour = coursesJour * 3500;
+            
+            document.getElementById('coursesJour').textContent = coursesJour;
+            document.getElementById('revenusJour').textContent = revenusJour.toLocaleString();
+
+            stats = { coursesJour, revenusJour, rating: currentUser.rating, coursesTotal: currentUser.coursesCompletees };
+
+            loadHistoryDemo();
+            showToast('📊 Mode démo actif', 'info');
+        }
+
+        async function loadHistory() {
+            try {
+                if (!currentUser) return;
+
+                const historyList = document.getElementById('historyList');
+                historyList.innerHTML = '<p style="text-align: center; color: #999; padding: 40px;">Chargement...</p>';
+
+                if (currentUser.isDemo) {
+                    loadHistoryDemo();
+                    return;
+                }
+
+                const allCourses = [];
+
+                const acceptedSnapshot = await db.collection('reservations')
+                    .where('chauffeurAssigne', '==', currentUser.uid)
+                    .limit(50)
+                    .get();
+
+                acceptedSnapshot.forEach(doc => {
+                    allCourses.push({ id: doc.id, ...doc.data() });
+                });
+
+                historyList.innerHTML = '';
+
+                if (allCourses.length === 0) {
+                    historyList.innerHTML = '<p style="text-align: center; color: #999; padding: 40px;">Aucune course</p>';
+                    return;
+                }
+
+                allCourses.sort((a, b) => {
+                    const dateA = a.timestamp ? a.timestamp.toDate() : new Date(0);
+                    const dateB = b.timestamp ? b.timestamp.toDate() : new Date(0);
+                    return dateB - dateA;
+                });
+
+                allCourses.forEach(data => {
+                    const date = data.timestamp ? data.timestamp.toDate() : new Date();
+                    
+                    const item = document.createElement('div');
+                    item.className = 'history-item';
+                    item.style.borderLeft = '3px solid #00A854';
+                    
+                    item.innerHTML = `
+                        <div class="history-header">
+                            <span class="history-date">${date.toLocaleDateString('fr-FR')} ${date.toLocaleTimeString('fr-FR', {hour: '2-digit', minute: '2-digit'})}</span>
+                            <span class="history-price">${(data.prixEstime || 0).toLocaleString()} FCFA</span>
+                        </div>
+                        <div class="history-route">📍 ${data.depart}</div>
+                        <div class="history-route">🎯 ${data.destination}</div>
+                        <span class="history-status" style="background: ${getStatusColor(data.statut)}">${getStatusLabel(data.statut)}</span>
+                    `;
+                    historyList.appendChild(item);
+                });
+
+            } catch (error) {
+                console.error('Erreur:', error);
+                const historyList = document.getElementById('historyList');
+                historyList.innerHTML = '<p style="text-align: center; color: #E30613; padding: 40px;">❌ Erreur</p>';
+            }
+        }
+
+        function loadHistoryDemo() {
+            const historyList = document.getElementById('historyList');
+            historyList.innerHTML = '';
+            
+            const coursesDemo = [
+                { date: new Date(), depart: 'Plateau', destination: 'Almadies', prix: 3500, statut: 'terminee' },
+                { date: new Date(Date.now() - 2 * 60 * 60 * 1000), depart: 'Sacré-Cœur', destination: 'Yoff', prix: 4200, statut: 'terminee' },
+                { date: new Date(Date.now() - 24 * 60 * 60 * 1000), depart: 'Médina', destination: 'Mamelles', prix: 2800, statut: 'terminee' },
+                { date: new Date(Date.now() - 48 * 60 * 60 * 1000), depart: 'Grand Yoff', destination: 'Plateau', prix: 3200, statut: 'terminee' }
+            ];
+            
+            coursesDemo.forEach(course => {
+                const item = document.createElement('div');
+                item.className = 'history-item';
+                item.style.borderLeft = '3px solid #00A854';
+                item.innerHTML = `
+                    <div class="history-header">
+                        <span class="history-date">${course.date.toLocaleDateString('fr-FR')} ${course.date.toLocaleTimeString('fr-FR', {hour: '2-digit', minute: '2-digit'})}</span>
+                        <span class="history-price">${course.prix.toLocaleString()} FCFA</span>
+                    </div>
+                    <div class="history-route">📍 ${course.depart}</div>
+                    <div class="history-route">🎯 ${course.destination}</div>
+                    <span class="history-status">✅ Terminée (DEMO)</span>
+                `;
+                historyList.appendChild(item);
+            });
+        }
+
+        function getStatusLabel(statut) {
+            const labels = {
+                'en_attente': 'En attente',
+                'assignee': 'Assignée',
+                'acceptee': 'Acceptée',
+                'en_cours': 'En cours',
+                'terminee': 'Terminée',
+                'annulee': 'Annulée'
+            };
+            return labels[statut] || statut;
+        }
+
+        function getStatusColor(statut) {
+            const colors = {
+                'en_attente': '#FFA500',
+                'assignee': '#2196F3',
+                'acceptee': '#00A854',
+                'en_cours': '#00A854',
+                'terminee': '#00A854',
+                'annulee': '#999'
+            };
+            return colors[statut] || '#00A854';
+        }
+
+        // ====== MOT DE PASSE ======
+        function showPasswordModal() {
+            if (currentUser && currentUser.isDemo) {
+                showToast('❌ Non disponible en mode démo', 'error');
+                return;
+            }
+
+            document.getElementById('passwordModal').classList.add('active');
+            document.getElementById('currentPassword').value = '';
+            document.getElementById('newPassword').value = '';
+            document.getElementById('confirmPassword').value = '';
+            
+            const strengthBar = document.getElementById('passwordStrengthBar');
+            strengthBar.className = 'password-strength-bar';
+            strengthBar.style.width = '0%';
+        }
+
+        function closePasswordModal() {
+            document.getElementById('passwordModal').classList.remove('active');
+        }
+
+        function checkPasswordStrength() {
+            const password = document.getElementById('newPassword').value;
+            const strengthBar = document.getElementById('passwordStrengthBar');
+            const reqLength = document.getElementById('req-length');
+            
+            if (password.length >= 6) {
+                reqLength.classList.add('requirement-met');
+            } else {
+                reqLength.classList.remove('requirement-met');
+            }
+
+            let strength = 0;
+            if (password.length >= 6) strength += 1;
+            if (password.length >= 8) strength += 1;
+            if (/[A-Z]/.test(password)) strength += 1;
+            if (/[0-9]/.test(password)) strength += 1;
+            if (/[^A-Za-z0-9]/.test(password)) strength += 1;
+
+            strengthBar.className = 'password-strength-bar';
+            
+            if (strength <= 1) {
+                strengthBar.classList.add('strength-weak');
+            } else if (strength <= 3) {
+                strengthBar.classList.add('strength-medium');
+            } else {
+                strengthBar.classList.add('strength-strong');
+            }
+
+            checkPasswordMatch();
+        }
+
+        function checkPasswordMatch() {
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const reqMatch = document.getElementById('req-match');
+
+            if (confirmPassword && newPassword === confirmPassword) {
+                reqMatch.classList.add('requirement-met');
+            } else {
+                reqMatch.classList.remove('requirement-met');
+            }
+        }
+
+        async function changePassword() {
+            const currentPassword = document.getElementById('currentPassword').value.trim();
+            const newPassword = document.getElementById('newPassword').value.trim();
+            const confirmPassword = document.getElementById('confirmPassword').value.trim();
+
+            if (!currentPassword || !newPassword || !confirmPassword) {
+                showToast('Remplir tous les champs', 'error');
+                return;
+            }
+
+            if (newPassword.length < 6) {
+                showToast('6 caractères minimum', 'error');
+                return;
+            }
+
+            if (newPassword !== confirmPassword) {
+                showToast('Mots de passe différents', 'error');
+                return;
+            }
+
+            closePasswordModal();
+            showLoading('Changement...');
+
+            try {
+                const user = auth.currentUser;
+                if (!user) throw new Error('Non connecté');
+
+                const credential = firebase.auth.EmailAuthProvider.credential(user.email, currentPassword);
+                await user.reauthenticateWithCredential(credential);
+                await user.updatePassword(newPassword);
+
+                await db.collection('drivers').doc(currentUser.uid).update({
+                    derniereModificationMotDePasse: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                hideLoading();
+                showToast('✅ Mot de passe changé!', 'success');
+
+            } catch (error) {
+                hideLoading();
+                let errorMsg = 'Erreur';
+                if (error.code === 'auth/wrong-password') errorMsg = '❌ Mot de passe incorrect';
+                showToast(errorMsg, 'error');
+            }
+        }
+
+        // ====== DÉCONNEXION ======
+        async function handleLogout() {
+            if (confirm('Voulez-vous vraiment vous déconnecter ?')) {
+                showLoading('Déconnexion...');
+                
+                try {
+                    if (isOnline) {
+                        await toggleOnlineStatus();
+                    }
+                    
+                    if (currentUser && !currentUser.isDemo) {
+                        await db.collection('drivers').doc(currentUser.uid).update({
+                            statut: 'hors_ligne',
+                            derniereDeconnexion: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                        await auth.signOut();
+                    }
+                } catch (error) {
+                    console.error('Erreur déconnexion:', error);
+                }
+                
+                stopLocationTracking();
+                currentUser = null;
+                currentCourse = null;
+                hideLoading();
+                document.getElementById('bottomNav').style.display = 'none';
+                showScreen('loginScreen');
+                showToast('Déconnexion réussie', 'info');
+            }
+        }
+
+        // ====== NAVIGATION ======
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+
+            document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+            const navIndex = { 'dashboardScreen': 0, 'activeCourseScreen': 1, 'historyScreen': 2, 'profileScreen': 3 };
+            if (navIndex[screenId] !== undefined) {
+                document.querySelectorAll('.nav-item')[navIndex[screenId]].classList.add('active');
+            }
+
+            if (screenId === 'activeCourseScreen' && currentCourse) {
+                displayActiveCourse();
+            }
+        }
+
+        // ====== UTILITAIRES UI ======
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `<strong>${message}</strong>`;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.style.animation = 'slideInRight 0.3s reverse';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        function showLoading(text = 'Chargement...') {
+            const loading = document.createElement('div');
+            loading.className = 'loading-overlay';
+            loading.id = 'loadingOverlay';
+            loading.innerHTML = `<div class="loading-spinner"></div><div class="loading-text">${text}</div>`;
+            document.body.appendChild(loading);
         }
 
         function hideLoading() {
-            document.getElementById('loading').classList.remove('show');
-            document.getElementById('loginBtn').disabled = false;
-            if (document.getElementById('changePasswordBtn')) {
-                document.getElementById('changePasswordBtn').disabled = false;
-            }
+            const loading = document.getElementById('loadingOverlay');
+            if (loading) loading.remove();
         }
 
-        auth.onAuthStateChanged((user) => {
-            if (user) {
-                console.log('👤 Utilisateur déjà connecté:', user.uid);
+        // ====== INITIALISATION ======
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🚕 Al Bourakh Driver Pro - READY');
+            console.log('📱 Format acceptés: 77xxxxxxx, 221-77-xxx-xx-xx, +221 77 xxx xx xx');
+            console.log('🔐 Admin2025: Création automatique si inexistant');
+            console.log('🧪 demo123: Mode démo instantané');
+            
+            // Pré-remplir pour test rapide
+            document.getElementById('loginPhone').value = '+221 77 123 45 67';
+            document.getElementById('loginPassword').value = 'Admin2025';
+
+            // Gérer Google Maps absent
+            if (typeof google === 'undefined' || !google.maps) {
+                console.log('⚠️ Google Maps non chargé, création de fallback');
+                window.google = {
+                    maps: {
+                        Map: class { constructor() {} },
+                        Marker: class { constructor() {} setPosition() {} },
+                        DirectionsService: class {},
+                        DirectionsRenderer: class { setMap() {} setDirections() {} },
+                        Geocoder: class {},
+                        SymbolPath: { CIRCLE: 0 }
+                    }
+                };
             }
+
+            // Debug mode (appuyer 5 fois sur le titre)
+            let debugClickCount = 0;
+            document.querySelector('.login-title').addEventListener('click', () => {
+                debugClickCount++;
+                if (debugClickCount >= 5) {
+                    document.getElementById('debugPanel').classList.toggle('show');
+                    debugClickCount = 0;
+                    updateDebugInfo();
+                }
+            });
         });
 
-        console.log('✅ Page de connexion driver prête');
-        console.log('📱 Formats acceptés: 771234567 / +221 77 123 45 67 / 221771234567');
-        console.log('🔐 Mot de passe par défaut: Admin2025');
+        // ====== FONCTIONS DEBUG ======
+        function updateDebugInfo() {
+            const debugContent = document.getElementById('debugContent');
+            if (!debugContent) return;
+            
+            debugContent.innerHTML = `
+                User: ${currentUser ? currentUser.uid.substring(0, 8) : 'None'}<br>
+                Online: ${isOnline}<br>
+                Course: ${currentCourse ? currentCourse.id.substring(0, 8) : 'None'}<br>
+                GPS: ${gpsActivated ? '✓' : '✗'}<br>
+                Auth: ${auth.currentUser ? '✓' : '✗'}
+            `;
+        }
     </script>
 </body>
 </html>
