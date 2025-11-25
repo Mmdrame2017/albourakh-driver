@@ -500,53 +500,245 @@
         loadGoogleMaps();
 
         // ========== GEOLOCATION ==========
-        function startLocationTracking() {
-            if (!navigator.geolocation) {
-                showToast('❌ Géolocalisation non supportée', 'error');
-                return;
+        // ========== CODE À AJOUTER/MODIFIER DANS L'APPLICATION CHAUFFEUR ==========
+// Ce code doit être ajouté dans le fichier driver HTML existant
+
+// ========== MODIFICATION DE startLocationTracking() ==========
+// Remplacer la fonction existante par celle-ci :
+
+function startLocationTracking() {
+    if (!navigator.geolocation) {
+        showToast('❌ Géolocalisation non supportée', 'error');
+        return;
+    }
+
+    console.log('📍 Démarrage suivi GPS...');
+    
+    watchPositionId = navigator.geolocation.watchPosition(
+        async (position) => {
+            const { latitude, longitude, accuracy } = position.coords;
+            driverPosition = { lat: latitude, lng: longitude };
+            
+            console.log(`📍 Position: ${latitude.toFixed(5)}, ${longitude.toFixed(5)} (±${Math.round(accuracy)}m)`);
+            
+            // Mettre à jour la carte du dashboard
+            if (driverMarker && map && !currentCourse) {
+                driverMarker.setPosition(driverPosition);
+                map.panTo(driverPosition);
             }
 
-            console.log('📍 Démarrage suivi GPS...');
+            document.getElementById('accuracy').innerHTML = 
+                `${accuracy < 50 ? '🟢' : '🟡'} Précision: ${Math.round(accuracy)} m`;
             
-            watchPositionId = navigator.geolocation.watchPosition(
-                (position) => {
-                    const { latitude, longitude, accuracy } = position.coords;
-                    driverPosition = { lat: latitude, lng: longitude };
-                    
-                    console.log(`📍 Position: ${latitude.toFixed(5)}, ${longitude.toFixed(5)} (±${Math.round(accuracy)}m)`);
-                    
-                    // Mettre à jour la carte du dashboard
-                    if (driverMarker && map && !currentCourse) {
-                        driverMarker.setPosition(driverPosition);
-                        map.panTo(driverPosition);
-                    }
+            reverseGeocode(latitude, longitude);
 
-                    document.getElementById('accuracy').innerHTML = 
-                        `${accuracy < 50 ? '🟢' : '🟡'} Précision: ${Math.round(accuracy)} m`;
-                    
-                    reverseGeocode(latitude, longitude);
+            // ========== MISE À JOUR FIREBASE ==========
+            if (currentUser && isOnline && !currentUser.isDemo) {
+                try {
+                    // 1. Mettre à jour le document du chauffeur
+                    await db.collection('drivers').doc(currentUser.uid).update({
+                        position: { 
+                            latitude, 
+                            longitude, 
+                            accuracy, 
+                            timestamp: firebase.firestore.FieldValue.serverTimestamp() 
+                        },
+                        derniereActivite: firebase.firestore.FieldValue.serverTimestamp()
+                    });
 
-                    // Update Firebase
-                    if (currentUser && isOnline && !currentUser.isDemo) {
-                        db.collection('drivers').doc(currentUser.uid).update({
-                            position: { latitude, longitude, accuracy, timestamp: firebase.firestore.FieldValue.serverTimestamp() },
-                            derniereActivite: firebase.firestore.FieldValue.serverTimestamp()
-                        }).catch(err => console.error('Erreur MAJ position:', err));
+                    // 2. ⭐ IMPORTANT: Si une course est en cours, mettre à jour la position
+                    //    DANS le document de réservation pour que le client puisse suivre
+                    if (currentCourse && currentCourse.id && !currentCourse.id.startsWith('TEST_')) {
+                        await db.collection('reservations').doc(currentCourse.id).update({
+                            chauffeurPosition: {
+                                latitude,
+                                longitude,
+                                accuracy,
+                                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                            },
+                            chauffeurPositionTimestamp: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                        console.log('✅ Position envoyée au client via réservation');
                     }
+                } catch (err) {
+                    console.error('Erreur MAJ position:', err);
+                }
+            }
 
-                    // Mise à jour du trajet d'approche si course active
-                    if (currentCourse && activeCourseMap && currentRouteMode === 'approche') {
-                        updateApprocheRoute();
-                    }
-                },
-                (error) => {
-                    console.error('❌ Erreur GPS:', error);
-                    document.getElementById('currentAddress').textContent = 'Position non disponible';
-                    document.getElementById('accuracy').innerHTML = '🔴 GPS désactivé';
-                },
-                { enableHighAccuracy: true, timeout: 15000, maximumAge: 5000 }
-            );
+            // Mise à jour du trajet d'approche si course active
+            if (currentCourse && activeCourseMap && currentRouteMode === 'approche') {
+                updateApprocheRoute();
+            }
+        },
+        (error) => {
+            console.error('❌ Erreur GPS:', error);
+            document.getElementById('currentAddress').textContent = 'Position non disponible';
+            document.getElementById('accuracy').innerHTML = '🔴 GPS désactivé';
+        },
+        { 
+            enableHighAccuracy: true, 
+            timeout: 15000, 
+            maximumAge: 3000 // Réduire pour des mises à jour plus fréquentes
         }
+    );
+}
+
+
+// ========== MODIFICATION DE acceptCourse() ==========
+// Ajouter cette ligne après l'assignation de currentCourse :
+
+async function acceptCourse(courseId, courseData) {
+    const notification = document.querySelector('.course-notification');
+    if (notification) {
+        clearInterval(notification.timerInterval);
+        notification.remove();
+    }
+
+    showLoading('Acceptation...');
+
+    // Parse course data if string
+    if (typeof courseData === 'string') {
+        courseData = JSON.parse(courseData.replace(/&quot;/g, '"'));
+    }
+
+    currentCourse = {
+        id: courseId,
+        ...courseData,
+        statut: 'acceptee'
+    };
+
+    // Ensure coordinates exist
+    if (!currentCourse.departCoords) {
+        currentCourse.departCoords = await geocodeAddress(currentCourse.depart);
+    }
+    if (!currentCourse.destinationCoords) {
+        currentCourse.destinationCoords = await geocodeAddress(currentCourse.destination);
+    }
+
+    if (!currentUser.isDemo && !courseId.startsWith('TEST_')) {
+        try {
+            // ⭐ Envoyer immédiatement la position initiale du chauffeur
+            const updateData = {
+                statut: 'acceptee',
+                accepteeParChauffeur: true,
+                dateAcceptation: firebase.firestore.FieldValue.serverTimestamp(),
+                // Infos chauffeur
+                nomChauffeur: `${currentUser.prenom || ''} ${currentUser.nom || ''}`.trim(),
+                telephoneChauffeur: currentUser.telephone,
+                chauffeurRating: currentUser.rating || 4.8,
+                vehiculeModele: currentUser.vehiculeModele || 'Toyota Corolla',
+                vehiculePlaque: currentUser.vehiculePlaque || 'DK-1234-AB'
+            };
+
+            // Ajouter la position si disponible
+            if (driverPosition) {
+                updateData.chauffeurPosition = {
+                    latitude: driverPosition.lat,
+                    longitude: driverPosition.lng,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                };
+                updateData.chauffeurPositionTimestamp = firebase.firestore.FieldValue.serverTimestamp();
+            }
+
+            await db.collection('reservations').doc(courseId).update(updateData);
+
+            await db.collection('drivers').doc(currentUser.uid).update({
+                statut: 'en_course',
+                currentBookingId: courseId,
+                reservationEnCours: courseId
+            });
+
+            console.log('✅ Réservation mise à jour avec position initiale');
+
+        } catch (error) {
+            console.error('Erreur acceptation:', error);
+        }
+    }
+
+    hideLoading();
+    showToast('✅ Course acceptée!', 'success');
+    
+    currentRouteMode = 'approche';
+    showScreen('activeCourseScreen');
+    displayActiveCourse();
+    
+    setTimeout(() => {
+        initActiveCourseMap();
+    }, 300);
+}
+
+
+// ========== MODIFICATION DE updateCourseStatus() ==========
+// S'assurer que le statut est bien mis à jour dans la réservation :
+
+async function updateCourseStatus(newStatus) {
+    if (!currentCourse) return;
+
+    showLoading('Mise à jour...');
+
+    currentCourse.statut = newStatus;
+
+    if (!currentUser.isDemo && !currentCourse.id.startsWith('TEST_')) {
+        try {
+            const updateData = {
+                statut: newStatus,
+                derniereModification: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            // Toujours inclure la position actuelle
+            if (driverPosition) {
+                updateData.chauffeurPosition = {
+                    latitude: driverPosition.lat,
+                    longitude: driverPosition.lng,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                };
+            }
+
+            await db.collection('reservations').doc(currentCourse.id).update(updateData);
+            console.log('✅ Statut mis à jour:', newStatus);
+
+        } catch (error) {
+            console.error('Erreur:', error);
+        }
+    }
+
+    hideLoading();
+    updateCourseStatusDisplay();
+
+    const messages = {
+        'arrive': '✅ Vous êtes arrivé au point de prise en charge',
+        'en_cours': '🚗 Course démarrée!'
+    };
+    showToast(messages[newStatus] || 'Statut mis à jour', 'success');
+}
+
+
+// ========== RÈGLES FIRESTORE RECOMMANDÉES ==========
+/*
+Pour que tout fonctionne, assurez-vous que vos règles Firestore permettent :
+- Aux clients de LIRE les réservations (même sans authentification pour le champ position)
+- Aux chauffeurs authentifiés d'ÉCRIRE dans les réservations
+
+Exemple de règles :
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Réservations - lecture publique, écriture pour chauffeurs assignés
+    match /reservations/{reservationId} {
+      allow read: if true; // Le client peut lire sa réservation
+      allow create: if true; // Création de réservation
+      allow update: if true; // Mise à jour (position chauffeur)
+    }
+    
+    // Chauffeurs - lecture/écriture pour le propriétaire
+    match /drivers/{driverId} {
+      allow read, write: if request.auth != null && request.auth.uid == driverId;
+    }
+  }
+}
+*/
 
         function stopLocationTracking() {
             if (watchPositionId) {
