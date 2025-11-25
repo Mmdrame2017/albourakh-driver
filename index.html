@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>Al Bourakh Driver v4.2 - Position Temps Réel</title>
+    <title>Al Bourakh Driver Pro v4.0 - Navigation Client</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -38,7 +38,7 @@
         .status-toggle { background: white; padding: 15px; border-radius: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
         .status-text { font-size: 1.1em; font-weight: bold; color: #999; }
         .status-text.online { color: #00A854; }
-        .toggle-switch { position: relative; width: 60px; height: 34px; background: #ccc; border-radius: 34px; cursor: pointer; transition: all 0.3s; }
+        .toggle-switch { position: relative; width: 60px; height: 34px; background: #ccc; border-radius: 34px; cursor: pointer; }
         .toggle-switch.active { background: #00A854; }
         .toggle-switch::after { content: ''; position: absolute; width: 26px; height: 26px; background: white; border-radius: 50%; top: 4px; left: 4px; transition: all 0.3s; }
         .toggle-switch.active::after { left: 30px; }
@@ -49,14 +49,6 @@
         #activeCourseMap { width: 100%; height: 280px; border-radius: 10px; background: linear-gradient(135deg, #e0e0e0, #f5f5f5); min-height: 280px; }
         .location-info { background: #f5f5f5; padding: 12px; border-radius: 10px; margin-top: 10px; font-size: 0.9em; }
         .location-info div { margin-bottom: 5px; display: flex; align-items: center; gap: 8px; }
-        
-        .gps-status { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 8px; font-size: 0.85em; margin-top: 10px; }
-        .gps-status.active { background: #e8f5e9; color: #2e7d32; }
-        .gps-status.sending { background: #e3f2fd; color: #1565c0; }
-        .gps-pulse { width: 10px; height: 10px; border-radius: 50%; animation: gpsPulse 1s infinite; }
-        .gps-pulse.green { background: #4CAF50; }
-        .gps-pulse.blue { background: #2196F3; }
-        @keyframes gpsPulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.3); opacity: 0.7; } }
         
         .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
         .stat-card { background: white; padding: 15px; border-radius: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; }
@@ -69,6 +61,7 @@
         .action-btn:hover { transform: translateY(-3px); }
         .action-btn-icon { font-size: 1.8em; margin-bottom: 8px; }
         
+        /* Course Notification Modal */
         .course-notification { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: flex; align-items: center; justify-content: center; z-index: 10000; }
         .course-modal { background: white; width: 90%; max-width: 400px; border-radius: 20px; padding: 25px; max-height: 90vh; overflow-y: auto; }
         .course-timer { background: linear-gradient(135deg, #E30613, #FF6B00); color: white; width: 70px; height: 70px; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto 15px; font-size: 1.8em; font-weight: bold; }
@@ -84,6 +77,7 @@
         .btn-refuse { background: #E30613; color: white; }
         .btn-accept { background: #00A854; color: white; }
         
+        /* Active Course Screen */
         .active-course-container { padding: 15px; padding-bottom: 100px; }
         .course-status-card { background: white; padding: 15px; border-radius: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 15px; }
         .status-badge { display: inline-block; padding: 6px 14px; border-radius: 20px; font-weight: bold; font-size: 0.9em; margin-bottom: 10px; }
@@ -93,12 +87,14 @@
         .status-badge.arrive { background: #fff3cd; color: #856404; }
         .status-badge.en-cours { background: #cce5ff; color: #004085; }
         
+        /* Route Tabs */
         .route-tabs { display: flex; gap: 10px; margin-bottom: 15px; }
         .route-tab { flex: 1; padding: 12px; border: 2px solid #ddd; border-radius: 10px; text-align: center; cursor: pointer; font-weight: 600; font-size: 0.85em; background: white; }
         .route-tab.active { border-color: #00A854; background: #e8f5e9; color: #00A854; }
         .route-tab.disabled { opacity: 0.5; cursor: not-allowed; }
         .route-tab i { display: block; font-size: 1.5em; margin-bottom: 5px; }
         
+        /* Route Info Box */
         .route-info-box { background: linear-gradient(135deg, #00A854, #FECB00); padding: 15px; border-radius: 12px; color: white; margin-bottom: 15px; }
         .route-info-box.approche { background: linear-gradient(135deg, #2196F3, #00BCD4); }
         .route-info-title { font-size: 0.9em; opacity: 0.9; margin-bottom: 8px; }
@@ -119,23 +115,27 @@
         .nav-btn.warning { background: #FF9800; color: white; }
         .nav-btn.danger { background: #E30613; color: white; }
         
+        /* Bottom Navigation */
         .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; box-shadow: 0 -4px 12px rgba(0,0,0,0.1); display: flex; justify-content: space-around; padding: 10px 0; max-width: 414px; margin: 0 auto; z-index: 1000; }
         .nav-item { text-align: center; cursor: pointer; padding: 8px; flex: 1; }
         .nav-item.active { color: #00A854; }
         .nav-icon { font-size: 1.3em; margin-bottom: 4px; }
         .nav-label { font-size: 0.75em; }
         
+        /* Toast */
         .toast { position: fixed; top: 20px; right: 20px; background: white; padding: 15px 20px; border-radius: 10px; box-shadow: 0 8px 25px rgba(0,0,0,0.2); z-index: 9999; max-width: 300px; animation: slideInRight 0.3s; }
         @keyframes slideInRight { from { transform: translateX(400px); } to { transform: translateX(0); } }
         .toast.success { border-left: 4px solid #00A854; }
         .toast.error { border-left: 4px solid #E30613; }
         .toast.info { border-left: 4px solid #2196F3; }
         
+        /* Loading */
         .loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; }
         .loading-spinner { width: 50px; height: 50px; border: 5px solid rgba(255,255,255,0.3); border-top-color: #FECB00; border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
         .loading-text { color: white; font-size: 1.1em; margin-top: 15px; }
         
+        /* History */
         .history-list { padding: 15px; padding-bottom: 100px; }
         .history-item { background: white; padding: 15px; border-radius: 12px; margin-bottom: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
         .history-header { display: flex; justify-content: space-between; margin-bottom: 8px; }
@@ -144,7 +144,8 @@
         .history-route { color: #333; margin-bottom: 5px; font-size: 0.9em; }
         .history-status { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 0.8em; background: #00A854; color: white; }
         
-        .profile-header { background: linear-gradient(135deg, #00A854, #FECB00); padding: 25px 20px; text-align: center; color: white; position: relative; }
+        /* Profile */
+        .profile-header { background: linear-gradient(135deg, #00A854, #FECB00); padding: 25px 20px; text-align: center; color: white; }
         .profile-avatar { width: 80px; height: 80px; background: white; border-radius: 50%; margin: 0 auto 12px; display: flex; align-items: center; justify-content: center; font-size: 2.5em; color: #00A854; }
         .profile-name { font-size: 1.3em; font-weight: bold; margin-bottom: 5px; }
         .profile-info { padding: 15px; padding-bottom: 100px; }
@@ -163,8 +164,8 @@
         <div id="loginScreen" class="screen active">
             <div class="login-screen">
                 <div class="login-logo">🚕</div>
-                <h1 class="login-title">Al Bourakh Driver <span class="sync-badge">v4.2</span></h1>
-                <p class="login-subtitle">Position Temps Réel vers Client</p>
+                <h1 class="login-title">Al Bourakh Driver <span class="sync-badge">v4.0</span></h1>
+                <p class="login-subtitle">Navigation Client Intégrée</p>
                 
                 <div class="input-group">
                     <label>📱 Téléphone</label>
@@ -177,10 +178,12 @@
                 
                 <button class="btn btn-primary" onclick="handleLogin()">Se connecter</button>
                 
-                <div style="background: #e8f5e9; padding: 12px; border-radius: 10px; margin-top: 20px; border-left: 4px solid #4CAF50; font-size: 0.85em; text-align: left;">
+                <div style="background: #e8f5e9; padding: 12px; border-radius: 10px; margin-top: 20px; border-left: 4px solid #4CAF50; font-size: 0.85em;">
                     <p><strong>🔐 Connexion:</strong> Tout numéro + <code>Admin2025</code></p>
                     <p><strong>🧪 Mode Démo:</strong> Tout numéro + <code>demo123</code></p>
                 </div>
+                
+                <p style="margin-top: 20px; color: #999; font-size: 0.8em;">Version 4.0 - Navigation Client © 2025</p>
             </div>
         </div>
 
@@ -206,10 +209,6 @@
                     <div class="location-info" id="locationInfo">
                         <div><i class="fas fa-map-marker-alt"></i> <span id="currentAddress">En attente...</span></div>
                         <div><i class="fas fa-crosshairs"></i> <span id="accuracy">Précision: -- m</span></div>
-                    </div>
-                    <div class="gps-status active" id="gpsStatus">
-                        <div class="gps-pulse green"></div>
-                        <span>GPS actif</span>
                     </div>
                 </div>
                 
@@ -258,6 +257,7 @@
             </div>
             
             <div class="active-course-container">
+                <!-- Route Tabs -->
                 <div class="route-tabs">
                     <div class="route-tab active" id="tabApproche" onclick="showRouteTab('approche')">
                         <i class="fas fa-car-side"></i>
@@ -269,15 +269,12 @@
                     </div>
                 </div>
                 
+                <!-- Map -->
                 <div class="map-container" style="margin-bottom: 15px;">
                     <div id="activeCourseMap" style="height: 280px;"></div>
-                    <!-- Indicateur d'envoi de position -->
-                    <div class="gps-status sending" id="positionSendingStatus">
-                        <div class="gps-pulse blue"></div>
-                        <span id="positionSendingText">Envoi position au client...</span>
-                    </div>
                 </div>
                 
+                <!-- Route Info Box - Approche -->
                 <div class="route-info-box approche" id="routeInfoApproche">
                     <div class="route-info-title">🚗 TRAJET VERS LE CLIENT</div>
                     <div class="route-info-details">
@@ -296,6 +293,7 @@
                     </div>
                 </div>
                 
+                <!-- Route Info Box - Course -->
                 <div class="route-info-box" id="routeInfoCourse" style="display: none;">
                     <div class="route-info-title">🎯 TRAJET DE LA COURSE</div>
                     <div class="route-info-details">
@@ -314,11 +312,13 @@
                     </div>
                 </div>
                 
+                <!-- Status Card -->
                 <div class="course-status-card">
                     <span class="status-badge approche" id="courseStatus">🚗 En route vers client</span>
                     <h3 id="courseStatusTitle" style="font-size: 1em;">Direction: Point de prise en charge</h3>
                 </div>
                 
+                <!-- Client Info -->
                 <div class="client-info-card" id="clientInfoCard">
                     <h3>👤 Client</h3>
                     <div class="info-row"><span>Nom</span><strong id="clientName">-</strong></div>
@@ -326,6 +326,7 @@
                     <div class="info-row"><span>Note</span><strong id="clientRating">-</strong></div>
                 </div>
                 
+                <!-- Trajet Info -->
                 <div class="client-info-card">
                     <h3>🗺️ Trajet du Client</h3>
                     <div class="info-row"><span>📍 Départ</span><strong id="activeDeparture">-</strong></div>
@@ -333,6 +334,7 @@
                     <div class="info-row"><span>💰 Prix</span><strong id="activePrice">-</strong></div>
                 </div>
                 
+                <!-- Navigation Buttons -->
                 <div class="navigation-buttons">
                     <button class="nav-btn secondary" id="btnNavigation" onclick="openGoogleMapsToClient()">
                         <i class="fas fa-map-marked-alt"></i> GPS Client
@@ -342,6 +344,7 @@
                     </button>
                 </div>
                 
+                <!-- Action Buttons -->
                 <div class="navigation-buttons" style="margin-top: 10px;" id="actionButtons">
                     <button class="nav-btn warning" id="btnArrive" onclick="updateCourseStatus('arrive')">
                         <i class="fas fa-map-pin"></i> Arrivé
@@ -412,15 +415,16 @@
         </div>
     </div>
 
+    <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     
+    <!-- Google Maps -->
     <script>
-        // ========== CHARGEMENT GOOGLE MAPS AVEC ASYNC ==========
         function loadGoogleMaps() {
             const script = document.createElement('script');
-            script.src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyBI1svukv3Ts7fN97ke5OGfwo2V-vRUGHI&callback=initMap&loading=async';
+            script.src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyBI1svukv3Ts7fN97ke5OGfwo2V-vRUGHI&callback=initMap';
             script.async = true;
             script.defer = true;
             document.head.appendChild(script);
@@ -442,7 +446,7 @@
         const db = firebase.firestore();
         const auth = firebase.auth();
 
-        console.log('🚕 Al Bourakh Driver v4.2 - Position Temps Réel vers Client (Fixed)');
+        console.log('🚕 Al Bourakh Driver Pro v4.0 - Navigation Client');
 
         // ========== GLOBAL VARIABLES ==========
         let currentUser = null;
@@ -457,56 +461,45 @@
         let directionsRenderer = null;
         let watchPositionId = null;
         let driverPosition = null;
-        let currentRouteMode = 'approche';
+        let currentRouteMode = 'approche'; // 'approche' ou 'course'
         let approcheRoute = null;
         let courseRoute = null;
-        let positionUpdateCount = 0;
-        let markerLibrary = null;
 
-        // ========== GOOGLE MAPS - AVEC ADVANCED MARKER ELEMENT ==========
-        async function initMap() {
+        // ========== GOOGLE MAPS ==========
+        function initMap() {
             console.log('🗺️ Initialisation Google Maps...');
+            
             const dakar = { lat: 14.6937, lng: -17.4441 };
             
-            // Charger la bibliothèque marker pour utiliser AdvancedMarkerElement
-            try {
-                markerLibrary = await google.maps.importLibrary("marker");
-                console.log('✅ Bibliothèque marker chargée');
-            } catch (error) {
-                console.error('Erreur chargement bibliothèque marker:', error);
-            }
-            
             map = new google.maps.Map(document.getElementById('map'), {
-                center: dakar, 
-                zoom: 14, 
-                disableDefaultUI: true, 
-                zoomControl: true,
-                mapId: 'DEMO_MAP_ID' // Requis pour AdvancedMarkerElement
+                center: dakar,
+                zoom: 14,
+                disableDefaultUI: true,
+                zoomControl: true
             });
             
-            // Créer un marqueur personnalisé avec PinElement
-            const pinBackground = new markerLibrary.PinElement({
-                background: "#00A854",
-                borderColor: "#ffffff",
-                glyphColor: "#ffffff",
-                scale: 1.2
-            });
-
-            driverMarker = new markerLibrary.AdvancedMarkerElement({
+            driverMarker = new google.maps.Marker({
                 map: map,
-                position: dakar,
-                content: pinBackground.element,
+                icon: {
+                    path: google.maps.SymbolPath.CIRCLE,
+                    scale: 12,
+                    fillColor: '#00A854',
+                    fillOpacity: 1,
+                    strokeColor: '#fff',
+                    strokeWeight: 3
+                },
                 title: 'Ma position'
             });
 
             directionsService = new google.maps.DirectionsService();
-            console.log('✅ Google Maps initialisé avec AdvancedMarkerElement');
+            
+            console.log('✅ Google Maps initialisé');
         }
 
         window.initMap = initMap;
         loadGoogleMaps();
 
-        // ========== GEOLOCATION - ENVOI POSITION AU CLIENT ==========
+        // ========== GEOLOCATION ==========
         function startLocationTracking() {
             if (!navigator.geolocation) {
                 showToast('❌ Géolocalisation non supportée', 'error');
@@ -514,10 +507,9 @@
             }
 
             console.log('📍 Démarrage suivi GPS...');
-            updateGpsStatus('active', 'GPS actif');
             
             watchPositionId = navigator.geolocation.watchPosition(
-                async (position) => {
+                (position) => {
                     const { latitude, longitude, accuracy } = position.coords;
                     driverPosition = { lat: latitude, lng: longitude };
                     
@@ -525,7 +517,7 @@
                     
                     // Mettre à jour la carte du dashboard
                     if (driverMarker && map && !currentCourse) {
-                        driverMarker.position = driverPosition;
+                        driverMarker.setPosition(driverPosition);
                         map.panTo(driverPosition);
                     }
 
@@ -534,42 +526,12 @@
                     
                     reverseGeocode(latitude, longitude);
 
-                    // ========== MISE À JOUR FIREBASE ==========
+                    // Update Firebase
                     if (currentUser && isOnline && !currentUser.isDemo) {
-                        try {
-                            // 1. Mettre à jour le document du chauffeur
-                            await db.collection('drivers').doc(currentUser.uid).update({
-                                position: { latitude, longitude, accuracy, timestamp: firebase.firestore.FieldValue.serverTimestamp() },
-                                derniereActivite: firebase.firestore.FieldValue.serverTimestamp()
-                            });
-
-                            // 2. ⭐⭐⭐ IMPORTANT: Si course en cours, envoyer position au CLIENT
-                            if (currentCourse && currentCourse.id && !currentCourse.id.startsWith('TEST_')) {
-                                positionUpdateCount++;
-                                
-                                await db.collection('reservations').doc(currentCourse.id).update({
-                                    chauffeurPosition: {
-                                        latitude: latitude,
-                                        longitude: longitude,
-                                        accuracy: accuracy,
-                                        timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                                    },
-                                    chauffeurPositionTimestamp: firebase.firestore.FieldValue.serverTimestamp()
-                                });
-                                
-                                console.log(`✅ Position #${positionUpdateCount} envoyée au client`);
-                                updatePositionSendingStatus(positionUpdateCount);
-                            }
-                        } catch (err) {
-                            console.error('Erreur MAJ position:', err);
-                        }
-                    }
-
-                    // Mode démo: simuler l'envoi
-                    if (currentUser && currentUser.isDemo && currentCourse) {
-                        positionUpdateCount++;
-                        console.log(`🎮 [DEMO] Position #${positionUpdateCount} simulée`);
-                        updatePositionSendingStatus(positionUpdateCount);
+                        db.collection('drivers').doc(currentUser.uid).update({
+                            position: { latitude, longitude, accuracy, timestamp: firebase.firestore.FieldValue.serverTimestamp() },
+                            derniereActivite: firebase.firestore.FieldValue.serverTimestamp()
+                        }).catch(err => console.error('Erreur MAJ position:', err));
                     }
 
                     // Mise à jour du trajet d'approche si course active
@@ -581,9 +543,8 @@
                     console.error('❌ Erreur GPS:', error);
                     document.getElementById('currentAddress').textContent = 'Position non disponible';
                     document.getElementById('accuracy').innerHTML = '🔴 GPS désactivé';
-                    updateGpsStatus('error', 'GPS désactivé');
                 },
-                { enableHighAccuracy: true, timeout: 15000, maximumAge: 3000 }
+                { enableHighAccuracy: true, timeout: 15000, maximumAge: 5000 }
             );
         }
 
@@ -591,26 +552,6 @@
             if (watchPositionId) {
                 navigator.geolocation.clearWatch(watchPositionId);
                 watchPositionId = null;
-            }
-        }
-
-        function updateGpsStatus(status, text) {
-            const el = document.getElementById('gpsStatus');
-            if (el) {
-                if (status === 'active') {
-                    el.className = 'gps-status active';
-                    el.innerHTML = `<div class="gps-pulse green"></div><span>${text}</span>`;
-                } else if (status === 'sending') {
-                    el.className = 'gps-status sending';
-                    el.innerHTML = `<div class="gps-pulse blue"></div><span>${text}</span>`;
-                }
-            }
-        }
-
-        function updatePositionSendingStatus(count) {
-            const el = document.getElementById('positionSendingText');
-            if (el) {
-                el.textContent = `Position envoyée au client • #${count}`;
             }
         }
 
@@ -633,9 +574,13 @@
         function normalizePhoneNumber(phone) {
             phone = phone.replace(/[\s\-\(\)\.]/g, '').replace(/^\+/, '').replace(/^00/, '');
             const formats = [];
-            if (phone.startsWith('221')) { formats.push(phone, phone.substring(3)); }
-            else if (phone.match(/^[67][0-8]/)) { formats.push(phone, '221' + phone); }
-            else { formats.push(phone); }
+            if (phone.startsWith('221')) {
+                formats.push(phone, phone.substring(3));
+            } else if (phone.match(/^[67][0-8]/)) {
+                formats.push(phone, '221' + phone);
+            } else {
+                formats.push(phone);
+            }
             return [...new Set(formats)];
         }
 
@@ -643,7 +588,10 @@
             const phone = document.getElementById('loginPhone').value.trim();
             const password = document.getElementById('loginPassword').value.trim();
 
-            if (!phone || !password) { showToast('Remplissez tous les champs', 'error'); return; }
+            if (!phone || !password) {
+                showToast('Remplissez tous les champs', 'error');
+                return;
+            }
 
             // Demo mode
             if (password === 'demo123') {
@@ -657,8 +605,6 @@
                         rating: 4.8,
                         coursesCompletees: 42,
                         revenusTotal: 150000,
-                        vehiculeModele: 'Toyota Corolla',
-                        vehiculePlaque: 'DK-DEMO-01',
                         isDemo: true
                     };
                     hideLoading();
@@ -687,7 +633,6 @@
                             await db.collection('drivers').doc(userCredential.user.uid).set({
                                 telephone: phone, prenom: 'Chauffeur', nom: 'Al Bourakh', email,
                                 statut: 'hors_ligne', rating: 4.8, coursesCompletees: 0, revenusTotal: 0,
-                                vehiculeModele: 'Toyota Corolla', vehiculePlaque: 'DK-1234-AB',
                                 dateInscription: firebase.firestore.FieldValue.serverTimestamp(), actif: true
                             });
                         } else { throw e; }
@@ -700,7 +645,6 @@
                         await db.collection('drivers').doc(uid).set({
                             telephone: phone, prenom: 'Chauffeur', nom: 'Al Bourakh', email,
                             statut: 'hors_ligne', rating: 4.8, coursesCompletees: 0, revenusTotal: 0,
-                            vehiculeModele: 'Toyota Corolla', vehiculePlaque: 'DK-1234-AB',
                             dateInscription: firebase.firestore.FieldValue.serverTimestamp(), actif: true
                         });
                         driverDoc = await db.collection('drivers').doc(uid).get();
@@ -774,7 +718,9 @@
                 showToast('Vous êtes hors ligne', 'info');
                 
                 if (!currentUser.isDemo) {
-                    await db.collection('drivers').doc(currentUser.uid).update({ statut: 'hors_ligne' });
+                    await db.collection('drivers').doc(currentUser.uid).update({
+                        statut: 'hors_ligne'
+                    });
                 }
             }
         }
@@ -799,20 +745,27 @@
         }
 
         function simulateNewCourse() {
-            if (!isOnline) { showToast('Vous devez être en ligne', 'error'); return; }
+            if (!isOnline) {
+                showToast('Vous devez être en ligne', 'error');
+                return;
+            }
 
+            // Utiliser la position actuelle du chauffeur si disponible
             const driverPos = driverPosition || { lat: 14.7200, lng: -17.4600 };
+            
+            // Simuler un client à environ 2-3km du chauffeur
             const clientPickup = {
                 lat: driverPos.lat + (Math.random() * 0.02 - 0.01),
                 lng: driverPos.lng + (Math.random() * 0.02 - 0.01)
             };
 
+            // Simulate course with coordinates
             const testCourse = {
                 id: 'TEST_' + Date.now(),
                 depart: 'Plateau, Place de l\'Indépendance',
                 destination: 'Almadies, Route des Almadies',
                 departCoords: clientPickup,
-                destinationCoords: { lat: 14.7286, lng: -17.5295 },
+                destinationCoords: { lat: 14.7286, lng: -17.5295 }, // Almadies
                 prixEstime: 4500,
                 distance: 15,
                 passagers: 2,
@@ -820,6 +773,10 @@
                 clientTelephone: '+221 77 999 88 77',
                 clientRating: 4.9
             };
+            
+            console.log('🧪 Simulation course:', testCourse);
+            console.log('📍 Position chauffeur:', driverPos);
+            console.log('📍 Position client:', clientPickup);
             
             showCourseNotification(testCourse);
         }
@@ -861,59 +818,55 @@
                 timeLeft--;
                 const timer = document.getElementById('courseTimer');
                 if (timer) timer.innerHTML = `${timeLeft}<div class="course-timer-label">sec</div>`;
-                if (timeLeft <= 0) { clearInterval(timerInterval); refuseCourse(course.id, true); }
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    refuseCourse(course.id, true);
+                }
             }, 1000);
             notification.timerInterval = timerInterval;
         }
 
         async function acceptCourse(courseId, courseData) {
             const notification = document.querySelector('.course-notification');
-            if (notification) { clearInterval(notification.timerInterval); notification.remove(); }
+            if (notification) {
+                clearInterval(notification.timerInterval);
+                notification.remove();
+            }
 
             showLoading('Acceptation...');
 
+            // Parse course data if string
             if (typeof courseData === 'string') {
                 courseData = JSON.parse(courseData.replace(/&quot;/g, '"'));
             }
 
-            currentCourse = { id: courseId, ...courseData, statut: 'acceptee' };
-            positionUpdateCount = 0;
+            currentCourse = {
+                id: courseId,
+                ...courseData,
+                statut: 'acceptee'
+            };
 
-            if (!currentCourse.departCoords) currentCourse.departCoords = await geocodeAddress(currentCourse.depart);
-            if (!currentCourse.destinationCoords) currentCourse.destinationCoords = await geocodeAddress(currentCourse.destination);
+            // Ensure coordinates exist
+            if (!currentCourse.departCoords) {
+                currentCourse.departCoords = await geocodeAddress(currentCourse.depart);
+            }
+            if (!currentCourse.destinationCoords) {
+                currentCourse.destinationCoords = await geocodeAddress(currentCourse.destination);
+            }
 
-            // ⭐ Mise à jour Firestore avec position initiale
             if (!currentUser.isDemo && !courseId.startsWith('TEST_')) {
                 try {
-                    const updateData = {
+                    await db.collection('reservations').doc(courseId).update({
                         statut: 'acceptee',
                         accepteeParChauffeur: true,
-                        dateAcceptation: firebase.firestore.FieldValue.serverTimestamp(),
-                        nomChauffeur: `${currentUser.prenom || ''} ${currentUser.nom || ''}`.trim(),
-                        telephoneChauffeur: currentUser.telephone,
-                        chauffeurRating: currentUser.rating || 4.8,
-                        vehiculeModele: currentUser.vehiculeModele || 'Toyota Corolla',
-                        vehiculePlaque: currentUser.vehiculePlaque || 'DK-1234-AB'
-                    };
-
-                    // Envoyer position initiale immédiatement
-                    if (driverPosition) {
-                        updateData.chauffeurPosition = {
-                            latitude: driverPosition.lat,
-                            longitude: driverPosition.lng,
-                            timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                        };
-                        updateData.chauffeurPositionTimestamp = firebase.firestore.FieldValue.serverTimestamp();
-                        positionUpdateCount = 1;
-                    }
-
-                    await db.collection('reservations').doc(courseId).update(updateData);
-                    await db.collection('drivers').doc(currentUser.uid).update({
-                        statut: 'en_course', currentBookingId: courseId, reservationEnCours: courseId
+                        dateAcceptation: firebase.firestore.FieldValue.serverTimestamp()
                     });
 
-                    console.log('✅ Course acceptée + position initiale envoyée');
-
+                    await db.collection('drivers').doc(currentUser.uid).update({
+                        statut: 'en_course',
+                        currentBookingId: courseId,
+                        reservationEnCours: courseId
+                    });
                 } catch (error) {
                     console.error('Erreur acceptation:', error);
                 }
@@ -926,157 +879,271 @@
             showScreen('activeCourseScreen');
             displayActiveCourse();
             
-            setTimeout(() => initActiveCourseMap(), 300);
+            // Attendre que l'écran soit visible avant d'initialiser la carte
+            setTimeout(() => {
+                initActiveCourseMap();
+            }, 300);
         }
 
         async function geocodeAddress(address) {
             return new Promise((resolve) => {
-                if (!google || !google.maps) { resolve({ lat: 14.6937, lng: -17.4441 }); return; }
+                if (!google || !google.maps) {
+                    // Default to Dakar center
+                    resolve({ lat: 14.6937, lng: -17.4441 });
+                    return;
+                }
+                
                 const geocoder = new google.maps.Geocoder();
                 geocoder.geocode({ address: address + ', Dakar, Senegal' }, (results, status) => {
                     if (status === 'OK' && results[0]) {
-                        resolve({ lat: results[0].geometry.location.lat(), lng: results[0].geometry.location.lng() });
-                    } else { resolve({ lat: 14.6937, lng: -17.4441 }); }
+                        resolve({
+                            lat: results[0].geometry.location.lat(),
+                            lng: results[0].geometry.location.lng()
+                        });
+                    } else {
+                        resolve({ lat: 14.6937, lng: -17.4441 });
+                    }
                 });
             });
         }
 
         function refuseCourse(courseId, auto = false) {
             const notification = document.querySelector('.course-notification');
-            if (notification) { clearInterval(notification.timerInterval); notification.remove(); }
+            if (notification) {
+                clearInterval(notification.timerInterval);
+                notification.remove();
+            }
             showToast(auto ? '⏱️ Temps écoulé' : 'Course refusée', 'info');
         }
 
-        // ========== ACTIVE COURSE MAP - AVEC ADVANCED MARKER ELEMENT ==========
-        async function initActiveCourseMap() {
-            if (!google || !google.maps || !markerLibrary) {
-                console.error('Google Maps ou bibliothèque marker non chargée');
+        // ========== ACTIVE COURSE MAP ==========
+        function initActiveCourseMap() {
+            if (!google || !google.maps) {
+                console.log('⚠️ Google Maps non disponible');
                 return;
             }
 
             const mapElement = document.getElementById('activeCourseMap');
-            if (!mapElement) return;
+            if (!mapElement) {
+                console.log('⚠️ Element carte non trouvé');
+                return;
+            }
 
+            console.log('🗺️ Initialisation carte course active...');
+
+            // Forcer les dimensions
             mapElement.style.width = '100%';
             mapElement.style.height = '280px';
+            mapElement.style.minHeight = '280px';
 
             const centerPos = driverPosition || currentCourse?.departCoords || { lat: 14.6937, lng: -17.4441 };
 
+            // Créer ou réinitialiser la carte
             activeCourseMap = new google.maps.Map(mapElement, {
-                center: centerPos, 
-                zoom: 13, 
-                disableDefaultUI: true, 
+                center: centerPos,
+                zoom: 13,
+                disableDefaultUI: true,
                 zoomControl: true,
-                mapId: 'ACTIVE_COURSE_MAP' // Requis pour AdvancedMarkerElement
+                mapTypeControl: false,
+                streetViewControl: false,
+                fullscreenControl: false
             });
 
+            // DirectionsRenderer
             directionsRenderer = new google.maps.DirectionsRenderer({
-                map: activeCourseMap, 
+                map: activeCourseMap,
                 suppressMarkers: true,
-                polylineOptions: { strokeColor: '#2196F3', strokeWeight: 5, strokeOpacity: 0.8 }
+                polylineOptions: {
+                    strokeColor: '#2196F3',
+                    strokeWeight: 5,
+                    strokeOpacity: 0.8
+                }
             });
 
-            // Marqueur du chauffeur avec flèche bleue
+            // Marqueur chauffeur (bleu)
             if (driverPosition) {
-                const driverPin = new markerLibrary.PinElement({
-                    background: "#2196F3",
-                    borderColor: "#ffffff",
-                    glyphColor: "#ffffff",
-                    scale: 1.3
-                });
-
-                driverMarker = new markerLibrary.AdvancedMarkerElement({
-                    map: activeCourseMap, 
+                driverMarker = new google.maps.Marker({
+                    map: activeCourseMap,
                     position: driverPosition,
-                    content: driverPin.element,
+                    icon: {
+                        path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
+                        scale: 8,
+                        fillColor: '#2196F3',
+                        fillOpacity: 1,
+                        strokeColor: '#fff',
+                        strokeWeight: 2,
+                        rotation: 0
+                    },
                     title: 'Votre position',
                     zIndex: 100
                 });
             }
 
-            // Marqueur du point de prise en charge (client)
+            // Marqueur point de prise en charge client (vert)
             if (currentCourse?.departCoords) {
-                const clientPin = new markerLibrary.PinElement({
-                    background: "#4CAF50",
-                    borderColor: "#ffffff",
-                    glyphColor: "#ffffff",
-                    scale: 1.2
-                });
-
-                clientPickupMarker = new markerLibrary.AdvancedMarkerElement({
-                    map: activeCourseMap, 
+                clientPickupMarker = new google.maps.Marker({
+                    map: activeCourseMap,
                     position: currentCourse.departCoords,
-                    content: clientPin.element,
-                    title: 'Client'
+                    icon: {
+                        url: 'data:image/svg+xml,' + encodeURIComponent(`
+                            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40">
+                                <circle cx="20" cy="20" r="18" fill="#4CAF50" stroke="white" stroke-width="3"/>
+                                <text x="20" y="26" text-anchor="middle" fill="white" font-size="16" font-weight="bold">C</text>
+                            </svg>
+                        `),
+                        scaledSize: new google.maps.Size(40, 40),
+                        anchor: new google.maps.Point(20, 20)
+                    },
+                    title: 'Point de prise en charge'
                 });
             }
 
-            // Marqueur de la destination
+            // Marqueur destination (rouge)
             if (currentCourse?.destinationCoords) {
-                const destPin = new markerLibrary.PinElement({
-                    background: "#E30613",
-                    borderColor: "#ffffff",
-                    glyphColor: "#ffffff",
-                    scale: 1.0
-                });
-
-                clientDestinationMarker = new markerLibrary.AdvancedMarkerElement({
-                    map: activeCourseMap, 
+                clientDestinationMarker = new google.maps.Marker({
+                    map: activeCourseMap,
                     position: currentCourse.destinationCoords,
-                    content: destPin.element,
+                    icon: {
+                        url: 'data:image/svg+xml,' + encodeURIComponent(`
+                            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40">
+                                <circle cx="20" cy="20" r="18" fill="#E30613" stroke="white" stroke-width="3"/>
+                                <text x="20" y="26" text-anchor="middle" fill="white" font-size="16" font-weight="bold">D</text>
+                            </svg>
+                        `),
+                        scaledSize: new google.maps.Size(40, 40),
+                        anchor: new google.maps.Point(20, 20)
+                    },
                     title: 'Destination'
                 });
             }
 
+            // Forcer le redimensionnement
             setTimeout(() => {
                 google.maps.event.trigger(activeCourseMap, 'resize');
+                
+                // Ajuster les bounds pour voir tous les marqueurs
                 const bounds = new google.maps.LatLngBounds();
                 if (driverPosition) bounds.extend(driverPosition);
                 if (currentCourse?.departCoords) bounds.extend(currentCourse.departCoords);
-                if (!bounds.isEmpty()) activeCourseMap.fitBounds(bounds, { padding: 50 });
+                if (currentCourse?.destinationCoords) bounds.extend(currentCourse.destinationCoords);
+                
+                if (!bounds.isEmpty()) {
+                    activeCourseMap.fitBounds(bounds, { padding: 50 });
+                }
+                
+                console.log('✅ Carte course active initialisée');
             }, 200);
 
+            // Calculer les routes
             calculateApprocheRoute();
             calculateCourseRoute();
         }
 
         function calculateApprocheRoute() {
-            if (!driverPosition || !currentCourse?.departCoords || !directionsService) return;
+            if (!driverPosition || !currentCourse?.departCoords) {
+                console.log('⚠️ Positions manquantes pour calcul approche');
+                return;
+            }
+            
+            if (!directionsService) {
+                directionsService = new google.maps.DirectionsService();
+            }
+
+            console.log('🧭 Calcul trajet approche...');
 
             directionsService.route({
-                origin: driverPosition, destination: currentCourse.departCoords, travelMode: google.maps.TravelMode.DRIVING
+                origin: driverPosition,
+                destination: currentCourse.departCoords,
+                travelMode: google.maps.TravelMode.DRIVING
             }, (result, status) => {
                 if (status === 'OK') {
                     approcheRoute = result;
                     const leg = result.routes[0].legs[0];
+                    
                     document.getElementById('approcheDistance').textContent = leg.distance.text;
                     document.getElementById('approcheDuration').textContent = leg.duration.text;
-                    const eta = new Date(Date.now() + leg.duration.value * 1000);
+                    
+                    // Calculate ETA
+                    const now = new Date();
+                    const eta = new Date(now.getTime() + leg.duration.value * 1000);
                     document.getElementById('approcheETA').textContent = eta.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
-                    if (currentRouteMode === 'approche' && directionsRenderer) directionsRenderer.setDirections(result);
+
+                    if (currentRouteMode === 'approche' && directionsRenderer) {
+                        directionsRenderer.setDirections(result);
+                        directionsRenderer.setOptions({
+                            polylineOptions: { strokeColor: '#2196F3', strokeWeight: 5 }
+                        });
+                    }
+                    
+                    console.log('✅ Trajet approche calculé:', leg.distance.text, leg.duration.text);
+                } else {
+                    console.error('❌ Erreur calcul approche:', status);
                 }
             });
         }
 
         function calculateCourseRoute() {
-            if (!currentCourse?.departCoords || !currentCourse?.destinationCoords || !directionsService) return;
+            if (!currentCourse?.departCoords || !currentCourse?.destinationCoords) {
+                console.log('⚠️ Positions manquantes pour calcul course');
+                return;
+            }
+            
+            if (!directionsService) {
+                directionsService = new google.maps.DirectionsService();
+            }
+
+            console.log('🧭 Calcul trajet course...');
 
             directionsService.route({
-                origin: currentCourse.departCoords, destination: currentCourse.destinationCoords, travelMode: google.maps.TravelMode.DRIVING
+                origin: currentCourse.departCoords,
+                destination: currentCourse.destinationCoords,
+                travelMode: google.maps.TravelMode.DRIVING
             }, (result, status) => {
                 if (status === 'OK') {
                     courseRoute = result;
                     const leg = result.routes[0].legs[0];
+                    
                     document.getElementById('courseDistance').textContent = leg.distance.text;
                     document.getElementById('courseDuration').textContent = leg.duration.text;
                     document.getElementById('coursePrice').textContent = (currentCourse.prixEstime || 0).toLocaleString() + ' F';
+
+                    if (currentRouteMode === 'course' && directionsRenderer) {
+                        directionsRenderer.setDirections(result);
+                        directionsRenderer.setOptions({
+                            polylineOptions: { strokeColor: '#00A854', strokeWeight: 5 }
+                        });
+                    }
+                    
+                    console.log('✅ Trajet course calculé:', leg.distance.text, leg.duration.text);
+                } else {
+                    console.error('❌ Erreur calcul course:', status);
                 }
             });
         }
 
         function updateApprocheRoute() {
             if (currentRouteMode === 'approche' && driverPosition && activeCourseMap) {
-                if (driverMarker) driverMarker.position = driverPosition;
+                // Mettre à jour la position du marqueur chauffeur
+                if (driverMarker) {
+                    driverMarker.setPosition(driverPosition);
+                } else if (activeCourseMap) {
+                    // Créer le marqueur s'il n'existe pas
+                    driverMarker = new google.maps.Marker({
+                        map: activeCourseMap,
+                        position: driverPosition,
+                        icon: {
+                            path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
+                            scale: 8,
+                            fillColor: '#2196F3',
+                            fillOpacity: 1,
+                            strokeColor: '#fff',
+                            strokeWeight: 2
+                        },
+                        zIndex: 100
+                    });
+                }
+                
+                // Recalculer le trajet d'approche
                 calculateApprocheRoute();
             }
         }
@@ -1088,57 +1155,76 @@
             }
 
             currentRouteMode = mode;
+            
             document.getElementById('tabApproche').classList.toggle('active', mode === 'approche');
             document.getElementById('tabCourse').classList.toggle('active', mode === 'course');
+            
             document.getElementById('routeInfoApproche').style.display = mode === 'approche' ? 'block' : 'none';
             document.getElementById('routeInfoCourse').style.display = mode === 'course' ? 'block' : 'none';
 
-            if (directionsRenderer && activeCourseMap) {
-                if (mode === 'approche' && approcheRoute) {
-                    directionsRenderer.setDirections(approcheRoute);
-                    directionsRenderer.setOptions({ polylineOptions: { strokeColor: '#2196F3', strokeWeight: 5 } });
-                } else if (mode === 'course' && courseRoute) {
-                    directionsRenderer.setDirections(courseRoute);
-                    directionsRenderer.setOptions({ polylineOptions: { strokeColor: '#00A854', strokeWeight: 5 } });
-                }
+            if (!directionsRenderer || !activeCourseMap) {
+                console.log('⚠️ DirectionsRenderer ou carte non initialisé');
+                return;
             }
+
+            if (mode === 'approche' && approcheRoute) {
+                directionsRenderer.setDirections(approcheRoute);
+                directionsRenderer.setOptions({
+                    polylineOptions: { strokeColor: '#2196F3', strokeWeight: 5, strokeOpacity: 0.8 }
+                });
+                console.log('🔵 Affichage trajet approche');
+            } else if (mode === 'course' && courseRoute) {
+                directionsRenderer.setDirections(courseRoute);
+                directionsRenderer.setOptions({
+                    polylineOptions: { strokeColor: '#00A854', strokeWeight: 5, strokeOpacity: 0.8 }
+                });
+                console.log('🟢 Affichage trajet course');
+            }
+
+            // Rafraîchir la carte
+            setTimeout(() => {
+                google.maps.event.trigger(activeCourseMap, 'resize');
+            }, 100);
         }
 
         function displayActiveCourse() {
             if (!currentCourse) return;
+
             document.getElementById('clientName').textContent = currentCourse.clientNom || 'Client';
             document.getElementById('clientPhone').textContent = currentCourse.clientTelephone || '-';
             document.getElementById('clientRating').textContent = currentCourse.clientRating ? `⭐ ${currentCourse.clientRating}` : '-';
             document.getElementById('activeDeparture').textContent = currentCourse.depart;
             document.getElementById('activeDestination').textContent = currentCourse.destination;
             document.getElementById('activePrice').textContent = `${(currentCourse.prixEstime || 0).toLocaleString()} FCFA`;
+
             updateCourseStatusDisplay();
         }
 
         async function updateCourseStatus(newStatus) {
             if (!currentCourse) return;
+
             showLoading('Mise à jour...');
+
             currentCourse.statut = newStatus;
 
             if (!currentUser.isDemo && !currentCourse.id.startsWith('TEST_')) {
                 try {
-                    const updateData = {
+                    await db.collection('reservations').doc(currentCourse.id).update({
                         statut: newStatus,
                         derniereModification: firebase.firestore.FieldValue.serverTimestamp()
-                    };
-                    if (driverPosition) {
-                        updateData.chauffeurPosition = {
-                            latitude: driverPosition.lat, longitude: driverPosition.lng,
-                            timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                        };
-                    }
-                    await db.collection('reservations').doc(currentCourse.id).update(updateData);
-                } catch (error) { console.error('Erreur:', error); }
+                    });
+                } catch (error) {
+                    console.error('Erreur:', error);
+                }
             }
 
             hideLoading();
             updateCourseStatusDisplay();
-            const messages = { 'arrive': '✅ Arrivé au point de prise en charge', 'en_cours': '🚗 Course démarrée!' };
+
+            const messages = {
+                'arrive': '✅ Vous êtes arrivé au point de prise en charge',
+                'en_cours': '🚗 Course démarrée!'
+            };
             showToast(messages[newStatus] || 'Statut mis à jour', 'success');
         }
 
@@ -1165,6 +1251,7 @@
                     btnNavigation.onclick = () => openGoogleMapsToClient();
                     tabCourse.classList.add('disabled');
                     break;
+                    
                 case 'arrive':
                     statusBadge.className = 'status-badge arrive';
                     statusBadge.textContent = '📍 Arrivé - En attente client';
@@ -1174,6 +1261,7 @@
                     btnComplete.disabled = true;
                     tabCourse.classList.add('disabled');
                     break;
+                    
                 case 'en_cours':
                     statusBadge.className = 'status-badge en-cours';
                     statusBadge.textContent = '🚗 Course en cours';
@@ -1191,24 +1279,39 @@
         }
 
         function openGoogleMapsToClient() {
-            if (!currentCourse?.departCoords) { showToast('Coordonnées non disponibles', 'error'); return; }
+            if (!currentCourse?.departCoords) {
+                showToast('Coordonnées non disponibles', 'error');
+                return;
+            }
             const { lat, lng } = currentCourse.departCoords;
-            window.open(`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=driving`, '_blank');
+            const url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=driving`;
+            window.open(url, '_blank');
         }
 
         function openGoogleMapsToDestination() {
-            if (!currentCourse?.destinationCoords) { showToast('Coordonnées non disponibles', 'error'); return; }
+            if (!currentCourse?.destinationCoords) {
+                showToast('Coordonnées non disponibles', 'error');
+                return;
+            }
             const { lat, lng } = currentCourse.destinationCoords;
-            window.open(`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=driving`, '_blank');
+            const url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=driving`;
+            window.open(url, '_blank');
         }
 
         function callClient() {
-            if (!currentCourse?.clientTelephone) { showToast('Numéro non disponible', 'error'); return; }
+            if (!currentCourse?.clientTelephone) {
+                showToast('Numéro non disponible', 'error');
+                return;
+            }
             window.location.href = `tel:${currentCourse.clientTelephone}`;
         }
 
         async function completeCourse() {
-            if (!currentCourse || currentCourse.statut !== 'en_cours') { showToast('⚠️ Démarrez d\'abord la course', 'error'); return; }
+            if (!currentCourse || currentCourse.statut !== 'en_cours') {
+                showToast('⚠️ Démarrez d\'abord la course', 'error');
+                return;
+            }
+
             if (!confirm('Confirmer la fin de la course?')) return;
 
             showLoading('Finalisation...');
@@ -1216,18 +1319,26 @@
             if (!currentUser.isDemo && !currentCourse.id.startsWith('TEST_')) {
                 try {
                     await db.collection('reservations').doc(currentCourse.id).update({
-                        statut: 'terminee', dateFin: firebase.firestore.FieldValue.serverTimestamp()
+                        statut: 'terminee',
+                        dateFin: firebase.firestore.FieldValue.serverTimestamp()
                     });
+
                     await db.collection('drivers').doc(currentUser.uid).update({
-                        statut: 'disponible', currentBookingId: null, reservationEnCours: null,
+                        statut: 'disponible',
+                        currentBookingId: null,
+                        reservationEnCours: null,
                         coursesCompletees: firebase.firestore.FieldValue.increment(1),
                         revenusTotal: firebase.firestore.FieldValue.increment(currentCourse.prixEstime || 0)
                     });
-                } catch (error) { console.error('Erreur:', error); }
+                } catch (error) {
+                    console.error('Erreur:', error);
+                }
             }
 
             currentCourse = null;
-            positionUpdateCount = 0;
+            approcheRoute = null;
+            courseRoute = null;
+
             hideLoading();
             showToast('✅ Course terminée!', 'success');
             showScreen('dashboardScreen');
@@ -1236,21 +1347,28 @@
 
         async function cancelCourse() {
             if (!confirm('Annuler cette course?')) return;
+
             showLoading('Annulation...');
 
             if (!currentUser.isDemo && currentCourse && !currentCourse.id.startsWith('TEST_')) {
                 try {
                     await db.collection('reservations').doc(currentCourse.id).update({
-                        statut: 'annulee', annuleePar: 'chauffeur', dateAnnulation: firebase.firestore.FieldValue.serverTimestamp()
+                        statut: 'annulee',
+                        annuleePar: 'chauffeur',
+                        dateAnnulation: firebase.firestore.FieldValue.serverTimestamp()
                     });
+
                     await db.collection('drivers').doc(currentUser.uid).update({
-                        statut: 'disponible', currentBookingId: null, reservationEnCours: null
+                        statut: 'disponible',
+                        currentBookingId: null,
+                        reservationEnCours: null
                     });
-                } catch (error) { console.error('Erreur:', error); }
+                } catch (error) {
+                    console.error('Erreur:', error);
+                }
             }
 
             currentCourse = null;
-            positionUpdateCount = 0;
             hideLoading();
             showToast('Course annulée', 'info');
             showScreen('dashboardScreen');
@@ -1258,20 +1376,29 @@
 
         // ========== DASHBOARD ==========
         async function loadDashboardData() {
-            if (!currentUser || currentUser.isDemo) { loadDashboardDataDemo(); return; }
+            if (!currentUser || currentUser.isDemo) {
+                loadDashboardDataDemo();
+                return;
+            }
+
             try {
                 const driverDoc = await db.collection('drivers').doc(currentUser.uid).get();
                 const data = driverDoc.data();
+
                 document.getElementById('profileName').textContent = `${data.prenom || ''} ${data.nom || ''}`;
                 document.getElementById('profilePhone').textContent = data.telephone || '';
                 document.getElementById('rating').textContent = (data.rating || 4.8).toFixed(1);
                 document.getElementById('coursesTotal').textContent = data.coursesCompletees || 0;
                 document.getElementById('profileTotalCourses').textContent = data.coursesCompletees || 0;
                 document.getElementById('profileRevenuTotal').textContent = (data.revenusTotal || 0).toLocaleString() + ' FCFA';
+
                 document.getElementById('coursesJour').textContent = Math.floor(Math.random() * 5) + 2;
                 document.getElementById('revenusJour').textContent = ((Math.floor(Math.random() * 5) + 2) * 3500).toLocaleString();
+
                 loadHistory();
-            } catch (error) { console.error('Erreur:', error); }
+            } catch (error) {
+                console.error('Erreur:', error);
+            }
         }
 
         function loadDashboardDataDemo() {
@@ -1286,7 +1413,9 @@
             loadHistoryDemo();
         }
 
-        function loadHistory() { loadHistoryDemo(); }
+        function loadHistory() {
+            loadHistoryDemo();
+        }
 
         function loadHistoryDemo() {
             const historyList = document.getElementById('historyList');
@@ -1295,6 +1424,7 @@
                 { date: new Date(Date.now() - 3600000), depart: 'Sacré-Cœur', dest: 'Yoff', prix: 3200, statut: 'terminee' },
                 { date: new Date(Date.now() - 86400000), depart: 'Médina', dest: 'Ngor', prix: 2800, statut: 'terminee' }
             ];
+            
             historyList.innerHTML = courses.map(c => `
                 <div class="history-item">
                     <div class="history-header">
@@ -1311,22 +1441,41 @@
         function showScreen(screenId) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(screenId).classList.add('active');
+
             document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
             const navIndex = { 'dashboardScreen': 0, 'activeCourseScreen': 1, 'historyScreen': 2, 'profileScreen': 3 };
-            if (navIndex[screenId] !== undefined) document.querySelectorAll('.nav-item')[navIndex[screenId]].classList.add('active');
-            if (screenId === 'activeCourseScreen' && currentCourse) setTimeout(() => initActiveCourseMap(), 100);
+            if (navIndex[screenId] !== undefined) {
+                document.querySelectorAll('.nav-item')[navIndex[screenId]].classList.add('active');
+            }
+
+            // Réinitialiser la carte quand on affiche l'écran de course active
+            if (screenId === 'activeCourseScreen' && currentCourse) {
+                setTimeout(() => {
+                    initActiveCourseMap();
+                }, 100);
+            }
+
+            // Réinitialiser la carte du dashboard
             if (screenId === 'dashboardScreen' && map) {
-                setTimeout(() => { google.maps.event.trigger(map, 'resize'); if (driverPosition) map.setCenter(driverPosition); }, 100);
+                setTimeout(() => {
+                    google.maps.event.trigger(map, 'resize');
+                    if (driverPosition) {
+                        map.setCenter(driverPosition);
+                    }
+                }, 100);
             }
         }
 
-        // ========== UI ==========
+        // ========== UI UTILITIES ==========
         function showToast(message, type = 'info') {
             const toast = document.createElement('div');
             toast.className = `toast ${type}`;
             toast.innerHTML = `<strong>${message}</strong>`;
             document.body.appendChild(toast);
-            setTimeout(() => { toast.style.animation = 'slideInRight 0.3s reverse'; setTimeout(() => toast.remove(), 300); }, 3000);
+            setTimeout(() => {
+                toast.style.animation = 'slideInRight 0.3s reverse';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
         }
 
         function showLoading(text = 'Chargement...') {
@@ -1344,7 +1493,7 @@
 
         // ========== INIT ==========
         document.addEventListener('DOMContentLoaded', () => {
-            console.log('🚕 Al Bourakh Driver v4.2 - Ready (Fixed Version)');
+            console.log('🚕 Al Bourakh Driver Pro v4.0 - Ready');
             document.getElementById('loginPhone').value = '+221 77 123 45 67';
             document.getElementById('loginPassword').value = 'demo123';
         });
