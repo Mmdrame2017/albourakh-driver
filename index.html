@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>Al Bourakh Driver Pro v4.0 - Navigation Client</title>
+    <title>Al Bourakh Driver Pro v4.1 - Correction Doublons</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -154,6 +154,7 @@
         .info-value { font-weight: bold; color: #333; }
         
         .sync-badge { display: inline-block; background: #d4edda; color: #155724; padding: 2px 6px; border-radius: 4px; font-size: 0.65em; font-weight: bold; margin-left: 5px; }
+        .fix-badge { display: inline-block; background: #fff3cd; color: #856404; padding: 2px 6px; border-radius: 4px; font-size: 0.65em; font-weight: bold; margin-left: 5px; }
         
         @media (max-width: 414px) { .mobile-container, .bottom-nav { max-width: 100%; } }
     </style>
@@ -164,8 +165,8 @@
         <div id="loginScreen" class="screen active">
             <div class="login-screen">
                 <div class="login-logo">🚕</div>
-                <h1 class="login-title">Al Bourakh Driver <span class="sync-badge">v4.0</span></h1>
-                <p class="login-subtitle">Navigation Client Intégrée</p>
+                <h1 class="login-title">Al Bourakh Driver <span class="sync-badge">v4.1</span> <span class="fix-badge">FIX</span></h1>
+                <p class="login-subtitle">Correction des doublons chauffeurs</p>
                 
                 <div class="input-group">
                     <label>📱 Téléphone</label>
@@ -183,7 +184,14 @@
                     <p><strong>🧪 Mode Démo:</strong> Tout numéro + <code>demo123</code></p>
                 </div>
                 
-                <p style="margin-top: 20px; color: #999; font-size: 0.8em;">Version 4.0 - Navigation Client © 2025</p>
+                <div style="background: #fff3cd; padding: 12px; border-radius: 10px; margin-top: 10px; border-left: 4px solid #ffc107; font-size: 0.8em;">
+                    <p><strong>✅ v4.1 - Corrections:</strong></p>
+                    <p>• Recherche chauffeur par téléphone avant création</p>
+                    <p>• Évite les doublons dans Firestore</p>
+                    <p>• Position GPS envoyée au client</p>
+                </div>
+                
+                <p style="margin-top: 20px; color: #999; font-size: 0.8em;">Version 4.1 - Anti-Doublons © 2025</p>
             </div>
         </div>
 
@@ -386,7 +394,8 @@
             </div>
             <div class="profile-info">
                 <div class="info-item"><span class="info-label">📱 Téléphone</span><span class="info-value" id="profilePhone">-</span></div>
-                <div class="info-item"><span class="info-label">🚗 Véhicule</span><span class="info-value">Toyota Corolla</span></div>
+                <div class="info-item"><span class="info-label">🆔 ID Firestore</span><span class="info-value" id="profileFirestoreId" style="font-size: 0.7em;">-</span></div>
+                <div class="info-item"><span class="info-label">🚗 Véhicule</span><span class="info-value" id="profileVehicle">-</span></div>
                 <div class="info-item"><span class="info-label">💰 Revenus Total</span><span class="info-value" id="profileRevenuTotal">0 FCFA</span></div>
                 <button class="btn btn-primary" onclick="handleLogout()" style="margin-top: 20px; background: #E30613;">
                     <i class="fas fa-sign-out-alt"></i> Déconnexion
@@ -446,7 +455,7 @@
         const db = firebase.firestore();
         const auth = firebase.auth();
 
-        console.log('🚕 Al Bourakh Driver Pro v4.0 - Navigation Client');
+        console.log('🚕 Al Bourakh Driver Pro v4.1 - Anti-Doublons');
 
         // ========== GLOBAL VARIABLES ==========
         let currentUser = null;
@@ -461,7 +470,7 @@
         let directionsRenderer = null;
         let watchPositionId = null;
         let driverPosition = null;
-        let currentRouteMode = 'approche'; // 'approche' ou 'course'
+        let currentRouteMode = 'approche';
         let approcheRoute = null;
         let courseRoute = null;
 
@@ -499,246 +508,325 @@
         window.initMap = initMap;
         loadGoogleMaps();
 
-        // ========== GEOLOCATION ==========
-        // ========== CODE À AJOUTER/MODIFIER DANS L'APPLICATION CHAUFFEUR ==========
-// Ce code doit être ajouté dans le fichier driver HTML existant
-
-// ========== MODIFICATION DE startLocationTracking() ==========
-// Remplacer la fonction existante par celle-ci :
-
-function startLocationTracking() {
-    if (!navigator.geolocation) {
-        showToast('❌ Géolocalisation non supportée', 'error');
-        return;
-    }
-
-    console.log('📍 Démarrage suivi GPS...');
-    
-    watchPositionId = navigator.geolocation.watchPosition(
-        async (position) => {
-            const { latitude, longitude, accuracy } = position.coords;
-            driverPosition = { lat: latitude, lng: longitude };
+        // ========== NORMALISATION TÉLÉPHONE ==========
+        function normalizePhoneNumber(phone) {
+            // Supprimer tous les caractères non numériques sauf le +
+            phone = phone.replace(/[\s\-\(\)\.]/g, '');
             
-            console.log(`📍 Position: ${latitude.toFixed(5)}, ${longitude.toFixed(5)} (±${Math.round(accuracy)}m)`);
+            // Supprimer le + initial et les 00 initiaux
+            phone = phone.replace(/^\+/, '').replace(/^00/, '');
             
-            // Mettre à jour la carte du dashboard
-            if (driverMarker && map && !currentCourse) {
-                driverMarker.setPosition(driverPosition);
-                map.panTo(driverPosition);
+            // Générer les formats possibles
+            const formats = [];
+            
+            if (phone.startsWith('221')) {
+                // Format international sans +
+                formats.push(phone);
+                formats.push('+' + phone);
+                formats.push(phone.substring(3)); // Sans indicatif
+            } else if (phone.match(/^[67][0-8]/)) {
+                // Format local sénégalais
+                formats.push(phone);
+                formats.push('221' + phone);
+                formats.push('+221' + phone);
+            } else {
+                formats.push(phone);
             }
-
-            document.getElementById('accuracy').innerHTML = 
-                `${accuracy < 50 ? '🟢' : '🟡'} Précision: ${Math.round(accuracy)} m`;
             
-            reverseGeocode(latitude, longitude);
+            return [...new Set(formats)];
+        }
 
-            // ========== MISE À JOUR FIREBASE ==========
-            if (currentUser && isOnline && !currentUser.isDemo) {
+        // ========== 🔧 NOUVELLE FONCTION : RECHERCHE CHAUFFEUR PAR TÉLÉPHONE ==========
+        async function findDriverByPhone(phone) {
+            const phoneFormats = normalizePhoneNumber(phone);
+            console.log('🔍 Recherche chauffeur avec téléphones:', phoneFormats);
+            
+            for (const format of phoneFormats) {
                 try {
-                    // 1. Mettre à jour le document du chauffeur
-                    await db.collection('drivers').doc(currentUser.uid).update({
-                        position: { 
-                            latitude, 
-                            longitude, 
-                            accuracy, 
-                            timestamp: firebase.firestore.FieldValue.serverTimestamp() 
-                        },
-                        derniereActivite: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-
-                    // 2. ⭐ IMPORTANT: Si une course est en cours, mettre à jour la position
-                    //    DANS le document de réservation pour que le client puisse suivre
-                    if (currentCourse && currentCourse.id && !currentCourse.id.startsWith('TEST_')) {
-                        await db.collection('reservations').doc(currentCourse.id).update({
-                            chauffeurPosition: {
-                                latitude,
-                                longitude,
-                                accuracy,
-                                timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                            },
-                            chauffeurPositionTimestamp: firebase.firestore.FieldValue.serverTimestamp()
-                        });
-                        console.log('✅ Position envoyée au client via réservation');
+                    // Rechercher dans la collection drivers
+                    const snapshot = await db.collection('drivers')
+                        .where('telephone', '==', format)
+                        .limit(1)
+                        .get();
+                    
+                    if (!snapshot.empty) {
+                        const doc = snapshot.docs[0];
+                        console.log('✅ Chauffeur trouvé par téléphone:', doc.id, doc.data().nom);
+                        return { id: doc.id, ...doc.data() };
                     }
-                } catch (err) {
-                    console.error('Erreur MAJ position:', err);
+                    
+                    // Essayer aussi avec le format +221
+                    if (!format.startsWith('+')) {
+                        const snapshot2 = await db.collection('drivers')
+                            .where('telephone', '==', '+' + format)
+                            .limit(1)
+                            .get();
+                        
+                        if (!snapshot2.empty) {
+                            const doc = snapshot2.docs[0];
+                            console.log('✅ Chauffeur trouvé par téléphone (+):', doc.id);
+                            return { id: doc.id, ...doc.data() };
+                        }
+                    }
+                } catch (error) {
+                    console.log('Erreur recherche format', format, ':', error);
                 }
             }
-
-            // Mise à jour du trajet d'approche si course active
-            if (currentCourse && activeCourseMap && currentRouteMode === 'approche') {
-                updateApprocheRoute();
-            }
-        },
-        (error) => {
-            console.error('❌ Erreur GPS:', error);
-            document.getElementById('currentAddress').textContent = 'Position non disponible';
-            document.getElementById('accuracy').innerHTML = '🔴 GPS désactivé';
-        },
-        { 
-            enableHighAccuracy: true, 
-            timeout: 15000, 
-            maximumAge: 3000 // Réduire pour des mises à jour plus fréquentes
+            
+            console.log('❌ Aucun chauffeur trouvé pour ce téléphone');
+            return null;
         }
-    );
-}
 
+        // ========== 🔧 LOGIN CORRIGÉ - ÉVITE LES DOUBLONS ==========
+        async function handleLogin() {
+            const phone = document.getElementById('loginPhone').value.trim();
+            const password = document.getElementById('loginPassword').value.trim();
 
-// ========== MODIFICATION DE acceptCourse() ==========
-// Ajouter cette ligne après l'assignation de currentCourse :
+            if (!phone || !password) {
+                showToast('Remplissez tous les champs', 'error');
+                return;
+            }
 
-async function acceptCourse(courseId, courseData) {
-    const notification = document.querySelector('.course-notification');
-    if (notification) {
-        clearInterval(notification.timerInterval);
-        notification.remove();
-    }
+            // Mode démo
+            if (password === 'demo123') {
+                showLoading('Connexion démo...');
+                setTimeout(() => {
+                    currentUser = {
+                        firestoreId: 'DEMO_' + Date.now(),
+                        uid: 'DEMO_' + Date.now(),
+                        telephone: phone,
+                        prenom: 'Chauffeur',
+                        nom: 'Demo',
+                        rating: 4.8,
+                        coursesCompletees: 42,
+                        revenusTotal: 150000,
+                        isDemo: true
+                    };
+                    hideLoading();
+                    showToast('✅ Mode démo activé!', 'success');
+                    document.getElementById('bottomNav').style.display = 'flex';
+                    showScreen('dashboardScreen');
+                    loadDashboardDataDemo();
+                    startLocationTracking();
+                }, 1000);
+                return;
+            }
 
-    showLoading('Acceptation...');
+            showLoading('Connexion...');
 
-    // Parse course data if string
-    if (typeof courseData === 'string') {
-        courseData = JSON.parse(courseData.replace(/&quot;/g, '"'));
-    }
-
-    currentCourse = {
-        id: courseId,
-        ...courseData,
-        statut: 'acceptee'
-    };
-
-    // Ensure coordinates exist
-    if (!currentCourse.departCoords) {
-        currentCourse.departCoords = await geocodeAddress(currentCourse.depart);
-    }
-    if (!currentCourse.destinationCoords) {
-        currentCourse.destinationCoords = await geocodeAddress(currentCourse.destination);
-    }
-
-    if (!currentUser.isDemo && !courseId.startsWith('TEST_')) {
-        try {
-            // ⭐ Envoyer immédiatement la position initiale du chauffeur
-            const updateData = {
-                statut: 'acceptee',
-                accepteeParChauffeur: true,
-                dateAcceptation: firebase.firestore.FieldValue.serverTimestamp(),
-                // Infos chauffeur
-                nomChauffeur: `${currentUser.prenom || ''} ${currentUser.nom || ''}`.trim(),
-                telephoneChauffeur: currentUser.telephone,
-                chauffeurRating: currentUser.rating || 4.8,
-                vehiculeModele: currentUser.vehiculeModele || 'Toyota Corolla',
-                vehiculePlaque: currentUser.vehiculePlaque || 'DK-1234-AB'
-            };
-
-            // Ajouter la position si disponible
-            if (driverPosition) {
-                updateData.chauffeurPosition = {
-                    latitude: driverPosition.lat,
-                    longitude: driverPosition.lng,
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            try {
+                // ========== ÉTAPE 1: CHERCHER LE CHAUFFEUR PAR TÉLÉPHONE ==========
+                const existingDriver = await findDriverByPhone(phone);
+                
+                if (existingDriver) {
+                    console.log('🎉 Chauffeur existant trouvé:', existingDriver.id);
+                    
+                    // Le chauffeur existe déjà dans Firestore
+                    // Essayer de se connecter avec Firebase Auth
+                    const phoneFormats = normalizePhoneNumber(phone);
+                    let authSuccess = false;
+                    
+                    for (const format of phoneFormats) {
+                        try {
+                            const email = format.replace(/\+/g, '') + '@albourakh.sn';
+                            await auth.signInWithEmailAndPassword(email, password);
+                            authSuccess = true;
+                            console.log('✅ Auth réussie avec:', email);
+                            break;
+                        } catch (e) {
+                            if (e.code === 'auth/user-not-found' && password === 'Admin2025') {
+                                // Créer le compte Auth pour ce chauffeur existant
+                                const email = format.replace(/\+/g, '') + '@albourakh.sn';
+                                try {
+                                    await auth.createUserWithEmailAndPassword(email, password);
+                                    authSuccess = true;
+                                    console.log('✅ Compte Auth créé pour chauffeur existant:', email);
+                                    break;
+                                } catch (createError) {
+                                    console.log('Échec création auth:', createError.code);
+                                }
+                            }
+                        }
+                    }
+                    
+                    // Utiliser le chauffeur existant (PAS créer de doublon!)
+                    currentUser = {
+                        firestoreId: existingDriver.id,  // ID du document Firestore
+                        uid: existingDriver.id,          // Pour compatibilité
+                        ...existingDriver
+                    };
+                    
+                    // Mettre à jour la dernière connexion
+                    await db.collection('drivers').doc(existingDriver.id).update({
+                        derniereConnexion: firebase.firestore.FieldValue.serverTimestamp(),
+                        statut: 'hors_ligne'
+                    });
+                    
+                    hideLoading();
+                    showToast(`✅ Bienvenue ${currentUser.prenom || ''} ${currentUser.nom || ''}!`, 'success');
+                    document.getElementById('bottomNav').style.display = 'flex';
+                    showScreen('dashboardScreen');
+                    loadDashboardData();
+                    startLocationTracking();
+                    return;
+                }
+                
+                // ========== ÉTAPE 2: CHAUFFEUR N'EXISTE PAS - CRÉER SI Admin2025 ==========
+                if (password !== 'Admin2025') {
+                    hideLoading();
+                    showToast('❌ Chauffeur non enregistré', 'error');
+                    return;
+                }
+                
+                console.log('📝 Création nouveau chauffeur...');
+                
+                // Créer le compte Firebase Auth
+                const phoneFormats = normalizePhoneNumber(phone);
+                const email = phoneFormats[0].replace(/\+/g, '') + '@albourakh.sn';
+                
+                let userCredential;
+                try {
+                    userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                } catch (e) {
+                    if (e.code === 'auth/email-already-in-use') {
+                        userCredential = await auth.signInWithEmailAndPassword(email, password);
+                    } else {
+                        throw e;
+                    }
+                }
+                
+                const uid = userCredential.user.uid;
+                
+                // Créer le document chauffeur avec l'UID comme ID
+                await db.collection('drivers').doc(uid).set({
+                    telephone: phone,
+                    prenom: 'Nouveau',
+                    nom: 'Chauffeur',
+                    email: email,
+                    statut: 'hors_ligne',
+                    rating: 5.0,
+                    coursesCompletees: 0,
+                    revenusTotal: 0,
+                    dateInscription: firebase.firestore.FieldValue.serverTimestamp(),
+                    derniereConnexion: firebase.firestore.FieldValue.serverTimestamp(),
+                    actif: true,
+                    vehicule: null,
+                    typeVehicule: 'standard'
+                });
+                
+                const newDriverDoc = await db.collection('drivers').doc(uid).get();
+                currentUser = {
+                    firestoreId: uid,
+                    uid: uid,
+                    ...newDriverDoc.data()
                 };
-                updateData.chauffeurPositionTimestamp = firebase.firestore.FieldValue.serverTimestamp();
+                
+                hideLoading();
+                showToast(`✅ Compte créé! Bienvenue!`, 'success');
+                document.getElementById('bottomNav').style.display = 'flex';
+                showScreen('dashboardScreen');
+                loadDashboardData();
+                startLocationTracking();
+                
+            } catch (error) {
+                console.error('Erreur login:', error);
+                hideLoading();
+                showToast('❌ Erreur: ' + error.message, 'error');
+            }
+        }
+
+        function handleLogout() {
+            if (confirm('Voulez-vous vous déconnecter?')) {
+                showLoading('Déconnexion...');
+                if (isOnline) toggleOnlineStatus();
+                stopLocationTracking();
+                if (!currentUser?.isDemo) auth.signOut();
+                currentUser = null;
+                currentCourse = null;
+                hideLoading();
+                document.getElementById('bottomNav').style.display = 'none';
+                showScreen('loginScreen');
+                showToast('Déconnexion réussie', 'info');
+            }
+        }
+
+        // ========== GEOLOCATION ==========
+        function startLocationTracking() {
+            if (!navigator.geolocation) {
+                showToast('❌ Géolocalisation non supportée', 'error');
+                return;
             }
 
-            await db.collection('reservations').doc(courseId).update(updateData);
+            console.log('📍 Démarrage suivi GPS...');
+            
+            watchPositionId = navigator.geolocation.watchPosition(
+                async (position) => {
+                    const { latitude, longitude, accuracy } = position.coords;
+                    driverPosition = { lat: latitude, lng: longitude };
+                    
+                    console.log(`📍 Position: ${latitude.toFixed(5)}, ${longitude.toFixed(5)} (±${Math.round(accuracy)}m)`);
+                    
+                    if (driverMarker && map && !currentCourse) {
+                        driverMarker.setPosition(driverPosition);
+                        map.panTo(driverPosition);
+                    }
 
-            await db.collection('drivers').doc(currentUser.uid).update({
-                statut: 'en_course',
-                currentBookingId: courseId,
-                reservationEnCours: courseId
-            });
+                    document.getElementById('accuracy').innerHTML = 
+                        `${accuracy < 50 ? '🟢' : '🟡'} Précision: ${Math.round(accuracy)} m`;
+                    
+                    reverseGeocode(latitude, longitude);
 
-            console.log('✅ Réservation mise à jour avec position initiale');
+                    // ========== MISE À JOUR FIREBASE AVEC ID FIRESTORE ==========
+                    if (currentUser && isOnline && !currentUser.isDemo) {
+                        try {
+                            const driverId = currentUser.firestoreId || currentUser.uid;
+                            
+                            // Mettre à jour le document du chauffeur
+                            await db.collection('drivers').doc(driverId).update({
+                                position: { 
+                                    latitude, 
+                                    longitude, 
+                                    accuracy, 
+                                    timestamp: firebase.firestore.FieldValue.serverTimestamp() 
+                                },
+                                positionActuelle: new firebase.firestore.GeoPoint(latitude, longitude),
+                                derniereActivite: firebase.firestore.FieldValue.serverTimestamp()
+                            });
 
-        } catch (error) {
-            console.error('Erreur acceptation:', error);
+                            // Si course en cours, envoyer position au client
+                            if (currentCourse && currentCourse.id && !currentCourse.id.startsWith('TEST_')) {
+                                await db.collection('reservations').doc(currentCourse.id).update({
+                                    chauffeurPosition: {
+                                        latitude,
+                                        longitude,
+                                        accuracy,
+                                        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                                    },
+                                    chauffeurPositionTimestamp: firebase.firestore.FieldValue.serverTimestamp()
+                                });
+                                console.log('✅ Position envoyée au client');
+                            }
+                        } catch (err) {
+                            console.error('Erreur MAJ position:', err);
+                        }
+                    }
+
+                    if (currentCourse && activeCourseMap && currentRouteMode === 'approche') {
+                        updateApprocheRoute();
+                    }
+                },
+                (error) => {
+                    console.error('❌ Erreur GPS:', error);
+                    document.getElementById('currentAddress').textContent = 'Position non disponible';
+                    document.getElementById('accuracy').innerHTML = '🔴 GPS désactivé';
+                },
+                { 
+                    enableHighAccuracy: true, 
+                    timeout: 15000, 
+                    maximumAge: 3000
+                }
+            );
         }
-    }
-
-    hideLoading();
-    showToast('✅ Course acceptée!', 'success');
-    
-    currentRouteMode = 'approche';
-    showScreen('activeCourseScreen');
-    displayActiveCourse();
-    
-    setTimeout(() => {
-        initActiveCourseMap();
-    }, 300);
-}
-
-
-// ========== MODIFICATION DE updateCourseStatus() ==========
-// S'assurer que le statut est bien mis à jour dans la réservation :
-
-async function updateCourseStatus(newStatus) {
-    if (!currentCourse) return;
-
-    showLoading('Mise à jour...');
-
-    currentCourse.statut = newStatus;
-
-    if (!currentUser.isDemo && !currentCourse.id.startsWith('TEST_')) {
-        try {
-            const updateData = {
-                statut: newStatus,
-                derniereModification: firebase.firestore.FieldValue.serverTimestamp()
-            };
-
-            // Toujours inclure la position actuelle
-            if (driverPosition) {
-                updateData.chauffeurPosition = {
-                    latitude: driverPosition.lat,
-                    longitude: driverPosition.lng,
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                };
-            }
-
-            await db.collection('reservations').doc(currentCourse.id).update(updateData);
-            console.log('✅ Statut mis à jour:', newStatus);
-
-        } catch (error) {
-            console.error('Erreur:', error);
-        }
-    }
-
-    hideLoading();
-    updateCourseStatusDisplay();
-
-    const messages = {
-        'arrive': '✅ Vous êtes arrivé au point de prise en charge',
-        'en_cours': '🚗 Course démarrée!'
-    };
-    showToast(messages[newStatus] || 'Statut mis à jour', 'success');
-}
-
-
-// ========== RÈGLES FIRESTORE RECOMMANDÉES ==========
-/*
-Pour que tout fonctionne, assurez-vous que vos règles Firestore permettent :
-- Aux clients de LIRE les réservations (même sans authentification pour le champ position)
-- Aux chauffeurs authentifiés d'ÉCRIRE dans les réservations
-
-Exemple de règles :
-
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    
-    // Réservations - lecture publique, écriture pour chauffeurs assignés
-    match /reservations/{reservationId} {
-      allow read: if true; // Le client peut lire sa réservation
-      allow create: if true; // Création de réservation
-      allow update: if true; // Mise à jour (position chauffeur)
-    }
-    
-    // Chauffeurs - lecture/écriture pour le propriétaire
-    match /drivers/{driverId} {
-      allow read, write: if request.auth != null && request.auth.uid == driverId;
-    }
-  }
-}
-*/
 
         function stopLocationTracking() {
             if (watchPositionId) {
@@ -762,125 +850,6 @@ service cloud.firestore {
             }
         }
 
-        // ========== LOGIN ==========
-        function normalizePhoneNumber(phone) {
-            phone = phone.replace(/[\s\-\(\)\.]/g, '').replace(/^\+/, '').replace(/^00/, '');
-            const formats = [];
-            if (phone.startsWith('221')) {
-                formats.push(phone, phone.substring(3));
-            } else if (phone.match(/^[67][0-8]/)) {
-                formats.push(phone, '221' + phone);
-            } else {
-                formats.push(phone);
-            }
-            return [...new Set(formats)];
-        }
-
-        async function handleLogin() {
-            const phone = document.getElementById('loginPhone').value.trim();
-            const password = document.getElementById('loginPassword').value.trim();
-
-            if (!phone || !password) {
-                showToast('Remplissez tous les champs', 'error');
-                return;
-            }
-
-            // Demo mode
-            if (password === 'demo123') {
-                showLoading('Connexion démo...');
-                setTimeout(() => {
-                    currentUser = {
-                        uid: 'DEMO_' + Date.now(),
-                        telephone: phone,
-                        prenom: 'Chauffeur',
-                        nom: 'Demo',
-                        rating: 4.8,
-                        coursesCompletees: 42,
-                        revenusTotal: 150000,
-                        isDemo: true
-                    };
-                    hideLoading();
-                    showToast('✅ Mode démo activé!', 'success');
-                    document.getElementById('bottomNav').style.display = 'flex';
-                    showScreen('dashboardScreen');
-                    loadDashboardDataDemo();
-                    startLocationTracking();
-                }, 1000);
-                return;
-            }
-
-            showLoading('Connexion...');
-            const phoneFormats = normalizePhoneNumber(phone);
-
-            for (const format of phoneFormats) {
-                try {
-                    const email = format + '@albourakh.sn';
-                    let userCredential;
-                    
-                    try {
-                        userCredential = await auth.signInWithEmailAndPassword(email, password);
-                    } catch (e) {
-                        if (e.code === 'auth/user-not-found' && password === 'Admin2025') {
-                            userCredential = await auth.createUserWithEmailAndPassword(email, password);
-                            await db.collection('drivers').doc(userCredential.user.uid).set({
-                                telephone: phone, prenom: 'Chauffeur', nom: 'Al Bourakh', email,
-                                statut: 'hors_ligne', rating: 4.8, coursesCompletees: 0, revenusTotal: 0,
-                                dateInscription: firebase.firestore.FieldValue.serverTimestamp(), actif: true
-                            });
-                        } else { throw e; }
-                    }
-
-                    const uid = userCredential.user.uid;
-                    let driverDoc = await db.collection('drivers').doc(uid).get();
-                    
-                    if (!driverDoc.exists) {
-                        await db.collection('drivers').doc(uid).set({
-                            telephone: phone, prenom: 'Chauffeur', nom: 'Al Bourakh', email,
-                            statut: 'hors_ligne', rating: 4.8, coursesCompletees: 0, revenusTotal: 0,
-                            dateInscription: firebase.firestore.FieldValue.serverTimestamp(), actif: true
-                        });
-                        driverDoc = await db.collection('drivers').doc(uid).get();
-                    }
-                    
-                    currentUser = { uid, ...driverDoc.data() };
-                    
-                    await db.collection('drivers').doc(uid).update({
-                        derniereConnexion: firebase.firestore.FieldValue.serverTimestamp(),
-                        statut: 'hors_ligne'
-                    });
-
-                    hideLoading();
-                    showToast(`✅ Bienvenue ${currentUser.prenom}!`, 'success');
-                    document.getElementById('bottomNav').style.display = 'flex';
-                    showScreen('dashboardScreen');
-                    loadDashboardData();
-                    startLocationTracking();
-                    return;
-                    
-                } catch (error) {
-                    console.log(`Échec ${format}:`, error.code);
-                }
-            }
-
-            hideLoading();
-            showToast('❌ Identifiants incorrects', 'error');
-        }
-
-        function handleLogout() {
-            if (confirm('Voulez-vous vous déconnecter?')) {
-                showLoading('Déconnexion...');
-                if (isOnline) toggleOnlineStatus();
-                stopLocationTracking();
-                if (!currentUser?.isDemo) auth.signOut();
-                currentUser = null;
-                currentCourse = null;
-                hideLoading();
-                document.getElementById('bottomNav').style.display = 'none';
-                showScreen('loginScreen');
-                showToast('Déconnexion réussie', 'info');
-            }
-        }
-
         // ========== ONLINE STATUS ==========
         async function toggleOnlineStatus() {
             if (!currentUser) return;
@@ -888,6 +857,7 @@ service cloud.firestore {
             isOnline = !isOnline;
             const toggle = document.getElementById('toggleSwitch');
             const statusText = document.getElementById('statusText');
+            const driverId = currentUser.firestoreId || currentUser.uid;
 
             if (isOnline) {
                 toggle.classList.add('active');
@@ -898,7 +868,7 @@ service cloud.firestore {
                 listenForNewCourses();
                 
                 if (!currentUser.isDemo) {
-                    await db.collection('drivers').doc(currentUser.uid).update({
+                    await db.collection('drivers').doc(driverId).update({
                         statut: 'disponible',
                         derniereActivite: firebase.firestore.FieldValue.serverTimestamp()
                     });
@@ -910,7 +880,7 @@ service cloud.firestore {
                 showToast('Vous êtes hors ligne', 'info');
                 
                 if (!currentUser.isDemo) {
-                    await db.collection('drivers').doc(currentUser.uid).update({
+                    await db.collection('drivers').doc(driverId).update({
                         statut: 'hors_ligne'
                     });
                 }
@@ -923,13 +893,17 @@ service cloud.firestore {
         function listenForNewCourses() {
             if (!currentUser || !isOnline || currentUser.isDemo) return;
 
+            const driverId = currentUser.firestoreId || currentUser.uid;
+            console.log('👂 Écoute des courses pour:', driverId);
+
             courseListener = db.collection('reservations')
-                .where('chauffeurAssigne', '==', currentUser.uid)
+                .where('chauffeurAssigne', '==', driverId)
                 .where('statut', '==', 'assignee')
                 .onSnapshot(snapshot => {
                     snapshot.docChanges().forEach(change => {
                         if (change.type === 'added') {
                             const course = { id: change.doc.id, ...change.doc.data() };
+                            console.log('🔔 Nouvelle course reçue:', course.id);
                             showCourseNotification(course);
                         }
                     });
@@ -942,22 +916,19 @@ service cloud.firestore {
                 return;
             }
 
-            // Utiliser la position actuelle du chauffeur si disponible
             const driverPos = driverPosition || { lat: 14.7200, lng: -17.4600 };
             
-            // Simuler un client à environ 2-3km du chauffeur
             const clientPickup = {
                 lat: driverPos.lat + (Math.random() * 0.02 - 0.01),
                 lng: driverPos.lng + (Math.random() * 0.02 - 0.01)
             };
 
-            // Simulate course with coordinates
             const testCourse = {
                 id: 'TEST_' + Date.now(),
                 depart: 'Plateau, Place de l\'Indépendance',
                 destination: 'Almadies, Route des Almadies',
                 departCoords: clientPickup,
-                destinationCoords: { lat: 14.7286, lng: -17.5295 }, // Almadies
+                destinationCoords: { lat: 14.7286, lng: -17.5295 },
                 prixEstime: 4500,
                 distance: 15,
                 passagers: 2,
@@ -965,10 +936,6 @@ service cloud.firestore {
                 clientTelephone: '+221 77 999 88 77',
                 clientRating: 4.9
             };
-            
-            console.log('🧪 Simulation course:', testCourse);
-            console.log('📍 Position chauffeur:', driverPos);
-            console.log('📍 Position client:', clientPickup);
             
             showCourseNotification(testCourse);
         }
@@ -1027,7 +994,6 @@ service cloud.firestore {
 
             showLoading('Acceptation...');
 
-            // Parse course data if string
             if (typeof courseData === 'string') {
                 courseData = JSON.parse(courseData.replace(/&quot;/g, '"'));
             }
@@ -1038,7 +1004,6 @@ service cloud.firestore {
                 statut: 'acceptee'
             };
 
-            // Ensure coordinates exist
             if (!currentCourse.departCoords) {
                 currentCourse.departCoords = await geocodeAddress(currentCourse.depart);
             }
@@ -1046,19 +1011,37 @@ service cloud.firestore {
                 currentCourse.destinationCoords = await geocodeAddress(currentCourse.destination);
             }
 
+            const driverId = currentUser.firestoreId || currentUser.uid;
+
             if (!currentUser.isDemo && !courseId.startsWith('TEST_')) {
                 try {
-                    await db.collection('reservations').doc(courseId).update({
+                    const updateData = {
                         statut: 'acceptee',
                         accepteeParChauffeur: true,
-                        dateAcceptation: firebase.firestore.FieldValue.serverTimestamp()
-                    });
+                        dateAcceptation: firebase.firestore.FieldValue.serverTimestamp(),
+                        nomChauffeur: `${currentUser.prenom || ''} ${currentUser.nom || ''}`.trim(),
+                        telephoneChauffeur: currentUser.telephone,
+                        chauffeurRating: currentUser.rating || 4.8,
+                        vehiculeModele: currentUser.vehiculeModele || currentUser.vehicule?.modele || 'Véhicule',
+                        vehiculePlaque: currentUser.vehiculePlaque || currentUser.vehicule?.plaque || '-'
+                    };
 
-                    await db.collection('drivers').doc(currentUser.uid).update({
+                    if (driverPosition) {
+                        updateData.chauffeurPosition = {
+                            latitude: driverPosition.lat,
+                            longitude: driverPosition.lng,
+                            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                        };
+                    }
+
+                    await db.collection('reservations').doc(courseId).update(updateData);
+
+                    await db.collection('drivers').doc(driverId).update({
                         statut: 'en_course',
                         currentBookingId: courseId,
                         reservationEnCours: courseId
                     });
+
                 } catch (error) {
                     console.error('Erreur acceptation:', error);
                 }
@@ -1071,7 +1054,6 @@ service cloud.firestore {
             showScreen('activeCourseScreen');
             displayActiveCourse();
             
-            // Attendre que l'écran soit visible avant d'initialiser la carte
             setTimeout(() => {
                 initActiveCourseMap();
             }, 300);
@@ -1080,7 +1062,6 @@ service cloud.firestore {
         async function geocodeAddress(address) {
             return new Promise((resolve) => {
                 if (!google || !google.maps) {
-                    // Default to Dakar center
                     resolve({ lat: 14.6937, lng: -17.4441 });
                     return;
                 }
@@ -1110,49 +1091,29 @@ service cloud.firestore {
 
         // ========== ACTIVE COURSE MAP ==========
         function initActiveCourseMap() {
-            if (!google || !google.maps) {
-                console.log('⚠️ Google Maps non disponible');
-                return;
-            }
+            if (!google || !google.maps) return;
 
             const mapElement = document.getElementById('activeCourseMap');
-            if (!mapElement) {
-                console.log('⚠️ Element carte non trouvé');
-                return;
-            }
+            if (!mapElement) return;
 
-            console.log('🗺️ Initialisation carte course active...');
-
-            // Forcer les dimensions
             mapElement.style.width = '100%';
             mapElement.style.height = '280px';
-            mapElement.style.minHeight = '280px';
 
             const centerPos = driverPosition || currentCourse?.departCoords || { lat: 14.6937, lng: -17.4441 };
 
-            // Créer ou réinitialiser la carte
             activeCourseMap = new google.maps.Map(mapElement, {
                 center: centerPos,
                 zoom: 13,
                 disableDefaultUI: true,
-                zoomControl: true,
-                mapTypeControl: false,
-                streetViewControl: false,
-                fullscreenControl: false
+                zoomControl: true
             });
 
-            // DirectionsRenderer
             directionsRenderer = new google.maps.DirectionsRenderer({
                 map: activeCourseMap,
                 suppressMarkers: true,
-                polylineOptions: {
-                    strokeColor: '#2196F3',
-                    strokeWeight: 5,
-                    strokeOpacity: 0.8
-                }
+                polylineOptions: { strokeColor: '#2196F3', strokeWeight: 5, strokeOpacity: 0.8 }
             });
 
-            // Marqueur chauffeur (bleu)
             if (driverPosition) {
                 driverMarker = new google.maps.Marker({
                     map: activeCourseMap,
@@ -1163,15 +1124,13 @@ service cloud.firestore {
                         fillColor: '#2196F3',
                         fillOpacity: 1,
                         strokeColor: '#fff',
-                        strokeWeight: 2,
-                        rotation: 0
+                        strokeWeight: 2
                     },
                     title: 'Votre position',
                     zIndex: 100
                 });
             }
 
-            // Marqueur point de prise en charge client (vert)
             if (currentCourse?.departCoords) {
                 clientPickupMarker = new google.maps.Marker({
                     map: activeCourseMap,
@@ -1190,7 +1149,6 @@ service cloud.firestore {
                 });
             }
 
-            // Marqueur destination (rouge)
             if (currentCourse?.destinationCoords) {
                 clientDestinationMarker = new google.maps.Marker({
                     map: activeCourseMap,
@@ -1209,39 +1167,22 @@ service cloud.firestore {
                 });
             }
 
-            // Forcer le redimensionnement
             setTimeout(() => {
                 google.maps.event.trigger(activeCourseMap, 'resize');
-                
-                // Ajuster les bounds pour voir tous les marqueurs
                 const bounds = new google.maps.LatLngBounds();
                 if (driverPosition) bounds.extend(driverPosition);
                 if (currentCourse?.departCoords) bounds.extend(currentCourse.departCoords);
                 if (currentCourse?.destinationCoords) bounds.extend(currentCourse.destinationCoords);
-                
-                if (!bounds.isEmpty()) {
-                    activeCourseMap.fitBounds(bounds, { padding: 50 });
-                }
-                
-                console.log('✅ Carte course active initialisée');
+                if (!bounds.isEmpty()) activeCourseMap.fitBounds(bounds, { padding: 50 });
             }, 200);
 
-            // Calculer les routes
             calculateApprocheRoute();
             calculateCourseRoute();
         }
 
         function calculateApprocheRoute() {
-            if (!driverPosition || !currentCourse?.departCoords) {
-                console.log('⚠️ Positions manquantes pour calcul approche');
-                return;
-            }
-            
-            if (!directionsService) {
-                directionsService = new google.maps.DirectionsService();
-            }
-
-            console.log('🧭 Calcul trajet approche...');
+            if (!driverPosition || !currentCourse?.departCoords) return;
+            if (!directionsService) directionsService = new google.maps.DirectionsService();
 
             directionsService.route({
                 origin: driverPosition,
@@ -1255,36 +1196,20 @@ service cloud.firestore {
                     document.getElementById('approcheDistance').textContent = leg.distance.text;
                     document.getElementById('approcheDuration').textContent = leg.duration.text;
                     
-                    // Calculate ETA
                     const now = new Date();
                     const eta = new Date(now.getTime() + leg.duration.value * 1000);
                     document.getElementById('approcheETA').textContent = eta.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
 
                     if (currentRouteMode === 'approche' && directionsRenderer) {
                         directionsRenderer.setDirections(result);
-                        directionsRenderer.setOptions({
-                            polylineOptions: { strokeColor: '#2196F3', strokeWeight: 5 }
-                        });
                     }
-                    
-                    console.log('✅ Trajet approche calculé:', leg.distance.text, leg.duration.text);
-                } else {
-                    console.error('❌ Erreur calcul approche:', status);
                 }
             });
         }
 
         function calculateCourseRoute() {
-            if (!currentCourse?.departCoords || !currentCourse?.destinationCoords) {
-                console.log('⚠️ Positions manquantes pour calcul course');
-                return;
-            }
-            
-            if (!directionsService) {
-                directionsService = new google.maps.DirectionsService();
-            }
-
-            console.log('🧭 Calcul trajet course...');
+            if (!currentCourse?.departCoords || !currentCourse?.destinationCoords) return;
+            if (!directionsService) directionsService = new google.maps.DirectionsService();
 
             directionsService.route({
                 origin: currentCourse.departCoords,
@@ -1301,41 +1226,14 @@ service cloud.firestore {
 
                     if (currentRouteMode === 'course' && directionsRenderer) {
                         directionsRenderer.setDirections(result);
-                        directionsRenderer.setOptions({
-                            polylineOptions: { strokeColor: '#00A854', strokeWeight: 5 }
-                        });
                     }
-                    
-                    console.log('✅ Trajet course calculé:', leg.distance.text, leg.duration.text);
-                } else {
-                    console.error('❌ Erreur calcul course:', status);
                 }
             });
         }
 
         function updateApprocheRoute() {
-            if (currentRouteMode === 'approche' && driverPosition && activeCourseMap) {
-                // Mettre à jour la position du marqueur chauffeur
-                if (driverMarker) {
-                    driverMarker.setPosition(driverPosition);
-                } else if (activeCourseMap) {
-                    // Créer le marqueur s'il n'existe pas
-                    driverMarker = new google.maps.Marker({
-                        map: activeCourseMap,
-                        position: driverPosition,
-                        icon: {
-                            path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
-                            scale: 8,
-                            fillColor: '#2196F3',
-                            fillOpacity: 1,
-                            strokeColor: '#fff',
-                            strokeWeight: 2
-                        },
-                        zIndex: 100
-                    });
-                }
-                
-                // Recalculer le trajet d'approche
+            if (currentRouteMode === 'approche' && driverPosition && driverMarker) {
+                driverMarker.setPosition(driverPosition);
                 calculateApprocheRoute();
             }
         }
@@ -1354,29 +1252,15 @@ service cloud.firestore {
             document.getElementById('routeInfoApproche').style.display = mode === 'approche' ? 'block' : 'none';
             document.getElementById('routeInfoCourse').style.display = mode === 'course' ? 'block' : 'none';
 
-            if (!directionsRenderer || !activeCourseMap) {
-                console.log('⚠️ DirectionsRenderer ou carte non initialisé');
-                return;
-            }
+            if (!directionsRenderer) return;
 
             if (mode === 'approche' && approcheRoute) {
                 directionsRenderer.setDirections(approcheRoute);
-                directionsRenderer.setOptions({
-                    polylineOptions: { strokeColor: '#2196F3', strokeWeight: 5, strokeOpacity: 0.8 }
-                });
-                console.log('🔵 Affichage trajet approche');
+                directionsRenderer.setOptions({ polylineOptions: { strokeColor: '#2196F3', strokeWeight: 5 } });
             } else if (mode === 'course' && courseRoute) {
                 directionsRenderer.setDirections(courseRoute);
-                directionsRenderer.setOptions({
-                    polylineOptions: { strokeColor: '#00A854', strokeWeight: 5, strokeOpacity: 0.8 }
-                });
-                console.log('🟢 Affichage trajet course');
+                directionsRenderer.setOptions({ polylineOptions: { strokeColor: '#00A854', strokeWeight: 5 } });
             }
-
-            // Rafraîchir la carte
-            setTimeout(() => {
-                google.maps.event.trigger(activeCourseMap, 'resize');
-            }, 100);
         }
 
         function displayActiveCourse() {
@@ -1396,15 +1280,25 @@ service cloud.firestore {
             if (!currentCourse) return;
 
             showLoading('Mise à jour...');
-
             currentCourse.statut = newStatus;
+            const driverId = currentUser.firestoreId || currentUser.uid;
 
             if (!currentUser.isDemo && !currentCourse.id.startsWith('TEST_')) {
                 try {
-                    await db.collection('reservations').doc(currentCourse.id).update({
+                    const updateData = {
                         statut: newStatus,
                         derniereModification: firebase.firestore.FieldValue.serverTimestamp()
-                    });
+                    };
+
+                    if (driverPosition) {
+                        updateData.chauffeurPosition = {
+                            latitude: driverPosition.lat,
+                            longitude: driverPosition.lng,
+                            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                        };
+                    }
+
+                    await db.collection('reservations').doc(currentCourse.id).update(updateData);
                 } catch (error) {
                     console.error('Erreur:', error);
                 }
@@ -1476,8 +1370,7 @@ service cloud.firestore {
                 return;
             }
             const { lat, lng } = currentCourse.departCoords;
-            const url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=driving`;
-            window.open(url, '_blank');
+            window.open(`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=driving`, '_blank');
         }
 
         function openGoogleMapsToDestination() {
@@ -1486,8 +1379,7 @@ service cloud.firestore {
                 return;
             }
             const { lat, lng } = currentCourse.destinationCoords;
-            const url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=driving`;
-            window.open(url, '_blank');
+            window.open(`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=driving`, '_blank');
         }
 
         function callClient() {
@@ -1507,6 +1399,7 @@ service cloud.firestore {
             if (!confirm('Confirmer la fin de la course?')) return;
 
             showLoading('Finalisation...');
+            const driverId = currentUser.firestoreId || currentUser.uid;
 
             if (!currentUser.isDemo && !currentCourse.id.startsWith('TEST_')) {
                 try {
@@ -1515,7 +1408,7 @@ service cloud.firestore {
                         dateFin: firebase.firestore.FieldValue.serverTimestamp()
                     });
 
-                    await db.collection('drivers').doc(currentUser.uid).update({
+                    await db.collection('drivers').doc(driverId).update({
                         statut: 'disponible',
                         currentBookingId: null,
                         reservationEnCours: null,
@@ -1541,6 +1434,7 @@ service cloud.firestore {
             if (!confirm('Annuler cette course?')) return;
 
             showLoading('Annulation...');
+            const driverId = currentUser.firestoreId || currentUser.uid;
 
             if (!currentUser.isDemo && currentCourse && !currentCourse.id.startsWith('TEST_')) {
                 try {
@@ -1550,7 +1444,7 @@ service cloud.firestore {
                         dateAnnulation: firebase.firestore.FieldValue.serverTimestamp()
                     });
 
-                    await db.collection('drivers').doc(currentUser.uid).update({
+                    await db.collection('drivers').doc(driverId).update({
                         statut: 'disponible',
                         currentBookingId: null,
                         reservationEnCours: null
@@ -1574,11 +1468,14 @@ service cloud.firestore {
             }
 
             try {
-                const driverDoc = await db.collection('drivers').doc(currentUser.uid).get();
+                const driverId = currentUser.firestoreId || currentUser.uid;
+                const driverDoc = await db.collection('drivers').doc(driverId).get();
                 const data = driverDoc.data();
 
                 document.getElementById('profileName').textContent = `${data.prenom || ''} ${data.nom || ''}`;
                 document.getElementById('profilePhone').textContent = data.telephone || '';
+                document.getElementById('profileFirestoreId').textContent = driverId;
+                document.getElementById('profileVehicle').textContent = data.vehicule?.modele || data.typeVehicule || '-';
                 document.getElementById('rating').textContent = (data.rating || 4.8).toFixed(1);
                 document.getElementById('coursesTotal').textContent = data.coursesCompletees || 0;
                 document.getElementById('profileTotalCourses').textContent = data.coursesCompletees || 0;
@@ -1596,6 +1493,8 @@ service cloud.firestore {
         function loadDashboardDataDemo() {
             document.getElementById('profileName').textContent = `${currentUser.prenom} ${currentUser.nom}`;
             document.getElementById('profilePhone').textContent = currentUser.telephone;
+            document.getElementById('profileFirestoreId').textContent = currentUser.firestoreId;
+            document.getElementById('profileVehicle').textContent = 'Toyota Corolla (Demo)';
             document.getElementById('rating').textContent = currentUser.rating.toFixed(1);
             document.getElementById('coursesTotal').textContent = currentUser.coursesCompletees;
             document.getElementById('profileTotalCourses').textContent = currentUser.coursesCompletees;
@@ -1640,20 +1539,14 @@ service cloud.firestore {
                 document.querySelectorAll('.nav-item')[navIndex[screenId]].classList.add('active');
             }
 
-            // Réinitialiser la carte quand on affiche l'écran de course active
             if (screenId === 'activeCourseScreen' && currentCourse) {
-                setTimeout(() => {
-                    initActiveCourseMap();
-                }, 100);
+                setTimeout(() => initActiveCourseMap(), 100);
             }
 
-            // Réinitialiser la carte du dashboard
             if (screenId === 'dashboardScreen' && map) {
                 setTimeout(() => {
                     google.maps.event.trigger(map, 'resize');
-                    if (driverPosition) {
-                        map.setCenter(driverPosition);
-                    }
+                    if (driverPosition) map.setCenter(driverPosition);
                 }, 100);
             }
         }
@@ -1685,9 +1578,9 @@ service cloud.firestore {
 
         // ========== INIT ==========
         document.addEventListener('DOMContentLoaded', () => {
-            console.log('🚕 Al Bourakh Driver Pro v4.0 - Ready');
-            document.getElementById('loginPhone').value = '+221 77 123 45 67';
-            document.getElementById('loginPassword').value = 'demo123';
+            console.log('🚕 Al Bourakh Driver Pro v4.1 - Anti-Doublons - Ready');
+            document.getElementById('loginPhone').value = '+221 77 765 43 21';
+            document.getElementById('loginPassword').value = 'Admin2025';
         });
     </script>
 </body>
