@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>Al Bourakh Driver Pro v4.1 - Correction Doublons</title>
+    <title>Al Bourakh Driver Pro v4.2 - Anti-Doublons Renforcé</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -61,7 +61,6 @@
         .action-btn:hover { transform: translateY(-3px); }
         .action-btn-icon { font-size: 1.8em; margin-bottom: 8px; }
         
-        /* Course Notification Modal */
         .course-notification { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: flex; align-items: center; justify-content: center; z-index: 10000; }
         .course-modal { background: white; width: 90%; max-width: 400px; border-radius: 20px; padding: 25px; max-height: 90vh; overflow-y: auto; }
         .course-timer { background: linear-gradient(135deg, #E30613, #FF6B00); color: white; width: 70px; height: 70px; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto 15px; font-size: 1.8em; font-weight: bold; }
@@ -77,7 +76,6 @@
         .btn-refuse { background: #E30613; color: white; }
         .btn-accept { background: #00A854; color: white; }
         
-        /* Active Course Screen */
         .active-course-container { padding: 15px; padding-bottom: 100px; }
         .course-status-card { background: white; padding: 15px; border-radius: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 15px; }
         .status-badge { display: inline-block; padding: 6px 14px; border-radius: 20px; font-weight: bold; font-size: 0.9em; margin-bottom: 10px; }
@@ -87,14 +85,12 @@
         .status-badge.arrive { background: #fff3cd; color: #856404; }
         .status-badge.en-cours { background: #cce5ff; color: #004085; }
         
-        /* Route Tabs */
         .route-tabs { display: flex; gap: 10px; margin-bottom: 15px; }
         .route-tab { flex: 1; padding: 12px; border: 2px solid #ddd; border-radius: 10px; text-align: center; cursor: pointer; font-weight: 600; font-size: 0.85em; background: white; }
         .route-tab.active { border-color: #00A854; background: #e8f5e9; color: #00A854; }
         .route-tab.disabled { opacity: 0.5; cursor: not-allowed; }
         .route-tab i { display: block; font-size: 1.5em; margin-bottom: 5px; }
         
-        /* Route Info Box */
         .route-info-box { background: linear-gradient(135deg, #00A854, #FECB00); padding: 15px; border-radius: 12px; color: white; margin-bottom: 15px; }
         .route-info-box.approche { background: linear-gradient(135deg, #2196F3, #00BCD4); }
         .route-info-title { font-size: 0.9em; opacity: 0.9; margin-bottom: 8px; }
@@ -115,27 +111,23 @@
         .nav-btn.warning { background: #FF9800; color: white; }
         .nav-btn.danger { background: #E30613; color: white; }
         
-        /* Bottom Navigation */
         .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; box-shadow: 0 -4px 12px rgba(0,0,0,0.1); display: flex; justify-content: space-around; padding: 10px 0; max-width: 414px; margin: 0 auto; z-index: 1000; }
         .nav-item { text-align: center; cursor: pointer; padding: 8px; flex: 1; }
         .nav-item.active { color: #00A854; }
         .nav-icon { font-size: 1.3em; margin-bottom: 4px; }
         .nav-label { font-size: 0.75em; }
         
-        /* Toast */
         .toast { position: fixed; top: 20px; right: 20px; background: white; padding: 15px 20px; border-radius: 10px; box-shadow: 0 8px 25px rgba(0,0,0,0.2); z-index: 9999; max-width: 300px; animation: slideInRight 0.3s; }
         @keyframes slideInRight { from { transform: translateX(400px); } to { transform: translateX(0); } }
         .toast.success { border-left: 4px solid #00A854; }
         .toast.error { border-left: 4px solid #E30613; }
         .toast.info { border-left: 4px solid #2196F3; }
         
-        /* Loading */
         .loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; }
         .loading-spinner { width: 50px; height: 50px; border: 5px solid rgba(255,255,255,0.3); border-top-color: #FECB00; border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
         .loading-text { color: white; font-size: 1.1em; margin-top: 15px; }
         
-        /* History */
         .history-list { padding: 15px; padding-bottom: 100px; }
         .history-item { background: white; padding: 15px; border-radius: 12px; margin-bottom: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
         .history-header { display: flex; justify-content: space-between; margin-bottom: 8px; }
@@ -144,7 +136,6 @@
         .history-route { color: #333; margin-bottom: 5px; font-size: 0.9em; }
         .history-status { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 0.8em; background: #00A854; color: white; }
         
-        /* Profile */
         .profile-header { background: linear-gradient(135deg, #00A854, #FECB00); padding: 25px 20px; text-align: center; color: white; }
         .profile-avatar { width: 80px; height: 80px; background: white; border-radius: 50%; margin: 0 auto 12px; display: flex; align-items: center; justify-content: center; font-size: 2.5em; color: #00A854; }
         .profile-name { font-size: 1.3em; font-weight: bold; margin-bottom: 5px; }
@@ -153,8 +144,11 @@
         .info-label { color: #666; }
         .info-value { font-weight: bold; color: #333; }
         
-        .sync-badge { display: inline-block; background: #d4edda; color: #155724; padding: 2px 6px; border-radius: 4px; font-size: 0.65em; font-weight: bold; margin-left: 5px; }
-        .fix-badge { display: inline-block; background: #fff3cd; color: #856404; padding: 2px 6px; border-radius: 4px; font-size: 0.65em; font-weight: bold; margin-left: 5px; }
+        .version-badge { display: inline-block; background: #d4edda; color: #155724; padding: 2px 6px; border-radius: 4px; font-size: 0.65em; font-weight: bold; margin-left: 5px; }
+        .fix-badge { display: inline-block; background: #cce5ff; color: #004085; padding: 2px 6px; border-radius: 4px; font-size: 0.65em; font-weight: bold; margin-left: 5px; }
+        
+        .debug-box { background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; padding: 10px; margin-top: 15px; font-size: 0.75em; font-family: monospace; }
+        .debug-box h4 { color: #6c757d; margin-bottom: 8px; }
         
         @media (max-width: 414px) { .mobile-container, .bottom-nav { max-width: 100%; } }
     </style>
@@ -165,8 +159,8 @@
         <div id="loginScreen" class="screen active">
             <div class="login-screen">
                 <div class="login-logo">🚕</div>
-                <h1 class="login-title">Al Bourakh Driver <span class="sync-badge">v4.1</span> <span class="fix-badge">FIX</span></h1>
-                <p class="login-subtitle">Correction des doublons chauffeurs</p>
+                <h1 class="login-title">Al Bourakh Driver <span class="version-badge">v4.2</span></h1>
+                <p class="login-subtitle">Anti-Doublons Renforcé</p>
                 
                 <div class="input-group">
                     <label>📱 Téléphone</label>
@@ -180,18 +174,23 @@
                 <button class="btn btn-primary" onclick="handleLogin()">Se connecter</button>
                 
                 <div style="background: #e8f5e9; padding: 12px; border-radius: 10px; margin-top: 20px; border-left: 4px solid #4CAF50; font-size: 0.85em;">
-                    <p><strong>🔐 Connexion:</strong> Tout numéro + <code>Admin2025</code></p>
+                    <p><strong>🔐 Connexion:</strong> Numéro enregistré + <code>Admin2025</code></p>
                     <p><strong>🧪 Mode Démo:</strong> Tout numéro + <code>demo123</code></p>
                 </div>
                 
-                <div style="background: #fff3cd; padding: 12px; border-radius: 10px; margin-top: 10px; border-left: 4px solid #ffc107; font-size: 0.8em;">
-                    <p><strong>✅ v4.1 - Corrections:</strong></p>
-                    <p>• Recherche chauffeur par téléphone avant création</p>
-                    <p>• Évite les doublons dans Firestore</p>
-                    <p>• Position GPS envoyée au client</p>
+                <div style="background: #cce5ff; padding: 12px; border-radius: 10px; margin-top: 10px; border-left: 4px solid #004085; font-size: 0.8em;">
+                    <p><strong>✅ v4.2 - Corrections:</strong></p>
+                    <p>• Recherche TOUS les chauffeurs puis filtre par téléphone</p>
+                    <p>• Normalisation robuste des numéros</p>
+                    <p>• Logs de debug pour diagnostic</p>
                 </div>
                 
-                <p style="margin-top: 20px; color: #999; font-size: 0.8em;">Version 4.1 - Anti-Doublons © 2025</p>
+                <div class="debug-box" id="loginDebug" style="display: none;">
+                    <h4>🔍 Debug Login</h4>
+                    <div id="debugContent"></div>
+                </div>
+                
+                <p style="margin-top: 20px; color: #999; font-size: 0.8em;">Version 4.2 - Anti-Doublons Renforcé © 2025</p>
             </div>
         </div>
 
@@ -265,7 +264,6 @@
             </div>
             
             <div class="active-course-container">
-                <!-- Route Tabs -->
                 <div class="route-tabs">
                     <div class="route-tab active" id="tabApproche" onclick="showRouteTab('approche')">
                         <i class="fas fa-car-side"></i>
@@ -277,12 +275,10 @@
                     </div>
                 </div>
                 
-                <!-- Map -->
                 <div class="map-container" style="margin-bottom: 15px;">
                     <div id="activeCourseMap" style="height: 280px;"></div>
                 </div>
                 
-                <!-- Route Info Box - Approche -->
                 <div class="route-info-box approche" id="routeInfoApproche">
                     <div class="route-info-title">🚗 TRAJET VERS LE CLIENT</div>
                     <div class="route-info-details">
@@ -301,7 +297,6 @@
                     </div>
                 </div>
                 
-                <!-- Route Info Box - Course -->
                 <div class="route-info-box" id="routeInfoCourse" style="display: none;">
                     <div class="route-info-title">🎯 TRAJET DE LA COURSE</div>
                     <div class="route-info-details">
@@ -320,13 +315,11 @@
                     </div>
                 </div>
                 
-                <!-- Status Card -->
                 <div class="course-status-card">
                     <span class="status-badge approche" id="courseStatus">🚗 En route vers client</span>
                     <h3 id="courseStatusTitle" style="font-size: 1em;">Direction: Point de prise en charge</h3>
                 </div>
                 
-                <!-- Client Info -->
                 <div class="client-info-card" id="clientInfoCard">
                     <h3>👤 Client</h3>
                     <div class="info-row"><span>Nom</span><strong id="clientName">-</strong></div>
@@ -334,7 +327,6 @@
                     <div class="info-row"><span>Note</span><strong id="clientRating">-</strong></div>
                 </div>
                 
-                <!-- Trajet Info -->
                 <div class="client-info-card">
                     <h3>🗺️ Trajet du Client</h3>
                     <div class="info-row"><span>📍 Départ</span><strong id="activeDeparture">-</strong></div>
@@ -342,7 +334,6 @@
                     <div class="info-row"><span>💰 Prix</span><strong id="activePrice">-</strong></div>
                 </div>
                 
-                <!-- Navigation Buttons -->
                 <div class="navigation-buttons">
                     <button class="nav-btn secondary" id="btnNavigation" onclick="openGoogleMapsToClient()">
                         <i class="fas fa-map-marked-alt"></i> GPS Client
@@ -352,7 +343,6 @@
                     </button>
                 </div>
                 
-                <!-- Action Buttons -->
                 <div class="navigation-buttons" style="margin-top: 10px;" id="actionButtons">
                     <button class="nav-btn warning" id="btnArrive" onclick="updateCourseStatus('arrive')">
                         <i class="fas fa-map-pin"></i> Arrivé
@@ -390,11 +380,11 @@
                 </button>
                 <div class="profile-avatar">👤</div>
                 <div class="profile-name" id="profileName">Chauffeur</div>
-                <div style="font-size: 0.9em;">⭐ 4.8 • <span id="profileTotalCourses">0</span> courses</div>
+                <div style="font-size: 0.9em;">⭐ <span id="profileRating">4.8</span> • <span id="profileTotalCourses">0</span> courses</div>
             </div>
             <div class="profile-info">
                 <div class="info-item"><span class="info-label">📱 Téléphone</span><span class="info-value" id="profilePhone">-</span></div>
-                <div class="info-item"><span class="info-label">🆔 ID Firestore</span><span class="info-value" id="profileFirestoreId" style="font-size: 0.7em;">-</span></div>
+                <div class="info-item"><span class="info-label">🆔 ID Firestore</span><span class="info-value" id="profileFirestoreId" style="font-size: 0.6em; word-break: break-all;">-</span></div>
                 <div class="info-item"><span class="info-label">🚗 Véhicule</span><span class="info-value" id="profileVehicle">-</span></div>
                 <div class="info-item"><span class="info-label">💰 Revenus Total</span><span class="info-value" id="profileRevenuTotal">0 FCFA</span></div>
                 <button class="btn btn-primary" onclick="handleLogout()" style="margin-top: 20px; background: #E30613;">
@@ -455,7 +445,7 @@
         const db = firebase.firestore();
         const auth = firebase.auth();
 
-        console.log('🚕 Al Bourakh Driver Pro v4.1 - Anti-Doublons');
+        console.log('🚕 Al Bourakh Driver Pro v4.2 - Anti-Doublons Renforcé');
 
         // ========== GLOBAL VARIABLES ==========
         let currentUser = null;
@@ -474,10 +464,259 @@
         let approcheRoute = null;
         let courseRoute = null;
 
+        // ========== DEBUG FUNCTIONS ==========
+        function showDebug(show = true) {
+            document.getElementById('loginDebug').style.display = show ? 'block' : 'none';
+        }
+        
+        function addDebugLog(message) {
+            const debugContent = document.getElementById('debugContent');
+            const time = new Date().toLocaleTimeString();
+            debugContent.innerHTML += `<div>[${time}] ${message}</div>`;
+            console.log(`[DEBUG] ${message}`);
+        }
+
+        // ========== NORMALISATION TÉLÉPHONE ROBUSTE ==========
+        function normalizePhoneForComparison(phone) {
+            if (!phone) return '';
+            // Supprimer TOUT sauf les chiffres
+            return phone.replace(/\D/g, '');
+        }
+
+        function getPhoneVariants(phone) {
+            const digits = normalizePhoneForComparison(phone);
+            const variants = new Set();
+            
+            // Ajouter toutes les variantes possibles
+            variants.add(digits);                           // 221777123456
+            variants.add('+' + digits);                     // +221777123456
+            variants.add('+221' + digits.slice(-9));        // +221777123456 (si 9 derniers chiffres)
+            variants.add('221' + digits.slice(-9));         // 221777123456
+            variants.add(digits.slice(-9));                 // 777123456 (juste le numéro local)
+            
+            if (digits.startsWith('221')) {
+                variants.add(digits.substring(3));          // Sans indicatif
+                variants.add('+' + digits);
+            }
+            
+            return [...variants].filter(v => v.length >= 9);
+        }
+
+        // ========== 🔧 RECHERCHE CHAUFFEUR AMÉLIORÉE v4.2 ==========
+        async function findDriverByPhone(inputPhone) {
+            const inputDigits = normalizePhoneForComparison(inputPhone);
+            const inputVariants = getPhoneVariants(inputPhone);
+            
+            addDebugLog(`📱 Recherche pour: ${inputPhone}`);
+            addDebugLog(`📱 Digits: ${inputDigits}`);
+            addDebugLog(`📱 Variantes: ${inputVariants.join(', ')}`);
+            
+            try {
+                // Charger TOUS les chauffeurs et filtrer côté client
+                const snapshot = await db.collection('drivers').get();
+                
+                addDebugLog(`📊 ${snapshot.size} chauffeurs trouvés dans Firestore`);
+                
+                for (const doc of snapshot.docs) {
+                    const data = doc.data();
+                    const dbPhone = data.telephone || '';
+                    const dbDigits = normalizePhoneForComparison(dbPhone);
+                    
+                    addDebugLog(`  → ${data.prenom} ${data.nom}: ${dbPhone} (digits: ${dbDigits})`);
+                    
+                    // Comparaison des 9 derniers chiffres (numéro local sénégalais)
+                    const inputLocal = inputDigits.slice(-9);
+                    const dbLocal = dbDigits.slice(-9);
+                    
+                    if (inputLocal === dbLocal && inputLocal.length === 9) {
+                        addDebugLog(`✅ MATCH TROUVÉ: ${doc.id} - ${data.prenom} ${data.nom}`);
+                        return { id: doc.id, ...data };
+                    }
+                    
+                    // Vérifier aussi les variantes exactes
+                    for (const variant of inputVariants) {
+                        if (dbPhone === variant || dbDigits === normalizePhoneForComparison(variant)) {
+                            addDebugLog(`✅ MATCH EXACT: ${doc.id} - ${data.prenom} ${data.nom}`);
+                            return { id: doc.id, ...data };
+                        }
+                    }
+                }
+                
+                addDebugLog(`❌ Aucun chauffeur trouvé pour ce numéro`);
+                return null;
+                
+            } catch (error) {
+                addDebugLog(`❌ Erreur: ${error.message}`);
+                console.error('Erreur recherche chauffeur:', error);
+                return null;
+            }
+        }
+
+        // ========== 🔧 LOGIN CORRIGÉ v4.2 ==========
+        async function handleLogin() {
+            const phone = document.getElementById('loginPhone').value.trim();
+            const password = document.getElementById('loginPassword').value.trim();
+
+            if (!phone || !password) {
+                showToast('Remplissez tous les champs', 'error');
+                return;
+            }
+
+            // Afficher le debug
+            showDebug(true);
+            document.getElementById('debugContent').innerHTML = '';
+            addDebugLog('🚀 Début connexion...');
+
+            // Mode démo
+            if (password === 'demo123') {
+                showLoading('Connexion démo...');
+                setTimeout(() => {
+                    currentUser = {
+                        firestoreId: 'DEMO_' + Date.now(),
+                        uid: 'DEMO_' + Date.now(),
+                        telephone: phone,
+                        prenom: 'Chauffeur',
+                        nom: 'Demo',
+                        rating: 4.8,
+                        coursesCompletees: 42,
+                        revenusTotal: 150000,
+                        isDemo: true
+                    };
+                    hideLoading();
+                    showDebug(false);
+                    showToast('✅ Mode démo activé!', 'success');
+                    document.getElementById('bottomNav').style.display = 'flex';
+                    showScreen('dashboardScreen');
+                    loadDashboardDataDemo();
+                    startLocationTracking();
+                }, 1000);
+                return;
+            }
+
+            showLoading('Connexion...');
+
+            try {
+                // ========== ÉTAPE 1: CHERCHER LE CHAUFFEUR PAR TÉLÉPHONE ==========
+                addDebugLog('🔍 Recherche du chauffeur...');
+                const existingDriver = await findDriverByPhone(phone);
+                
+                if (existingDriver) {
+                    addDebugLog(`🎉 Chauffeur existant: ${existingDriver.id}`);
+                    addDebugLog(`   Nom: ${existingDriver.prenom} ${existingDriver.nom}`);
+                    
+                    // Vérifier le mot de passe (pour l'instant on accepte Admin2025)
+                    if (password !== 'Admin2025') {
+                        hideLoading();
+                        showToast('❌ Mot de passe incorrect', 'error');
+                        return;
+                    }
+                    
+                    // Utiliser le chauffeur existant
+                    currentUser = {
+                        firestoreId: existingDriver.id,
+                        uid: existingDriver.id,
+                        ...existingDriver
+                    };
+                    
+                    // Mettre à jour la dernière connexion
+                    await db.collection('drivers').doc(existingDriver.id).update({
+                        derniereConnexion: firebase.firestore.FieldValue.serverTimestamp(),
+                        statut: 'hors_ligne'
+                    });
+                    
+                    hideLoading();
+                    showDebug(false);
+                    showToast(`✅ Bienvenue ${currentUser.prenom || ''} ${currentUser.nom || ''}!`, 'success');
+                    document.getElementById('bottomNav').style.display = 'flex';
+                    showScreen('dashboardScreen');
+                    loadDashboardData();
+                    startLocationTracking();
+                    return;
+                }
+                
+                // ========== ÉTAPE 2: CHAUFFEUR NON TROUVÉ ==========
+                addDebugLog('⚠️ Chauffeur non trouvé dans la base');
+                
+                if (password !== 'Admin2025') {
+                    hideLoading();
+                    showToast('❌ Chauffeur non enregistré. Contactez l\'admin.', 'error');
+                    return;
+                }
+                
+                // Demander confirmation avant de créer
+                hideLoading();
+                const confirmCreate = confirm(
+                    `⚠️ Ce numéro n'est pas enregistré.\n\n` +
+                    `Voulez-vous créer un nouveau compte chauffeur?\n\n` +
+                    `Numéro: ${phone}`
+                );
+                
+                if (!confirmCreate) {
+                    showToast('Création annulée', 'info');
+                    return;
+                }
+                
+                showLoading('Création du compte...');
+                addDebugLog('📝 Création nouveau chauffeur...');
+                
+                // Créer un nouveau document avec ID auto-généré
+                const newDriverRef = await db.collection('drivers').add({
+                    telephone: phone,
+                    prenom: 'Nouveau',
+                    nom: 'Chauffeur',
+                    email: normalizePhoneForComparison(phone) + '@albourakh.sn',
+                    statut: 'hors_ligne',
+                    rating: 5.0,
+                    coursesCompletees: 0,
+                    revenusTotal: 0,
+                    dateInscription: firebase.firestore.FieldValue.serverTimestamp(),
+                    derniereConnexion: firebase.firestore.FieldValue.serverTimestamp(),
+                    actif: true,
+                    typeVehicule: 'standard'
+                });
+                
+                addDebugLog(`✅ Nouveau chauffeur créé: ${newDriverRef.id}`);
+                
+                const newDriverDoc = await newDriverRef.get();
+                currentUser = {
+                    firestoreId: newDriverRef.id,
+                    uid: newDriverRef.id,
+                    ...newDriverDoc.data()
+                };
+                
+                hideLoading();
+                showDebug(false);
+                showToast('✅ Compte créé! Bienvenue!', 'success');
+                document.getElementById('bottomNav').style.display = 'flex';
+                showScreen('dashboardScreen');
+                loadDashboardData();
+                startLocationTracking();
+                
+            } catch (error) {
+                console.error('Erreur login:', error);
+                addDebugLog(`❌ ERREUR: ${error.message}`);
+                hideLoading();
+                showToast('❌ Erreur: ' + error.message, 'error');
+            }
+        }
+
+        function handleLogout() {
+            if (confirm('Voulez-vous vous déconnecter?')) {
+                showLoading('Déconnexion...');
+                if (isOnline) toggleOnlineStatus();
+                stopLocationTracking();
+                if (!currentUser?.isDemo) auth.signOut();
+                currentUser = null;
+                currentCourse = null;
+                hideLoading();
+                document.getElementById('bottomNav').style.display = 'none';
+                showScreen('loginScreen');
+                showToast('Déconnexion réussie', 'info');
+            }
+        }
+
         // ========== GOOGLE MAPS ==========
         function initMap() {
-            console.log('🗺️ Initialisation Google Maps...');
-            
             const dakar = { lat: 14.6937, lng: -17.4441 };
             
             map = new google.maps.Map(document.getElementById('map'), {
@@ -501,254 +740,10 @@
             });
 
             directionsService = new google.maps.DirectionsService();
-            
-            console.log('✅ Google Maps initialisé');
         }
 
         window.initMap = initMap;
         loadGoogleMaps();
-
-        // ========== NORMALISATION TÉLÉPHONE ==========
-        function normalizePhoneNumber(phone) {
-            // Supprimer tous les caractères non numériques sauf le +
-            phone = phone.replace(/[\s\-\(\)\.]/g, '');
-            
-            // Supprimer le + initial et les 00 initiaux
-            phone = phone.replace(/^\+/, '').replace(/^00/, '');
-            
-            // Générer les formats possibles
-            const formats = [];
-            
-            if (phone.startsWith('221')) {
-                // Format international sans +
-                formats.push(phone);
-                formats.push('+' + phone);
-                formats.push(phone.substring(3)); // Sans indicatif
-            } else if (phone.match(/^[67][0-8]/)) {
-                // Format local sénégalais
-                formats.push(phone);
-                formats.push('221' + phone);
-                formats.push('+221' + phone);
-            } else {
-                formats.push(phone);
-            }
-            
-            return [...new Set(formats)];
-        }
-
-        // ========== 🔧 NOUVELLE FONCTION : RECHERCHE CHAUFFEUR PAR TÉLÉPHONE ==========
-        async function findDriverByPhone(phone) {
-            const phoneFormats = normalizePhoneNumber(phone);
-            console.log('🔍 Recherche chauffeur avec téléphones:', phoneFormats);
-            
-            for (const format of phoneFormats) {
-                try {
-                    // Rechercher dans la collection drivers
-                    const snapshot = await db.collection('drivers')
-                        .where('telephone', '==', format)
-                        .limit(1)
-                        .get();
-                    
-                    if (!snapshot.empty) {
-                        const doc = snapshot.docs[0];
-                        console.log('✅ Chauffeur trouvé par téléphone:', doc.id, doc.data().nom);
-                        return { id: doc.id, ...doc.data() };
-                    }
-                    
-                    // Essayer aussi avec le format +221
-                    if (!format.startsWith('+')) {
-                        const snapshot2 = await db.collection('drivers')
-                            .where('telephone', '==', '+' + format)
-                            .limit(1)
-                            .get();
-                        
-                        if (!snapshot2.empty) {
-                            const doc = snapshot2.docs[0];
-                            console.log('✅ Chauffeur trouvé par téléphone (+):', doc.id);
-                            return { id: doc.id, ...doc.data() };
-                        }
-                    }
-                } catch (error) {
-                    console.log('Erreur recherche format', format, ':', error);
-                }
-            }
-            
-            console.log('❌ Aucun chauffeur trouvé pour ce téléphone');
-            return null;
-        }
-
-        // ========== 🔧 LOGIN CORRIGÉ - ÉVITE LES DOUBLONS ==========
-        async function handleLogin() {
-            const phone = document.getElementById('loginPhone').value.trim();
-            const password = document.getElementById('loginPassword').value.trim();
-
-            if (!phone || !password) {
-                showToast('Remplissez tous les champs', 'error');
-                return;
-            }
-
-            // Mode démo
-            if (password === 'demo123') {
-                showLoading('Connexion démo...');
-                setTimeout(() => {
-                    currentUser = {
-                        firestoreId: 'DEMO_' + Date.now(),
-                        uid: 'DEMO_' + Date.now(),
-                        telephone: phone,
-                        prenom: 'Chauffeur',
-                        nom: 'Demo',
-                        rating: 4.8,
-                        coursesCompletees: 42,
-                        revenusTotal: 150000,
-                        isDemo: true
-                    };
-                    hideLoading();
-                    showToast('✅ Mode démo activé!', 'success');
-                    document.getElementById('bottomNav').style.display = 'flex';
-                    showScreen('dashboardScreen');
-                    loadDashboardDataDemo();
-                    startLocationTracking();
-                }, 1000);
-                return;
-            }
-
-            showLoading('Connexion...');
-
-            try {
-                // ========== ÉTAPE 1: CHERCHER LE CHAUFFEUR PAR TÉLÉPHONE ==========
-                const existingDriver = await findDriverByPhone(phone);
-                
-                if (existingDriver) {
-                    console.log('🎉 Chauffeur existant trouvé:', existingDriver.id);
-                    
-                    // Le chauffeur existe déjà dans Firestore
-                    // Essayer de se connecter avec Firebase Auth
-                    const phoneFormats = normalizePhoneNumber(phone);
-                    let authSuccess = false;
-                    
-                    for (const format of phoneFormats) {
-                        try {
-                            const email = format.replace(/\+/g, '') + '@albourakh.sn';
-                            await auth.signInWithEmailAndPassword(email, password);
-                            authSuccess = true;
-                            console.log('✅ Auth réussie avec:', email);
-                            break;
-                        } catch (e) {
-                            if (e.code === 'auth/user-not-found' && password === 'Admin2025') {
-                                // Créer le compte Auth pour ce chauffeur existant
-                                const email = format.replace(/\+/g, '') + '@albourakh.sn';
-                                try {
-                                    await auth.createUserWithEmailAndPassword(email, password);
-                                    authSuccess = true;
-                                    console.log('✅ Compte Auth créé pour chauffeur existant:', email);
-                                    break;
-                                } catch (createError) {
-                                    console.log('Échec création auth:', createError.code);
-                                }
-                            }
-                        }
-                    }
-                    
-                    // Utiliser le chauffeur existant (PAS créer de doublon!)
-                    currentUser = {
-                        firestoreId: existingDriver.id,  // ID du document Firestore
-                        uid: existingDriver.id,          // Pour compatibilité
-                        ...existingDriver
-                    };
-                    
-                    // Mettre à jour la dernière connexion
-                    await db.collection('drivers').doc(existingDriver.id).update({
-                        derniereConnexion: firebase.firestore.FieldValue.serverTimestamp(),
-                        statut: 'hors_ligne'
-                    });
-                    
-                    hideLoading();
-                    showToast(`✅ Bienvenue ${currentUser.prenom || ''} ${currentUser.nom || ''}!`, 'success');
-                    document.getElementById('bottomNav').style.display = 'flex';
-                    showScreen('dashboardScreen');
-                    loadDashboardData();
-                    startLocationTracking();
-                    return;
-                }
-                
-                // ========== ÉTAPE 2: CHAUFFEUR N'EXISTE PAS - CRÉER SI Admin2025 ==========
-                if (password !== 'Admin2025') {
-                    hideLoading();
-                    showToast('❌ Chauffeur non enregistré', 'error');
-                    return;
-                }
-                
-                console.log('📝 Création nouveau chauffeur...');
-                
-                // Créer le compte Firebase Auth
-                const phoneFormats = normalizePhoneNumber(phone);
-                const email = phoneFormats[0].replace(/\+/g, '') + '@albourakh.sn';
-                
-                let userCredential;
-                try {
-                    userCredential = await auth.createUserWithEmailAndPassword(email, password);
-                } catch (e) {
-                    if (e.code === 'auth/email-already-in-use') {
-                        userCredential = await auth.signInWithEmailAndPassword(email, password);
-                    } else {
-                        throw e;
-                    }
-                }
-                
-                const uid = userCredential.user.uid;
-                
-                // Créer le document chauffeur avec l'UID comme ID
-                await db.collection('drivers').doc(uid).set({
-                    telephone: phone,
-                    prenom: 'Nouveau',
-                    nom: 'Chauffeur',
-                    email: email,
-                    statut: 'hors_ligne',
-                    rating: 5.0,
-                    coursesCompletees: 0,
-                    revenusTotal: 0,
-                    dateInscription: firebase.firestore.FieldValue.serverTimestamp(),
-                    derniereConnexion: firebase.firestore.FieldValue.serverTimestamp(),
-                    actif: true,
-                    vehicule: null,
-                    typeVehicule: 'standard'
-                });
-                
-                const newDriverDoc = await db.collection('drivers').doc(uid).get();
-                currentUser = {
-                    firestoreId: uid,
-                    uid: uid,
-                    ...newDriverDoc.data()
-                };
-                
-                hideLoading();
-                showToast(`✅ Compte créé! Bienvenue!`, 'success');
-                document.getElementById('bottomNav').style.display = 'flex';
-                showScreen('dashboardScreen');
-                loadDashboardData();
-                startLocationTracking();
-                
-            } catch (error) {
-                console.error('Erreur login:', error);
-                hideLoading();
-                showToast('❌ Erreur: ' + error.message, 'error');
-            }
-        }
-
-        function handleLogout() {
-            if (confirm('Voulez-vous vous déconnecter?')) {
-                showLoading('Déconnexion...');
-                if (isOnline) toggleOnlineStatus();
-                stopLocationTracking();
-                if (!currentUser?.isDemo) auth.signOut();
-                currentUser = null;
-                currentCourse = null;
-                hideLoading();
-                document.getElementById('bottomNav').style.display = 'none';
-                showScreen('loginScreen');
-                showToast('Déconnexion réussie', 'info');
-            }
-        }
 
         // ========== GEOLOCATION ==========
         function startLocationTracking() {
@@ -756,15 +751,11 @@
                 showToast('❌ Géolocalisation non supportée', 'error');
                 return;
             }
-
-            console.log('📍 Démarrage suivi GPS...');
             
             watchPositionId = navigator.geolocation.watchPosition(
                 async (position) => {
                     const { latitude, longitude, accuracy } = position.coords;
                     driverPosition = { lat: latitude, lng: longitude };
-                    
-                    console.log(`📍 Position: ${latitude.toFixed(5)}, ${longitude.toFixed(5)} (±${Math.round(accuracy)}m)`);
                     
                     if (driverMarker && map && !currentCourse) {
                         driverMarker.setPosition(driverPosition);
@@ -776,35 +767,21 @@
                     
                     reverseGeocode(latitude, longitude);
 
-                    // ========== MISE À JOUR FIREBASE AVEC ID FIRESTORE ==========
                     if (currentUser && isOnline && !currentUser.isDemo) {
                         try {
                             const driverId = currentUser.firestoreId || currentUser.uid;
                             
-                            // Mettre à jour le document du chauffeur
                             await db.collection('drivers').doc(driverId).update({
-                                position: { 
-                                    latitude, 
-                                    longitude, 
-                                    accuracy, 
-                                    timestamp: firebase.firestore.FieldValue.serverTimestamp() 
-                                },
+                                position: { latitude, longitude, accuracy, timestamp: firebase.firestore.FieldValue.serverTimestamp() },
                                 positionActuelle: new firebase.firestore.GeoPoint(latitude, longitude),
                                 derniereActivite: firebase.firestore.FieldValue.serverTimestamp()
                             });
 
-                            // Si course en cours, envoyer position au client
                             if (currentCourse && currentCourse.id && !currentCourse.id.startsWith('TEST_')) {
                                 await db.collection('reservations').doc(currentCourse.id).update({
-                                    chauffeurPosition: {
-                                        latitude,
-                                        longitude,
-                                        accuracy,
-                                        timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                                    },
+                                    chauffeurPosition: { latitude, longitude, accuracy, timestamp: firebase.firestore.FieldValue.serverTimestamp() },
                                     chauffeurPositionTimestamp: firebase.firestore.FieldValue.serverTimestamp()
                                 });
-                                console.log('✅ Position envoyée au client');
                             }
                         } catch (err) {
                             console.error('Erreur MAJ position:', err);
@@ -816,15 +793,11 @@
                     }
                 },
                 (error) => {
-                    console.error('❌ Erreur GPS:', error);
+                    console.error('Erreur GPS:', error);
                     document.getElementById('currentAddress').textContent = 'Position non disponible';
                     document.getElementById('accuracy').innerHTML = '🔴 GPS désactivé';
                 },
-                { 
-                    enableHighAccuracy: true, 
-                    timeout: 15000, 
-                    maximumAge: 3000
-                }
+                { enableHighAccuracy: true, timeout: 15000, maximumAge: 3000 }
             );
         }
 
@@ -903,7 +876,6 @@
                     snapshot.docChanges().forEach(change => {
                         if (change.type === 'added') {
                             const course = { id: change.doc.id, ...change.doc.data() };
-                            console.log('🔔 Nouvelle course reçue:', course.id);
                             showCourseNotification(course);
                         }
                     });
@@ -918,16 +890,11 @@
 
             const driverPos = driverPosition || { lat: 14.7200, lng: -17.4600 };
             
-            const clientPickup = {
-                lat: driverPos.lat + (Math.random() * 0.02 - 0.01),
-                lng: driverPos.lng + (Math.random() * 0.02 - 0.01)
-            };
-
             const testCourse = {
                 id: 'TEST_' + Date.now(),
                 depart: 'Plateau, Place de l\'Indépendance',
                 destination: 'Almadies, Route des Almadies',
-                departCoords: clientPickup,
+                departCoords: { lat: driverPos.lat + 0.01, lng: driverPos.lng + 0.01 },
                 destinationCoords: { lat: 14.7286, lng: -17.5295 },
                 prixEstime: 4500,
                 distance: 15,
@@ -998,11 +965,7 @@
                 courseData = JSON.parse(courseData.replace(/&quot;/g, '"'));
             }
 
-            currentCourse = {
-                id: courseId,
-                ...courseData,
-                statut: 'acceptee'
-            };
+            currentCourse = { id: courseId, ...courseData, statut: 'acceptee' };
 
             if (!currentCourse.departCoords) {
                 currentCourse.departCoords = await geocodeAddress(currentCourse.depart);
@@ -1021,9 +984,7 @@
                         dateAcceptation: firebase.firestore.FieldValue.serverTimestamp(),
                         nomChauffeur: `${currentUser.prenom || ''} ${currentUser.nom || ''}`.trim(),
                         telephoneChauffeur: currentUser.telephone,
-                        chauffeurRating: currentUser.rating || 4.8,
-                        vehiculeModele: currentUser.vehiculeModele || currentUser.vehicule?.modele || 'Véhicule',
-                        vehiculePlaque: currentUser.vehiculePlaque || currentUser.vehicule?.plaque || '-'
+                        chauffeurRating: currentUser.rating || 4.8
                     };
 
                     if (driverPosition) {
@@ -1035,13 +996,11 @@
                     }
 
                     await db.collection('reservations').doc(courseId).update(updateData);
-
                     await db.collection('drivers').doc(driverId).update({
                         statut: 'en_course',
                         currentBookingId: courseId,
                         reservationEnCours: courseId
                     });
-
                 } catch (error) {
                     console.error('Erreur acceptation:', error);
                 }
@@ -1054,9 +1013,7 @@
             showScreen('activeCourseScreen');
             displayActiveCourse();
             
-            setTimeout(() => {
-                initActiveCourseMap();
-            }, 300);
+            setTimeout(() => initActiveCourseMap(), 300);
         }
 
         async function geocodeAddress(address) {
@@ -1065,7 +1022,6 @@
                     resolve({ lat: 14.6937, lng: -17.4441 });
                     return;
                 }
-                
                 const geocoder = new google.maps.Geocoder();
                 geocoder.geocode({ address: address + ', Dakar, Senegal' }, (results, status) => {
                     if (status === 'OK' && results[0]) {
@@ -1096,9 +1052,6 @@
             const mapElement = document.getElementById('activeCourseMap');
             if (!mapElement) return;
 
-            mapElement.style.width = '100%';
-            mapElement.style.height = '280px';
-
             const centerPos = driverPosition || currentCourse?.departCoords || { lat: 14.6937, lng: -17.4441 };
 
             activeCourseMap = new google.maps.Map(mapElement, {
@@ -1111,7 +1064,7 @@
             directionsRenderer = new google.maps.DirectionsRenderer({
                 map: activeCourseMap,
                 suppressMarkers: true,
-                polylineOptions: { strokeColor: '#2196F3', strokeWeight: 5, strokeOpacity: 0.8 }
+                polylineOptions: { strokeColor: '#2196F3', strokeWeight: 5 }
             });
 
             if (driverPosition) {
@@ -1126,7 +1079,6 @@
                         strokeColor: '#fff',
                         strokeWeight: 2
                     },
-                    title: 'Votre position',
                     zIndex: 100
                 });
             }
@@ -1136,16 +1088,10 @@
                     map: activeCourseMap,
                     position: currentCourse.departCoords,
                     icon: {
-                        url: 'data:image/svg+xml,' + encodeURIComponent(`
-                            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40">
-                                <circle cx="20" cy="20" r="18" fill="#4CAF50" stroke="white" stroke-width="3"/>
-                                <text x="20" y="26" text-anchor="middle" fill="white" font-size="16" font-weight="bold">C</text>
-                            </svg>
-                        `),
+                        url: 'data:image/svg+xml,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40"><circle cx="20" cy="20" r="18" fill="#4CAF50" stroke="white" stroke-width="3"/><text x="20" y="26" text-anchor="middle" fill="white" font-size="16" font-weight="bold">C</text></svg>`),
                         scaledSize: new google.maps.Size(40, 40),
                         anchor: new google.maps.Point(20, 20)
-                    },
-                    title: 'Point de prise en charge'
+                    }
                 });
             }
 
@@ -1154,16 +1100,10 @@
                     map: activeCourseMap,
                     position: currentCourse.destinationCoords,
                     icon: {
-                        url: 'data:image/svg+xml,' + encodeURIComponent(`
-                            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40">
-                                <circle cx="20" cy="20" r="18" fill="#E30613" stroke="white" stroke-width="3"/>
-                                <text x="20" y="26" text-anchor="middle" fill="white" font-size="16" font-weight="bold">D</text>
-                            </svg>
-                        `),
+                        url: 'data:image/svg+xml,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40"><circle cx="20" cy="20" r="18" fill="#E30613" stroke="white" stroke-width="3"/><text x="20" y="26" text-anchor="middle" fill="white" font-size="16" font-weight="bold">D</text></svg>`),
                         scaledSize: new google.maps.Size(40, 40),
                         anchor: new google.maps.Point(20, 20)
-                    },
-                    title: 'Destination'
+                    }
                 });
             }
 
@@ -1181,8 +1121,7 @@
         }
 
         function calculateApprocheRoute() {
-            if (!driverPosition || !currentCourse?.departCoords) return;
-            if (!directionsService) directionsService = new google.maps.DirectionsService();
+            if (!driverPosition || !currentCourse?.departCoords || !directionsService) return;
 
             directionsService.route({
                 origin: driverPosition,
@@ -1192,24 +1131,17 @@
                 if (status === 'OK') {
                     approcheRoute = result;
                     const leg = result.routes[0].legs[0];
-                    
                     document.getElementById('approcheDistance').textContent = leg.distance.text;
                     document.getElementById('approcheDuration').textContent = leg.duration.text;
-                    
-                    const now = new Date();
-                    const eta = new Date(now.getTime() + leg.duration.value * 1000);
+                    const eta = new Date(Date.now() + leg.duration.value * 1000);
                     document.getElementById('approcheETA').textContent = eta.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
-
-                    if (currentRouteMode === 'approche' && directionsRenderer) {
-                        directionsRenderer.setDirections(result);
-                    }
+                    if (currentRouteMode === 'approche' && directionsRenderer) directionsRenderer.setDirections(result);
                 }
             });
         }
 
         function calculateCourseRoute() {
-            if (!currentCourse?.departCoords || !currentCourse?.destinationCoords) return;
-            if (!directionsService) directionsService = new google.maps.DirectionsService();
+            if (!currentCourse?.departCoords || !currentCourse?.destinationCoords || !directionsService) return;
 
             directionsService.route({
                 origin: currentCourse.departCoords,
@@ -1219,14 +1151,10 @@
                 if (status === 'OK') {
                     courseRoute = result;
                     const leg = result.routes[0].legs[0];
-                    
                     document.getElementById('courseDistance').textContent = leg.distance.text;
                     document.getElementById('courseDuration').textContent = leg.duration.text;
                     document.getElementById('coursePrice').textContent = (currentCourse.prixEstime || 0).toLocaleString() + ' F';
-
-                    if (currentRouteMode === 'course' && directionsRenderer) {
-                        directionsRenderer.setDirections(result);
-                    }
+                    if (currentRouteMode === 'course' && directionsRenderer) directionsRenderer.setDirections(result);
                 }
             });
         }
@@ -1245,21 +1173,19 @@
             }
 
             currentRouteMode = mode;
-            
             document.getElementById('tabApproche').classList.toggle('active', mode === 'approche');
             document.getElementById('tabCourse').classList.toggle('active', mode === 'course');
-            
             document.getElementById('routeInfoApproche').style.display = mode === 'approche' ? 'block' : 'none';
             document.getElementById('routeInfoCourse').style.display = mode === 'course' ? 'block' : 'none';
 
-            if (!directionsRenderer) return;
-
-            if (mode === 'approche' && approcheRoute) {
-                directionsRenderer.setDirections(approcheRoute);
-                directionsRenderer.setOptions({ polylineOptions: { strokeColor: '#2196F3', strokeWeight: 5 } });
-            } else if (mode === 'course' && courseRoute) {
-                directionsRenderer.setDirections(courseRoute);
-                directionsRenderer.setOptions({ polylineOptions: { strokeColor: '#00A854', strokeWeight: 5 } });
+            if (directionsRenderer) {
+                if (mode === 'approche' && approcheRoute) {
+                    directionsRenderer.setDirections(approcheRoute);
+                    directionsRenderer.setOptions({ polylineOptions: { strokeColor: '#2196F3', strokeWeight: 5 } });
+                } else if (mode === 'course' && courseRoute) {
+                    directionsRenderer.setDirections(courseRoute);
+                    directionsRenderer.setOptions({ polylineOptions: { strokeColor: '#00A854', strokeWeight: 5 } });
+                }
             }
         }
 
@@ -1285,19 +1211,10 @@
 
             if (!currentUser.isDemo && !currentCourse.id.startsWith('TEST_')) {
                 try {
-                    const updateData = {
-                        statut: newStatus,
-                        derniereModification: firebase.firestore.FieldValue.serverTimestamp()
-                    };
-
+                    const updateData = { statut: newStatus, derniereModification: firebase.firestore.FieldValue.serverTimestamp() };
                     if (driverPosition) {
-                        updateData.chauffeurPosition = {
-                            latitude: driverPosition.lat,
-                            longitude: driverPosition.lng,
-                            timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                        };
+                        updateData.chauffeurPosition = { latitude: driverPosition.lat, longitude: driverPosition.lng, timestamp: firebase.firestore.FieldValue.serverTimestamp() };
                     }
-
                     await db.collection('reservations').doc(currentCourse.id).update(updateData);
                 } catch (error) {
                     console.error('Erreur:', error);
@@ -1306,12 +1223,7 @@
 
             hideLoading();
             updateCourseStatusDisplay();
-
-            const messages = {
-                'arrive': '✅ Vous êtes arrivé au point de prise en charge',
-                'en_cours': '🚗 Course démarrée!'
-            };
-            showToast(messages[newStatus] || 'Statut mis à jour', 'success');
+            showToast(newStatus === 'arrive' ? '✅ Vous êtes arrivé' : '🚗 Course démarrée!', 'success');
         }
 
         function updateCourseStatusDisplay() {
@@ -1337,7 +1249,6 @@
                     btnNavigation.onclick = () => openGoogleMapsToClient();
                     tabCourse.classList.add('disabled');
                     break;
-                    
                 case 'arrive':
                     statusBadge.className = 'status-badge arrive';
                     statusBadge.textContent = '📍 Arrivé - En attente client';
@@ -1347,7 +1258,6 @@
                     btnComplete.disabled = true;
                     tabCourse.classList.add('disabled');
                     break;
-                    
                 case 'en_cours':
                     statusBadge.className = 'status-badge en-cours';
                     statusBadge.textContent = '🚗 Course en cours';
@@ -1365,37 +1275,24 @@
         }
 
         function openGoogleMapsToClient() {
-            if (!currentCourse?.departCoords) {
-                showToast('Coordonnées non disponibles', 'error');
-                return;
-            }
+            if (!currentCourse?.departCoords) return showToast('Coordonnées non disponibles', 'error');
             const { lat, lng } = currentCourse.departCoords;
             window.open(`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=driving`, '_blank');
         }
 
         function openGoogleMapsToDestination() {
-            if (!currentCourse?.destinationCoords) {
-                showToast('Coordonnées non disponibles', 'error');
-                return;
-            }
+            if (!currentCourse?.destinationCoords) return showToast('Coordonnées non disponibles', 'error');
             const { lat, lng } = currentCourse.destinationCoords;
             window.open(`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=driving`, '_blank');
         }
 
         function callClient() {
-            if (!currentCourse?.clientTelephone) {
-                showToast('Numéro non disponible', 'error');
-                return;
-            }
+            if (!currentCourse?.clientTelephone) return showToast('Numéro non disponible', 'error');
             window.location.href = `tel:${currentCourse.clientTelephone}`;
         }
 
         async function completeCourse() {
-            if (!currentCourse || currentCourse.statut !== 'en_cours') {
-                showToast('⚠️ Démarrez d\'abord la course', 'error');
-                return;
-            }
-
+            if (!currentCourse || currentCourse.statut !== 'en_cours') return showToast('⚠️ Démarrez d\'abord la course', 'error');
             if (!confirm('Confirmer la fin de la course?')) return;
 
             showLoading('Finalisation...');
@@ -1407,7 +1304,6 @@
                         statut: 'terminee',
                         dateFin: firebase.firestore.FieldValue.serverTimestamp()
                     });
-
                     await db.collection('drivers').doc(driverId).update({
                         statut: 'disponible',
                         currentBookingId: null,
@@ -1421,9 +1317,6 @@
             }
 
             currentCourse = null;
-            approcheRoute = null;
-            courseRoute = null;
-
             hideLoading();
             showToast('✅ Course terminée!', 'success');
             showScreen('dashboardScreen');
@@ -1443,7 +1336,6 @@
                         annuleePar: 'chauffeur',
                         dateAnnulation: firebase.firestore.FieldValue.serverTimestamp()
                     });
-
                     await db.collection('drivers').doc(driverId).update({
                         statut: 'disponible',
                         currentBookingId: null,
@@ -1462,10 +1354,7 @@
 
         // ========== DASHBOARD ==========
         async function loadDashboardData() {
-            if (!currentUser || currentUser.isDemo) {
-                loadDashboardDataDemo();
-                return;
-            }
+            if (!currentUser || currentUser.isDemo) return loadDashboardDataDemo();
 
             try {
                 const driverId = currentUser.firestoreId || currentUser.uid;
@@ -1477,14 +1366,14 @@
                 document.getElementById('profileFirestoreId').textContent = driverId;
                 document.getElementById('profileVehicle').textContent = data.vehicule?.modele || data.typeVehicule || '-';
                 document.getElementById('rating').textContent = (data.rating || 4.8).toFixed(1);
+                document.getElementById('profileRating').textContent = (data.rating || 4.8).toFixed(1);
                 document.getElementById('coursesTotal').textContent = data.coursesCompletees || 0;
                 document.getElementById('profileTotalCourses').textContent = data.coursesCompletees || 0;
                 document.getElementById('profileRevenuTotal').textContent = (data.revenusTotal || 0).toLocaleString() + ' FCFA';
-
                 document.getElementById('coursesJour').textContent = Math.floor(Math.random() * 5) + 2;
                 document.getElementById('revenusJour').textContent = ((Math.floor(Math.random() * 5) + 2) * 3500).toLocaleString();
 
-                loadHistory();
+                loadHistoryDemo();
             } catch (error) {
                 console.error('Erreur:', error);
             }
@@ -1496,6 +1385,7 @@
             document.getElementById('profileFirestoreId').textContent = currentUser.firestoreId;
             document.getElementById('profileVehicle').textContent = 'Toyota Corolla (Demo)';
             document.getElementById('rating').textContent = currentUser.rating.toFixed(1);
+            document.getElementById('profileRating').textContent = currentUser.rating.toFixed(1);
             document.getElementById('coursesTotal').textContent = currentUser.coursesCompletees;
             document.getElementById('profileTotalCourses').textContent = currentUser.coursesCompletees;
             document.getElementById('profileRevenuTotal').textContent = currentUser.revenusTotal.toLocaleString() + ' FCFA';
@@ -1504,18 +1394,13 @@
             loadHistoryDemo();
         }
 
-        function loadHistory() {
-            loadHistoryDemo();
-        }
-
         function loadHistoryDemo() {
             const historyList = document.getElementById('historyList');
             const courses = [
-                { date: new Date(), depart: 'Plateau', dest: 'Almadies', prix: 4500, statut: 'terminee' },
-                { date: new Date(Date.now() - 3600000), depart: 'Sacré-Cœur', dest: 'Yoff', prix: 3200, statut: 'terminee' },
-                { date: new Date(Date.now() - 86400000), depart: 'Médina', dest: 'Ngor', prix: 2800, statut: 'terminee' }
+                { date: new Date(), depart: 'Plateau', dest: 'Almadies', prix: 4500 },
+                { date: new Date(Date.now() - 3600000), depart: 'Sacré-Cœur', dest: 'Yoff', prix: 3200 },
+                { date: new Date(Date.now() - 86400000), depart: 'Médina', dest: 'Ngor', prix: 2800 }
             ];
-            
             historyList.innerHTML = courses.map(c => `
                 <div class="history-item">
                     <div class="history-header">
@@ -1539,10 +1424,7 @@
                 document.querySelectorAll('.nav-item')[navIndex[screenId]].classList.add('active');
             }
 
-            if (screenId === 'activeCourseScreen' && currentCourse) {
-                setTimeout(() => initActiveCourseMap(), 100);
-            }
-
+            if (screenId === 'activeCourseScreen' && currentCourse) setTimeout(() => initActiveCourseMap(), 100);
             if (screenId === 'dashboardScreen' && map) {
                 setTimeout(() => {
                     google.maps.event.trigger(map, 'resize');
@@ -1551,7 +1433,7 @@
             }
         }
 
-        // ========== UI UTILITIES ==========
+        // ========== UI ==========
         function showToast(message, type = 'info') {
             const toast = document.createElement('div');
             toast.className = `toast ${type}`;
@@ -1578,8 +1460,8 @@
 
         // ========== INIT ==========
         document.addEventListener('DOMContentLoaded', () => {
-            console.log('🚕 Al Bourakh Driver Pro v4.1 - Anti-Doublons - Ready');
-            document.getElementById('loginPhone').value = '+221 77 765 43 21';
+            console.log('🚕 Al Bourakh Driver Pro v4.2 Ready');
+            document.getElementById('loginPhone').value = '+221777123456';
             document.getElementById('loginPassword').value = 'Admin2025';
         });
     </script>
