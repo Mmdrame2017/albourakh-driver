@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>Al Bourakh Driver Pro v4.2 - Anti-Doublons Renforcé</title>
+    <title>Al Bourakh Driver Pro v4.3 - Connexion Sécurisée</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -159,8 +159,8 @@
         <div id="loginScreen" class="screen active">
             <div class="login-screen">
                 <div class="login-logo">🚕</div>
-                <h1 class="login-title">Al Bourakh Driver <span class="version-badge">v4.2</span></h1>
-                <p class="login-subtitle">Anti-Doublons Renforcé</p>
+                <h1 class="login-title">Al Bourakh Driver <span class="version-badge">v4.3</span></h1>
+                <p class="login-subtitle">Connexion Sécurisée</p>
                 
                 <div class="input-group">
                     <label>📱 Téléphone</label>
@@ -179,10 +179,10 @@
                 </div>
                 
                 <div style="background: #cce5ff; padding: 12px; border-radius: 10px; margin-top: 10px; border-left: 4px solid #004085; font-size: 0.8em;">
-                    <p><strong>✅ v4.2 - Corrections:</strong></p>
-                    <p>• Recherche TOUS les chauffeurs puis filtre par téléphone</p>
-                    <p>• Normalisation robuste des numéros</p>
-                    <p>• Logs de debug pour diagnostic</p>
+                    <p><strong>✅ v4.3 - Sécurité:</strong></p>
+                    <p>• Connexion uniquement pour chauffeurs enregistrés</p>
+                    <p>• Création de compte via Admin uniquement</p>
+                    <p>• Aucun doublon possible</p>
                 </div>
                 
                 <div class="debug-box" id="loginDebug" style="display: none;">
@@ -190,7 +190,7 @@
                     <div id="debugContent"></div>
                 </div>
                 
-                <p style="margin-top: 20px; color: #999; font-size: 0.8em;">Version 4.2 - Anti-Doublons Renforcé © 2025</p>
+                <p style="margin-top: 20px; color: #999; font-size: 0.8em;">Version 4.3 - Connexion Sécurisée © 2025</p>
             </div>
         </div>
 
@@ -445,7 +445,7 @@
         const db = firebase.firestore();
         const auth = firebase.auth();
 
-        console.log('🚕 Al Bourakh Driver Pro v4.2 - Anti-Doublons Renforcé');
+        console.log('🚕 Al Bourakh Driver Pro v4.3 - Connexion Sécurisée');
 
         // ========== GLOBAL VARIABLES ==========
         let currentUser = null;
@@ -634,63 +634,12 @@
                     return;
                 }
                 
-                // ========== ÉTAPE 2: CHAUFFEUR NON TROUVÉ ==========
-                addDebugLog('⚠️ Chauffeur non trouvé dans la base');
-                
-                if (password !== 'Admin2025') {
-                    hideLoading();
-                    showToast('❌ Chauffeur non enregistré. Contactez l\'admin.', 'error');
-                    return;
-                }
-                
-                // Demander confirmation avant de créer
-                hideLoading();
-                const confirmCreate = confirm(
-                    `⚠️ Ce numéro n'est pas enregistré.\n\n` +
-                    `Voulez-vous créer un nouveau compte chauffeur?\n\n` +
-                    `Numéro: ${phone}`
-                );
-                
-                if (!confirmCreate) {
-                    showToast('Création annulée', 'info');
-                    return;
-                }
-                
-                showLoading('Création du compte...');
-                addDebugLog('📝 Création nouveau chauffeur...');
-                
-                // Créer un nouveau document avec ID auto-généré
-                const newDriverRef = await db.collection('drivers').add({
-                    telephone: phone,
-                    prenom: 'Nouveau',
-                    nom: 'Chauffeur',
-                    email: normalizePhoneForComparison(phone) + '@albourakh.sn',
-                    statut: 'hors_ligne',
-                    rating: 5.0,
-                    coursesCompletees: 0,
-                    revenusTotal: 0,
-                    dateInscription: firebase.firestore.FieldValue.serverTimestamp(),
-                    derniereConnexion: firebase.firestore.FieldValue.serverTimestamp(),
-                    actif: true,
-                    typeVehicule: 'standard'
-                });
-                
-                addDebugLog(`✅ Nouveau chauffeur créé: ${newDriverRef.id}`);
-                
-                const newDriverDoc = await newDriverRef.get();
-                currentUser = {
-                    firestoreId: newDriverRef.id,
-                    uid: newDriverRef.id,
-                    ...newDriverDoc.data()
-                };
+                // ========== ÉTAPE 2: CHAUFFEUR NON TROUVÉ - BLOQUER ==========
+                addDebugLog('❌ Chauffeur non trouvé - Connexion refusée');
                 
                 hideLoading();
-                showDebug(false);
-                showToast('✅ Compte créé! Bienvenue!', 'success');
-                document.getElementById('bottomNav').style.display = 'flex';
-                showScreen('dashboardScreen');
-                loadDashboardData();
-                startLocationTracking();
+                showToast('❌ Numéro non enregistré. Contactez l\'administrateur.', 'error');
+                return;
                 
             } catch (error) {
                 console.error('Erreur login:', error);
@@ -1460,7 +1409,7 @@
 
         // ========== INIT ==========
         document.addEventListener('DOMContentLoaded', () => {
-            console.log('🚕 Al Bourakh Driver Pro v4.2 Ready');
+            console.log('🚕 Al Bourakh Driver Pro v4.3 Ready');
             document.getElementById('loginPhone').value = '+221777123456';
             document.getElementById('loginPassword').value = 'Admin2025';
         });
