@@ -1343,7 +1343,122 @@
             loadHistoryDemo();
         }
 
-        function loadHistoryDemo() {
+        // ========== HISTORIQUE ==========
+        async function loadHistory() {
+            if (!currentUser || currentUser.isDemo) {
+                loadHistoryDemo();
+                showToast('✅ Historique rafraîchi', 'success');
+                return;
+            }
+
+            const historyList = document.getElementById('historyList');
+            historyList.innerHTML = '<div style="text-align: center; padding: 40px; color: #666;"><div class="loading-spinner" style="margin: 0 auto 15px; border-color: #ddd; border-top-color: #00A854; width: 40px; height: 40px;"></div>Chargement...</div>';
+
+            try {
+                const driverId = currentUser.firestoreId || currentUser.uid;
+                console.log('📜 Chargement historique pour:', driverId);
+                
+                // Charger les réservations terminées du chauffeur
+                const snapshot = await db.collection('reservations')
+                    .where('chauffeurAssigne', '==', driverId)
+                    .orderBy('dateCreation', 'desc')
+                    .limit(20)
+                    .get();
+
+                console.log('📜 Réservations trouvées:', snapshot.size);
+
+                if (snapshot.empty) {
+                    historyList.innerHTML = `
+                        <div style="text-align: center; padding: 40px; color: #666;">
+                            <div style="font-size: 3em; margin-bottom: 15px;">📭</div>
+                            <p>Aucune course dans l'historique</p>
+                            <p style="font-size: 0.85em; margin-top: 10px;">Vos courses terminées apparaîtront ici</p>
+                        </div>
+                    `;
+                    showToast('Aucune course trouvée', 'info');
+                    return;
+                }
+
+                const courses = [];
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    // Filtrer pour n'afficher que les courses terminées ou annulées
+                    if (['terminee', 'annulee', 'completee'].includes(data.statut)) {
+                        courses.push({ id: doc.id, ...data });
+                    }
+                });
+
+                if (courses.length === 0) {
+                    historyList.innerHTML = `
+                        <div style="text-align: center; padding: 40px; color: #666;">
+                            <div style="font-size: 3em; margin-bottom: 15px;">📭</div>
+                            <p>Aucune course terminée</p>
+                            <p style="font-size: 0.85em; margin-top: 10px;">Vos courses terminées apparaîtront ici</p>
+                        </div>
+                    `;
+                    showToast('Aucune course terminée', 'info');
+                    return;
+                }
+
+                historyList.innerHTML = courses.map(c => {
+                    let date;
+                    if (c.dateCreation?.toDate) {
+                        date = c.dateCreation.toDate();
+                    } else if (c.dateCreation?.seconds) {
+                        date = new Date(c.dateCreation.seconds * 1000);
+                    } else {
+                        date = new Date();
+                    }
+                    
+                    const isTerminee = c.statut === 'terminee' || c.statut === 'completee';
+                    const statut = isTerminee ? '✅ Terminée' : '❌ Annulée';
+                    const statutStyle = isTerminee ? 'background: #00A854;' : 'background: #E30613;';
+                    
+                    return `
+                        <div class="history-item">
+                            <div class="history-header">
+                                <span class="history-date">${date.toLocaleDateString('fr-FR')} ${date.toLocaleTimeString('fr-FR', {hour: '2-digit', minute: '2-digit'})}</span>
+                                <span class="history-price">${(c.prixEstime || c.prix || 0).toLocaleString()} FCFA</span>
+                            </div>
+                            <div class="history-route">📍 ${c.depart || 'Départ'} → 🎯 ${c.destination || 'Destination'}</div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">
+                                <span class="history-status" style="${statutStyle}">${statut}</span>
+                                <span style="color: #666; font-size: 0.8em;">👤 ${c.clientNom || c.nomClient || 'Client'}</span>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                showToast(`✅ ${courses.length} course(s) chargée(s)`, 'success');
+
+            } catch (error) {
+                console.error('Erreur chargement historique:', error);
+                
+                // Si erreur d'index manquant
+                if (error.code === 'failed-precondition' || error.message.includes('index')) {
+                    historyList.innerHTML = `
+                        <div style="text-align: center; padding: 40px; color: #856404; background: #fff3cd; border-radius: 10px; margin: 15px;">
+                            <div style="font-size: 2em; margin-bottom: 10px;">⚙️</div>
+                            <p><strong>Index Firestore requis</strong></p>
+                            <p style="font-size: 0.85em; margin-top: 10px;">Veuillez créer l'index dans Firebase Console</p>
+                        </div>
+                    `;
+                    showToast('Index Firestore requis', 'error');
+                } else {
+                    historyList.innerHTML = `
+                        <div style="text-align: center; padding: 40px; color: #721c24; background: #f8d7da; border-radius: 10px; margin: 15px;">
+                            <div style="font-size: 2em; margin-bottom: 10px;">⚠️</div>
+                            <p><strong>Erreur de chargement</strong></p>
+                            <p style="font-size: 0.85em; margin-top: 10px;">${error.message}</p>
+                            <button onclick="loadHistory()" style="margin-top: 15px; padding: 10px 20px; background: #00A854; color: white; border: none; border-radius: 8px; cursor: pointer;">
+                                🔄 Réessayer
+                            </button>
+                        </div>
+                    `;
+                    showToast('Erreur de chargement', 'error');
+                }
+            }
+        }
             const historyList = document.getElementById('historyList');
             const courses = [
                 { date: new Date(), depart: 'Plateau', dest: 'Almadies', prix: 4500 },
