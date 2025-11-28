@@ -159,7 +159,7 @@
         <div id="loginScreen" class="screen active">
             <div class="login-screen">
                 <div class="login-logo">🚕</div>
-                <h1 class="login-title">Al Bourakh Driver <span class="version-badge">v4.3</span></h1>
+                <h1 class="login-title">Al Bourakh Driver <span class="version-badge">v4.3</span><span class="fix-badge">FIXED</span></h1>
                 <p class="login-subtitle">Connexion Sécurisée</p>
                 
                 <div class="input-group">
@@ -179,10 +179,10 @@
                 </div>
                 
                 <div style="background: #cce5ff; padding: 12px; border-radius: 10px; margin-top: 10px; border-left: 4px solid #004085; font-size: 0.8em;">
-                    <p><strong>✅ v4.3 - Sécurité:</strong></p>
-                    <p>• Connexion uniquement pour chauffeurs enregistrés</p>
-                    <p>• Création de compte via Admin uniquement</p>
-                    <p>• Aucun doublon possible</p>
+                    <p><strong>✅ v4.3 FIXED - Historique:</strong></p>
+                    <p>• Correction du champ timestamp</p>
+                    <p>• Filtre statut optimisé</p>
+                    <p>• Index Firestore corrigé</p>
                 </div>
                 
                 <div class="debug-box" id="loginDebug" style="display: none;">
@@ -190,7 +190,7 @@
                     <div id="debugContent"></div>
                 </div>
                 
-                <p style="margin-top: 20px; color: #999; font-size: 0.8em;">Version 4.3 - Connexion Sécurisée © 2025</p>
+                <p style="margin-top: 20px; color: #999; font-size: 0.8em;">Version 4.3 FIXED © 2025</p>
             </div>
         </div>
 
@@ -445,7 +445,7 @@
         const db = firebase.firestore();
         const auth = firebase.auth();
 
-        console.log('🚕 Al Bourakh Driver Pro v4.3 - Connexion Sécurisée');
+        console.log('🚕 Al Bourakh Driver Pro v4.3 FIXED - Historique Corrigé');
 
         // ========== GLOBAL VARIABLES ==========
         let currentUser = null;
@@ -479,7 +479,6 @@
         // ========== NORMALISATION TÉLÉPHONE ROBUSTE ==========
         function normalizePhoneForComparison(phone) {
             if (!phone) return '';
-            // Supprimer TOUT sauf les chiffres
             return phone.replace(/\D/g, '');
         }
 
@@ -487,22 +486,21 @@
             const digits = normalizePhoneForComparison(phone);
             const variants = new Set();
             
-            // Ajouter toutes les variantes possibles
-            variants.add(digits);                           // 221777123456
-            variants.add('+' + digits);                     // +221777123456
-            variants.add('+221' + digits.slice(-9));        // +221777123456 (si 9 derniers chiffres)
-            variants.add('221' + digits.slice(-9));         // 221777123456
-            variants.add(digits.slice(-9));                 // 777123456 (juste le numéro local)
+            variants.add(digits);
+            variants.add('+' + digits);
+            variants.add('+221' + digits.slice(-9));
+            variants.add('221' + digits.slice(-9));
+            variants.add(digits.slice(-9));
             
             if (digits.startsWith('221')) {
-                variants.add(digits.substring(3));          // Sans indicatif
+                variants.add(digits.substring(3));
                 variants.add('+' + digits);
             }
             
             return [...variants].filter(v => v.length >= 9);
         }
 
-        // ========== 🔧 RECHERCHE CHAUFFEUR AMÉLIORÉE v4.2 ==========
+        // ========== RECHERCHE CHAUFFEUR ==========
         async function findDriverByPhone(inputPhone) {
             const inputDigits = normalizePhoneForComparison(inputPhone);
             const inputVariants = getPhoneVariants(inputPhone);
@@ -512,7 +510,6 @@
             addDebugLog(`📱 Variantes: ${inputVariants.join(', ')}`);
             
             try {
-                // Charger TOUS les chauffeurs et filtrer côté client
                 const snapshot = await db.collection('drivers').get();
                 
                 addDebugLog(`📊 ${snapshot.size} chauffeurs trouvés dans Firestore`);
@@ -524,7 +521,6 @@
                     
                     addDebugLog(`  → ${data.prenom} ${data.nom}: ${dbPhone} (digits: ${dbDigits})`);
                     
-                    // Comparaison des 9 derniers chiffres (numéro local sénégalais)
                     const inputLocal = inputDigits.slice(-9);
                     const dbLocal = dbDigits.slice(-9);
                     
@@ -533,7 +529,6 @@
                         return { id: doc.id, ...data };
                     }
                     
-                    // Vérifier aussi les variantes exactes
                     for (const variant of inputVariants) {
                         if (dbPhone === variant || dbDigits === normalizePhoneForComparison(variant)) {
                             addDebugLog(`✅ MATCH EXACT: ${doc.id} - ${data.prenom} ${data.nom}`);
@@ -552,7 +547,7 @@
             }
         }
 
-        // ========== 🔧 LOGIN CORRIGÉ v4.2 ==========
+        // ========== LOGIN ==========
         async function handleLogin() {
             const phone = document.getElementById('loginPhone').value.trim();
             const password = document.getElementById('loginPassword').value.trim();
@@ -562,12 +557,10 @@
                 return;
             }
 
-            // Afficher le debug
             showDebug(true);
             document.getElementById('debugContent').innerHTML = '';
             addDebugLog('🚀 Début connexion...');
 
-            // Mode démo
             if (password === 'demo123') {
                 showLoading('Connexion démo...');
                 setTimeout(() => {
@@ -596,7 +589,6 @@
             showLoading('Connexion...');
 
             try {
-                // ========== ÉTAPE 1: CHERCHER LE CHAUFFEUR PAR TÉLÉPHONE ==========
                 addDebugLog('🔍 Recherche du chauffeur...');
                 const existingDriver = await findDriverByPhone(phone);
                 
@@ -604,21 +596,18 @@
                     addDebugLog(`🎉 Chauffeur existant: ${existingDriver.id}`);
                     addDebugLog(`   Nom: ${existingDriver.prenom} ${existingDriver.nom}`);
                     
-                    // Vérifier le mot de passe (pour l'instant on accepte Admin2025)
                     if (password !== 'Admin2025') {
                         hideLoading();
                         showToast('❌ Mot de passe incorrect', 'error');
                         return;
                     }
                     
-                    // Utiliser le chauffeur existant
                     currentUser = {
                         firestoreId: existingDriver.id,
                         uid: existingDriver.id,
                         ...existingDriver
                     };
                     
-                    // Mettre à jour la dernière connexion
                     await db.collection('drivers').doc(existingDriver.id).update({
                         derniereConnexion: firebase.firestore.FieldValue.serverTimestamp(),
                         statut: 'hors_ligne'
@@ -634,9 +623,7 @@
                     return;
                 }
                 
-                // ========== ÉTAPE 2: CHAUFFEUR NON TROUVÉ - BLOQUER ==========
                 addDebugLog('❌ Chauffeur non trouvé - Connexion refusée');
-                
                 hideLoading();
                 showToast('❌ Numéro non enregistré. Contactez l\'administrateur.', 'error');
                 return;
@@ -1322,7 +1309,7 @@
                 document.getElementById('coursesJour').textContent = Math.floor(Math.random() * 5) + 2;
                 document.getElementById('revenusJour').textContent = ((Math.floor(Math.random() * 5) + 2) * 3500).toLocaleString();
 
-                loadHistoryDemo();
+                loadHistory();
             } catch (error) {
                 console.error('Erreur:', error);
             }
@@ -1343,7 +1330,7 @@
             loadHistoryDemo();
         }
 
-        // ========== HISTORIQUE ==========
+        // ========== HISTORIQUE CORRIGÉ ==========
         async function loadHistory() {
             if (!currentUser || currentUser.isDemo) {
                 loadHistoryDemo();
@@ -1358,10 +1345,11 @@
                 const driverId = currentUser.firestoreId || currentUser.uid;
                 console.log('📜 Chargement historique pour:', driverId);
                 
-                // Charger les réservations terminées du chauffeur
+                // ✅ CORRECTION: Utiliser 'timestamp' au lieu de 'dateCreation' + filtre statut
                 const snapshot = await db.collection('reservations')
                     .where('chauffeurAssigne', '==', driverId)
-                    .orderBy('dateCreation', 'desc')
+                    .where('statut', 'in', ['terminee', 'annulee'])
+                    .orderBy('timestamp', 'desc')
                     .limit(20)
                     .get();
 
@@ -1381,36 +1369,22 @@
 
                 const courses = [];
                 snapshot.forEach(doc => {
-                    const data = doc.data();
-                    // Filtrer pour n'afficher que les courses terminées ou annulées
-                    if (['terminee', 'annulee', 'completee'].includes(data.statut)) {
-                        courses.push({ id: doc.id, ...data });
-                    }
+                    courses.push({ id: doc.id, ...doc.data() });
                 });
-
-                if (courses.length === 0) {
-                    historyList.innerHTML = `
-                        <div style="text-align: center; padding: 40px; color: #666;">
-                            <div style="font-size: 3em; margin-bottom: 15px;">📭</div>
-                            <p>Aucune course terminée</p>
-                            <p style="font-size: 0.85em; margin-top: 10px;">Vos courses terminées apparaîtront ici</p>
-                        </div>
-                    `;
-                    showToast('Aucune course terminée', 'info');
-                    return;
-                }
 
                 historyList.innerHTML = courses.map(c => {
                     let date;
-                    if (c.dateCreation?.toDate) {
+                    if (c.timestamp?.toDate) {
+                        date = c.timestamp.toDate();
+                    } else if (c.timestamp?.seconds) {
+                        date = new Date(c.timestamp.seconds * 1000);
+                    } else if (c.dateCreation?.toDate) {
                         date = c.dateCreation.toDate();
-                    } else if (c.dateCreation?.seconds) {
-                        date = new Date(c.dateCreation.seconds * 1000);
                     } else {
                         date = new Date();
                     }
                     
-                    const isTerminee = c.statut === 'terminee' || c.statut === 'completee';
+                    const isTerminee = c.statut === 'terminee';
                     const statut = isTerminee ? '✅ Terminée' : '❌ Annulée';
                     const statutStyle = isTerminee ? 'background: #00A854;' : 'background: #E30613;';
                     
@@ -1434,13 +1408,13 @@
             } catch (error) {
                 console.error('Erreur chargement historique:', error);
                 
-                // Si erreur d'index manquant
                 if (error.code === 'failed-precondition' || error.message.includes('index')) {
                     historyList.innerHTML = `
                         <div style="text-align: center; padding: 40px; color: #856404; background: #fff3cd; border-radius: 10px; margin: 15px;">
                             <div style="font-size: 2em; margin-bottom: 10px;">⚙️</div>
                             <p><strong>Index Firestore requis</strong></p>
-                            <p style="font-size: 0.85em; margin-top: 10px;">Veuillez créer l'index dans Firebase Console</p>
+                            <p style="font-size: 0.85em; margin-top: 10px;">Créez l'index : chauffeurAssigne + statut + timestamp (desc)</p>
+                            <p style="font-size: 0.75em; margin-top: 10px; color: #666;">Firebase Console → Firestore → Indexes → Create Index</p>
                         </div>
                     `;
                     showToast('Index Firestore requis', 'error');
@@ -1497,6 +1471,7 @@
                     if (driverPosition) map.setCenter(driverPosition);
                 }, 100);
             }
+            if (screenId === 'historyScreen') loadHistory();
         }
 
         // ========== UI ==========
@@ -1526,7 +1501,7 @@
 
         // ========== INIT ==========
         document.addEventListener('DOMContentLoaded', () => {
-            console.log('🚕 Al Bourakh Driver Pro v4.3 Ready');
+            console.log('🚕 Al Bourakh Driver Pro v4.3 FIXED - Ready');
             document.getElementById('loginPhone').value = '+221777123456';
             document.getElementById('loginPassword').value = 'Admin2025';
         });
