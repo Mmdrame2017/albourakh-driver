@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>Al Bourakh Driver Pro v4.7 - Validation Téléphone</title>
+    <title>Al Bourakh Driver Pro v4.8 - Logo Al Bourakh</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -17,10 +17,12 @@
         
         .app-header { background: linear-gradient(135deg, #00A854, #FECB00); color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
         .app-header h1 { font-size: 1.2em; display: flex; align-items: center; gap: 10px; }
+        .app-header h1 img { width: 24px; height: 24px; object-fit: contain; }
         .app-header button { background: rgba(255,255,255,0.2); border: none; color: white; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 1.2em; }
         
         .login-screen { padding: 40px 30px; text-align: center; }
-        .login-logo { width: 100px; height: 100px; margin: 0 auto 20px; background: linear-gradient(135deg, #00A854, #FECB00); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.5em; box-shadow: 0 8px 20px rgba(0,168,84,0.3); }
+        .login-logo { width: 100px; height: 100px; margin: 0 auto 20px; background: linear-gradient(135deg, #00A854, #FECB00); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.5em; box-shadow: 0 8px 20px rgba(0,168,84,0.3); overflow: hidden; }
+        .login-logo img { width: 70%; height: 70%; object-fit: contain; }
         .login-title { font-size: 1.8em; color: #00A854; margin-bottom: 10px; }
         .login-subtitle { color: #666; margin-bottom: 30px; }
         
@@ -168,8 +170,10 @@
         <!-- LOGIN SCREEN -->
         <div id="loginScreen" class="screen active">
             <div class="login-screen">
-                <div class="login-logo">🚕</div>
-                <h1 class="login-title">Al Bourakh Driver <span class="version-badge">v4.7</span><span class="fix-badge">VALIDATION</span></h1>
+                <div class="login-logo">
+                    <img src="https://i.imgur.com/VtgG6pR.png" alt="Al Bourakh Logo" onerror="this.src='https://i.imgur.com/VtgG6pR.jpg'">
+                </div>
+                <h1 class="login-title">Al Bourakh Driver <span class="version-badge">v4.8</span><span class="fix-badge">LOGO</span></h1>
                 <p class="login-subtitle">Connexion Sécurisée</p>
                 
                 <div class="input-group">
@@ -197,10 +201,10 @@
                 </div>
                 
                 <div style="background: #cce5ff; padding: 12px; border-radius: 10px; margin-top: 10px; border-left: 4px solid #004085; font-size: 0.8em;">
-                    <p><strong>✅ v4.7 VALIDATION:</strong></p>
-                    <p>• Validation formats téléphone SN</p>
-                    <p>• Support multi-formats (77/78/76/70)</p>
-                    <p>• Formatage automatique</p>
+                    <p><strong>✅ v4.8 LOGO:</strong></p>
+                    <p>• Logo Al Bourakh intégré</p>
+                    <p>• Design professionnel</p>
+                    <p>• Identité visuelle complète</p>
                 </div>
                 
                 <div class="debug-box" id="loginDebug" style="display: none;">
@@ -208,14 +212,14 @@
                     <div id="debugContent"></div>
                 </div>
                 
-                <p style="margin-top: 20px; color: #999; font-size: 0.8em;">Version 4.7 VALIDATION © 2025</p>
+                <p style="margin-top: 20px; color: #999; font-size: 0.8em;">Version 4.8 LOGO © 2025</p>
             </div>
         </div>
 
         <!-- DASHBOARD SCREEN -->
         <div id="dashboardScreen" class="screen">
             <div class="app-header">
-                <h1><i class="fas fa-car"></i> Dashboard</h1>
+                <h1><img src="https://i.imgur.com/VtgG6pR.png" alt="Logo" onerror="this.src='https://i.imgur.com/VtgG6pR.jpg'"> Dashboard</h1>
                 <div id="headerProfilePhoto" onclick="showScreen('profileScreen')"></div>
             </div>
             
@@ -465,7 +469,7 @@
         const db = firebase.firestore();
         const auth = firebase.auth();
 
-        console.log('🚕 Al Bourakh Driver Pro v4.7 VALIDATION - Ready');
+        console.log('🚕 Al Bourakh Driver Pro v4.8 LOGO - Ready');
 
         // ========== GLOBAL VARIABLES ==========
         let currentUser = null;
@@ -1878,7 +1882,7 @@
 
         // ========== INIT ==========
         document.addEventListener('DOMContentLoaded', () => {
-            console.log('🚕 Al Bourakh Driver Pro v4.7 VALIDATION - Ready');
+            console.log('🚕 Al Bourakh Driver Pro v4.8 LOGO - Ready');
             document.getElementById('loginPhone').value = '+221 77 712 34 56';
             document.getElementById('loginPassword').value = 'Admin2025';
         });
