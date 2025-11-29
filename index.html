@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>Al Bourakh Driver Pro v4.3 - Connexion Sécurisée</title>
+    <title>Al Bourakh Driver Pro v4.6 - Photo Fix</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -34,6 +34,10 @@
         .btn-primary:hover { transform: scale(1.02); box-shadow: 0 8px 25px rgba(0,168,84,0.3); }
         
         .dashboard-content { padding: 15px; padding-bottom: 100px; }
+        
+        /* Photo de profil dans header */
+        .header-profile-photo { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid white; cursor: pointer; }
+        .header-profile-placeholder { width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 1.2em; border: 2px solid white; cursor: pointer; }
         
         .status-toggle { background: white; padding: 15px; border-radius: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
         .status-text { font-size: 1.1em; font-weight: bold; color: #999; }
@@ -136,8 +140,10 @@
         .history-route { color: #333; margin-bottom: 5px; font-size: 0.9em; }
         .history-status { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 0.8em; background: #00A854; color: white; }
         
-        .profile-header { background: linear-gradient(135deg, #00A854, #FECB00); padding: 25px 20px; text-align: center; color: white; }
-        .profile-avatar { width: 80px; height: 80px; background: white; border-radius: 50%; margin: 0 auto 12px; display: flex; align-items: center; justify-content: center; font-size: 2.5em; color: #00A854; }
+        /* PROFIL AVEC PHOTO */
+        .profile-header { background: linear-gradient(135deg, #00A854, #FECB00); padding: 25px 20px; text-align: center; color: white; position: relative; }
+        .profile-avatar { width: 100px; height: 100px; background: white; border-radius: 50%; margin: 0 auto 12px; display: flex; align-items: center; justify-content: center; font-size: 2.5em; color: #00A854; overflow: hidden; border: 4px solid white; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .profile-avatar img { width: 100%; height: 100%; object-fit: cover; }
         .profile-name { font-size: 1.3em; font-weight: bold; margin-bottom: 5px; }
         .profile-info { padding: 15px; padding-bottom: 100px; }
         .info-item { background: white; padding: 15px; border-radius: 12px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
@@ -159,7 +165,7 @@
         <div id="loginScreen" class="screen active">
             <div class="login-screen">
                 <div class="login-logo">🚕</div>
-                <h1 class="login-title">Al Bourakh Driver <span class="version-badge">v4.3</span><span class="fix-badge">FIXED</span></h1>
+                <h1 class="login-title">Al Bourakh Driver <span class="version-badge">v4.6</span><span class="fix-badge">PHOTO OK</span></h1>
                 <p class="login-subtitle">Connexion Sécurisée</p>
                 
                 <div class="input-group">
@@ -179,10 +185,10 @@
                 </div>
                 
                 <div style="background: #cce5ff; padding: 12px; border-radius: 10px; margin-top: 10px; border-left: 4px solid #004085; font-size: 0.8em;">
-                    <p><strong>✅ v4.3 FIXED - Historique:</strong></p>
-                    <p>• Correction du champ timestamp</p>
-                    <p>• Filtre statut optimisé</p>
-                    <p>• Index Firestore corrigé</p>
+                    <p><strong>✅ v4.6 PHOTO FIX:</strong></p>
+                    <p>• Support champ photoProfil</p>
+                    <p>• Recherche étendue multi-champs</p>
+                    <p>• Synchronisation complète</p>
                 </div>
                 
                 <div class="debug-box" id="loginDebug" style="display: none;">
@@ -190,7 +196,7 @@
                     <div id="debugContent"></div>
                 </div>
                 
-                <p style="margin-top: 20px; color: #999; font-size: 0.8em;">Version 4.3 FIXED © 2025</p>
+                <p style="margin-top: 20px; color: #999; font-size: 0.8em;">Version 4.6 PHOTO OK © 2025</p>
             </div>
         </div>
 
@@ -198,7 +204,7 @@
         <div id="dashboardScreen" class="screen">
             <div class="app-header">
                 <h1><i class="fas fa-car"></i> Dashboard</h1>
-                <button onclick="showScreen('profileScreen')"><i class="fas fa-user"></i></button>
+                <div id="headerProfilePhoto" onclick="showScreen('profileScreen')"></div>
             </div>
             
             <div class="dashboard-content">
@@ -372,13 +378,15 @@
             <div class="history-list" id="historyList"></div>
         </div>
 
-        <!-- PROFILE SCREEN -->
+        <!-- PROFILE SCREEN AVEC PHOTO -->
         <div id="profileScreen" class="screen">
             <div class="profile-header">
                 <button onclick="showScreen('dashboardScreen')" style="position: absolute; left: 15px; top: 15px; background: rgba(255,255,255,0.2); border: none; color: white; width: 35px; height: 35px; border-radius: 50%; cursor: pointer;">
                     <i class="fas fa-arrow-left"></i>
                 </button>
-                <div class="profile-avatar">👤</div>
+                <div class="profile-avatar" id="profileAvatar">
+                    <i class="fas fa-user"></i>
+                </div>
                 <div class="profile-name" id="profileName">Chauffeur</div>
                 <div style="font-size: 0.9em;">⭐ <span id="profileRating">4.8</span> • <span id="profileTotalCourses">0</span> courses</div>
             </div>
@@ -445,7 +453,7 @@
         const db = firebase.firestore();
         const auth = firebase.auth();
 
-        console.log('🚕 Al Bourakh Driver Pro v4.3 FIXED - Historique Corrigé');
+        console.log('🚕 Al Bourakh Driver Pro v4.6 PHOTO OK - Ready');
 
         // ========== GLOBAL VARIABLES ==========
         let currentUser = null;
@@ -476,7 +484,7 @@
             console.log(`[DEBUG] ${message}`);
         }
 
-        // ========== NORMALISATION TÉLÉPHONE ROBUSTE ==========
+        // ========== NORMALISATION TÉLÉPHONE ==========
         function normalizePhoneForComparison(phone) {
             if (!phone) return '';
             return phone.replace(/\D/g, '');
@@ -547,6 +555,223 @@
             }
         }
 
+        // ========== GESTION PHOTO DE PROFIL ==========
+        async function fetchDriverPhoto(driverData) {
+            console.log('📸 Recherche photo pour:', driverData.telephone);
+            console.log('[DEBUG] Driver data:', driverData);
+            
+            // 1. Chercher dans les données driver actuelles
+            let photoUrl = driverData.photoProfil ||          // ✅ AJOUTÉ
+                          driverData.photoIdentite || 
+                          driverData.photoUrl || 
+                          driverData.photos?.photoProfil ||   // ✅ AJOUTÉ
+                          driverData.photos?.photoIdentite;
+            
+            if (photoUrl) {
+                console.log('✅ Photo trouvée dans données driver actuelles:', photoUrl);
+                return photoUrl;
+            }
+            
+            console.log('[DEBUG] Photo: Aucune dans données driver actuelles');
+            
+            // 2. Chercher dans TOUS les documents de la collection drivers
+            try {
+                console.log('🔍 Recherche dans collection drivers...');
+                const phoneVariants = getPhoneVariants(driverData.telephone);
+                console.log('[DEBUG] Variantes téléphone:', phoneVariants);
+                
+                const driversSnapshot = await db.collection('drivers').get();
+                console.log(`[DEBUG] ${driversSnapshot.size} chauffeurs trouvés dans drivers`);
+                
+                for (const doc of driversSnapshot.docs) {
+                    const driver = doc.data();
+                    const driverPhone = driver.telephone || '';
+                    const driverDigits = normalizePhoneForComparison(driverPhone);
+                    
+                    // Vérifier si c'est le même chauffeur par téléphone
+                    for (const variant of phoneVariants) {
+                        const variantDigits = normalizePhoneForComparison(variant);
+                        
+                        if (driverDigits === variantDigits || 
+                            driverDigits.endsWith(variantDigits.slice(-9)) ||
+                            variantDigits.endsWith(driverDigits.slice(-9))) {
+                            
+                            console.log(`[DEBUG] Chauffeur ${doc.id}:`, {
+                                nom: driver.nom,
+                                prenom: driver.prenom,
+                                telephone: driverPhone,
+                                hasPhoto: !!(driver.photoProfil || driver.photoIdentite || driver.photoUrl || driver.photos?.photoProfil || driver.photos?.photoIdentite)
+                            });
+                            
+                            // Chercher la photo
+                            const foundPhoto = driver.photoProfil ||              // ✅ AJOUTÉ
+                                             driver.photoIdentite || 
+                                             driver.photoUrl || 
+                                             driver.photos?.photoProfil ||        // ✅ AJOUTÉ
+                                             driver.photos?.photoIdentite ||
+                                             driver.photos?.photo_identite;
+                            
+                            if (foundPhoto) {
+                                console.log('✅ Photo trouvée dans drivers:', foundPhoto);
+                                
+                                // Si ce n'est pas le même document, synchroniser
+                                if (driverData.id && doc.id !== driverData.id && !driverData.isDemo) {
+                                    try {
+                                        await db.collection('drivers').doc(driverData.id).update({
+                                            photoIdentite: foundPhoto
+                                        });
+                                        console.log('✅ Photo synchronisée depuis autre driver');
+                                    } catch (err) {
+                                        console.warn('⚠️ Erreur sync photo:', err);
+                                    }
+                                }
+                                
+                                return foundPhoto;
+                            }
+                        }
+                    }
+                }
+                
+                console.log('[DEBUG] Aucune photo trouvée dans drivers');
+                
+            } catch (error) {
+                console.error('❌ Erreur recherche dans drivers:', error);
+            }
+            
+            // 3. Chercher dans la collection candidatures
+            try {
+                console.log('🔍 Recherche dans candidatures...');
+                const phoneVariants = getPhoneVariants(driverData.telephone);
+                
+                // Récupérer TOUTES les candidatures acceptées
+                const candidaturesSnapshot = await db.collection('candidatures')
+                    .where('statut', '==', 'acceptee')
+                    .get();
+                
+                console.log(`[DEBUG] ${candidaturesSnapshot.size} candidatures acceptées trouvées`);
+                
+                let foundCandidature = null;
+                
+                for (const doc of candidaturesSnapshot.docs) {
+                    const candidature = doc.data();
+                    const candidaturePhone = candidature.telephone || candidature.phone || '';
+                    const candidatureDigits = normalizePhoneForComparison(candidaturePhone);
+                    
+                    console.log(`[DEBUG] Candidature ${doc.id}:`, {
+                        nom: candidature.nom,
+                        prenom: candidature.prenom,
+                        telephone: candidaturePhone,
+                        digits: candidatureDigits,
+                        hasPhoto: !!(candidature.photos?.photoIdentite || candidature.photoIdentite)
+                    });
+                    
+                    // Comparer par téléphone
+                    for (const variant of phoneVariants) {
+                        const variantDigits = normalizePhoneForComparison(variant);
+                        
+                        if (candidatureDigits === variantDigits || 
+                            candidatureDigits.endsWith(variantDigits.slice(-9)) ||
+                            variantDigits.endsWith(candidatureDigits.slice(-9))) {
+                            
+                            console.log(`[DEBUG] ✅ MATCH trouvé avec candidature ${doc.id}`);
+                            foundCandidature = { id: doc.id, ...candidature };
+                            break;
+                        }
+                    }
+                    
+                    if (foundCandidature) break;
+                }
+                
+                if (!foundCandidature) {
+                    console.log('[DEBUG] ❌ Aucune candidature correspondante par téléphone');
+                    
+                    // Fallback: chercher par nom/prénom
+                    if (driverData.nom && driverData.prenom) {
+                        console.log('[DEBUG] Tentative de recherche par nom/prénom...');
+                        for (const doc of candidaturesSnapshot.docs) {
+                            const candidature = doc.data();
+                            const nomMatch = candidature.nom?.toLowerCase().trim() === driverData.nom?.toLowerCase().trim();
+                            const prenomMatch = candidature.prenom?.toLowerCase().trim() === driverData.prenom?.toLowerCase().trim();
+                            
+                            if (nomMatch && prenomMatch) {
+                                console.log(`[DEBUG] ✅ MATCH par nom trouvé: ${doc.id}`);
+                                foundCandidature = { id: doc.id, ...candidature };
+                                break;
+                            }
+                        }
+                    }
+                }
+                
+                if (foundCandidature) {
+                    // Chercher la photo dans plusieurs champs possibles
+                    photoUrl = foundCandidature.photoProfil ||           // ✅ AJOUTÉ
+                               foundCandidature.photos?.photoProfil ||    // ✅ AJOUTÉ
+                               foundCandidature.photos?.photoIdentite || 
+                               foundCandidature.photos?.photo_identite ||
+                               foundCandidature.photoIdentite || 
+                               foundCandidature.photoUrl ||
+                               foundCandidature.photo;
+                    
+                    console.log('[DEBUG] Photo dans candidature:', photoUrl);
+                    
+                    if (photoUrl) {
+                        console.log('✅ Photo trouvée dans candidatures:', photoUrl);
+                        
+                        // Mettre à jour le document driver avec la photo
+                        if (driverData.id && !driverData.isDemo) {
+                            try {
+                                await db.collection('drivers').doc(driverData.id).update({
+                                    photoIdentite: photoUrl,
+                                    photoProfil: photoUrl,  // ✅ AJOUTÉ
+                                    candidatureId: foundCandidature.id
+                                });
+                                console.log('✅ Photo synchronisée vers drivers');
+                            } catch (updateError) {
+                                console.warn('⚠️ Impossible de synchroniser la photo:', updateError);
+                            }
+                        }
+                        
+                        return photoUrl;
+                    } else {
+                        console.log('[DEBUG] ❌ Candidature trouvée mais sans photo');
+                    }
+                } else {
+                    console.log('❌ Aucune candidature correspondante trouvée');
+                }
+                
+            } catch (error) {
+                if (error.code === 'permission-denied') {
+                    console.error('🔒 ERREUR PERMISSIONS: Accès refusé à candidatures');
+                    showToast('⚠️ Permissions Firestore manquantes', 'error');
+                } else {
+                    console.error('❌ Erreur recherche photo:', error);
+                }
+            }
+            
+            console.log('❌ AUCUNE PHOTO TROUVÉE dans drivers ni candidatures');
+            return null;
+        }
+        
+        function displayProfilePhoto(photoUrl) {
+            console.log('📸 Affichage photo:', photoUrl);
+            
+            // Photo dans le header
+            const headerPhoto = document.getElementById('headerProfilePhoto');
+            if (photoUrl) {
+                headerPhoto.innerHTML = `<img src="${photoUrl}" class="header-profile-photo" alt="Photo" onerror="this.parentElement.innerHTML='<div class=\\'header-profile-placeholder\\'><i class=\\'fas fa-user\\'></i></div>'">`;
+            } else {
+                headerPhoto.innerHTML = `<div class="header-profile-placeholder"><i class="fas fa-user"></i></div>`;
+            }
+            
+            // Photo dans le profil
+            const profileAvatar = document.getElementById('profileAvatar');
+            if (photoUrl) {
+                profileAvatar.innerHTML = `<img src="${photoUrl}" alt="Photo de profil" onerror="this.parentElement.innerHTML='<i class=\\'fas fa-user\\'></i>'">`;
+            } else {
+                profileAvatar.innerHTML = `<i class="fas fa-user"></i>`;
+            }
+        }
+
         // ========== LOGIN ==========
         async function handleLogin() {
             const phone = document.getElementById('loginPhone').value.trim();
@@ -573,12 +798,14 @@
                         rating: 4.8,
                         coursesCompletees: 42,
                         revenusTotal: 150000,
+                        photoIdentite: 'https://via.placeholder.com/100/00A854/FFFFFF?text=DEMO',
                         isDemo: true
                     };
                     hideLoading();
                     showDebug(false);
                     showToast('✅ Mode démo activé!', 'success');
                     document.getElementById('bottomNav').style.display = 'flex';
+                    displayProfilePhoto(currentUser.photoIdentite);
                     showScreen('dashboardScreen');
                     loadDashboardDataDemo();
                     startLocationTracking();
@@ -595,6 +822,7 @@
                 if (existingDriver) {
                     addDebugLog(`🎉 Chauffeur existant: ${existingDriver.id}`);
                     addDebugLog(`   Nom: ${existingDriver.prenom} ${existingDriver.nom}`);
+                    addDebugLog(`   Photo: ${existingDriver.photoIdentite || existingDriver.photoUrl || 'Aucune'}`);
                     
                     if (password !== 'Admin2025') {
                         hideLoading();
@@ -615,6 +843,13 @@
                     
                     hideLoading();
                     showDebug(false);
+                    
+                    // Récupérer et afficher la photo de profil
+                    showLoading('Chargement de la photo...');
+                    const photoUrl = await fetchDriverPhoto(currentUser);
+                    displayProfilePhoto(photoUrl);
+                    hideLoading();
+                    
                     showToast(`✅ Bienvenue ${currentUser.prenom || ''} ${currentUser.nom || ''}!`, 'success');
                     document.getElementById('bottomNav').style.display = 'flex';
                     showScreen('dashboardScreen');
@@ -1297,6 +1532,10 @@
                 const driverDoc = await db.collection('drivers').doc(driverId).get();
                 const data = driverDoc.data();
 
+                // Récupérer la photo de profil (depuis drivers OU candidatures)
+                const photoUrl = await fetchDriverPhoto({ ...data, id: driverId });
+                displayProfilePhoto(photoUrl);
+
                 document.getElementById('profileName').textContent = `${data.prenom || ''} ${data.nom || ''}`;
                 document.getElementById('profilePhone').textContent = data.telephone || '';
                 document.getElementById('profileFirestoreId').textContent = driverId;
@@ -1316,6 +1555,8 @@
         }
 
         function loadDashboardDataDemo() {
+            displayProfilePhoto(currentUser.photoIdentite);
+            
             document.getElementById('profileName').textContent = `${currentUser.prenom} ${currentUser.nom}`;
             document.getElementById('profilePhone').textContent = currentUser.telephone;
             document.getElementById('profileFirestoreId').textContent = currentUser.firestoreId;
@@ -1330,7 +1571,7 @@
             loadHistoryDemo();
         }
 
-        // ========== HISTORIQUE CORRIGÉ ==========
+        // ========== HISTORIQUE ==========
         async function loadHistory() {
             if (!currentUser || currentUser.isDemo) {
                 loadHistoryDemo();
@@ -1345,7 +1586,6 @@
                 const driverId = currentUser.firestoreId || currentUser.uid;
                 console.log('📜 Chargement historique pour:', driverId);
                 
-                // ✅ CORRECTION: Utiliser 'timestamp' au lieu de 'dateCreation' + filtre statut
                 const snapshot = await db.collection('reservations')
                     .where('chauffeurAssigne', '==', driverId)
                     .where('statut', 'in', ['terminee', 'annulee'])
@@ -1501,7 +1741,7 @@
 
         // ========== INIT ==========
         document.addEventListener('DOMContentLoaded', () => {
-            console.log('🚕 Al Bourakh Driver Pro v4.3 FIXED - Ready');
+            console.log('🚕 Al Bourakh Driver Pro v4.6 PHOTO OK - Ready');
             document.getElementById('loginPhone').value = '+221777123456';
             document.getElementById('loginPassword').value = 'Admin2025';
         });
