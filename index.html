@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>Al Bourakh Driver Pro v4.6 - Photo Fix</title>
+    <title>Al Bourakh Driver Pro v4.7 - Validation Téléphone</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -24,10 +24,14 @@
         .login-title { font-size: 1.8em; color: #00A854; margin-bottom: 10px; }
         .login-subtitle { color: #666; margin-bottom: 30px; }
         
-        .input-group { margin-bottom: 15px; text-align: left; }
+        .input-group { margin-bottom: 15px; text-align: left; position: relative; }
         .input-group label { display: block; margin-bottom: 8px; color: #333; font-weight: 600; }
-        .input-group input { width: 100%; padding: 15px; border: 2px solid #ddd; border-radius: 10px; font-size: 1em; }
+        .input-group input { width: 100%; padding: 15px; border: 2px solid #ddd; border-radius: 10px; font-size: 1em; transition: border-color 0.3s; }
         .input-group input:focus { outline: none; border-color: #00A854; }
+        .input-group input.valid { border-color: #00A854; background: #f0fdf4; }
+        .input-group input.invalid { border-color: #E30613; background: #fef2f2; }
+        .input-helper { font-size: 0.75em; color: #666; margin-top: 5px; }
+        .input-helper.error { color: #E30613; }
         
         .btn { width: 100%; padding: 15px; border: none; border-radius: 12px; font-size: 1.1em; font-weight: bold; cursor: pointer; margin-top: 10px; }
         .btn-primary { background: linear-gradient(135deg, #00A854, #FECB00); color: white; }
@@ -165,12 +169,15 @@
         <div id="loginScreen" class="screen active">
             <div class="login-screen">
                 <div class="login-logo">🚕</div>
-                <h1 class="login-title">Al Bourakh Driver <span class="version-badge">v4.6</span><span class="fix-badge">PHOTO OK</span></h1>
+                <h1 class="login-title">Al Bourakh Driver <span class="version-badge">v4.7</span><span class="fix-badge">VALIDATION</span></h1>
                 <p class="login-subtitle">Connexion Sécurisée</p>
                 
                 <div class="input-group">
                     <label>📱 Téléphone</label>
-                    <input type="tel" id="loginPhone" placeholder="+221 77 123 45 67">
+                    <input type="tel" id="loginPhone" placeholder="+221 77 123 45 67" oninput="formatPhoneInput(this)">
+                    <div class="input-helper" id="phoneHelper">
+                        Formats acceptés : 77/78/76/70 XXX XX XX
+                    </div>
                 </div>
                 <div class="input-group">
                     <label>🔒 Mot de passe</label>
@@ -182,13 +189,18 @@
                 <div style="background: #e8f5e9; padding: 12px; border-radius: 10px; margin-top: 20px; border-left: 4px solid #4CAF50; font-size: 0.85em;">
                     <p><strong>🔐 Connexion:</strong> Numéro enregistré + <code>Admin2025</code></p>
                     <p><strong>🧪 Mode Démo:</strong> Tout numéro + <code>demo123</code></p>
+                    <p style="margin-top: 8px;"><strong>📱 Formats acceptés:</strong></p>
+                    <p style="margin-left: 10px;">• +221 77 123 45 67</p>
+                    <p style="margin-left: 10px;">• 77 123 45 67</p>
+                    <p style="margin-left: 10px;">• 77123456</p>
+                    <p style="font-size: 0.9em; color: #666; margin-top: 5px;">Indicatifs: 77, 78, 76, 70</p>
                 </div>
                 
                 <div style="background: #cce5ff; padding: 12px; border-radius: 10px; margin-top: 10px; border-left: 4px solid #004085; font-size: 0.8em;">
-                    <p><strong>✅ v4.6 PHOTO FIX:</strong></p>
-                    <p>• Support champ photoProfil</p>
-                    <p>• Recherche étendue multi-champs</p>
-                    <p>• Synchronisation complète</p>
+                    <p><strong>✅ v4.7 VALIDATION:</strong></p>
+                    <p>• Validation formats téléphone SN</p>
+                    <p>• Support multi-formats (77/78/76/70)</p>
+                    <p>• Formatage automatique</p>
                 </div>
                 
                 <div class="debug-box" id="loginDebug" style="display: none;">
@@ -196,7 +208,7 @@
                     <div id="debugContent"></div>
                 </div>
                 
-                <p style="margin-top: 20px; color: #999; font-size: 0.8em;">Version 4.6 PHOTO OK © 2025</p>
+                <p style="margin-top: 20px; color: #999; font-size: 0.8em;">Version 4.7 VALIDATION © 2025</p>
             </div>
         </div>
 
@@ -453,7 +465,7 @@
         const db = firebase.firestore();
         const auth = firebase.auth();
 
-        console.log('🚕 Al Bourakh Driver Pro v4.6 PHOTO OK - Ready');
+        console.log('🚕 Al Bourakh Driver Pro v4.7 VALIDATION - Ready');
 
         // ========== GLOBAL VARIABLES ==========
         let currentUser = null;
@@ -471,6 +483,100 @@
         let currentRouteMode = 'approche';
         let approcheRoute = null;
         let courseRoute = null;
+
+        // ========== VALIDATION TÉLÉPHONE SÉNÉGALAIS ==========
+        function validateSenegalPhone(phone) {
+            if (!phone) return { valid: false, message: 'Numéro requis' };
+            
+            // Nettoyer le numéro (enlever espaces, tirets, etc.)
+            const cleaned = phone.replace(/[\s\-\.]/g, '');
+            
+            // Formats acceptés pour les indicatifs 77, 78, 76, 70
+            const patterns = [
+                /^\+221(77|78|76|70)\d{7}$/,     // +22177xxxxxxx
+                /^221(77|78|76|70)\d{7}$/,       // 22177xxxxxxx (sans +)
+                /^(77|78|76|70)\d{7}$/,          // 77xxxxxxx
+                /^00221(77|78|76|70)\d{7}$/      // 0022177xxxxxxx
+            ];
+            
+            const isValid = patterns.some(pattern => pattern.test(cleaned));
+            
+            if (!isValid) {
+                return {
+                    valid: false,
+                    message: 'Format invalide. Utilisez : +221 77/78/76/70 XXX XX XX'
+                };
+            }
+            
+            return { valid: true, normalized: cleaned };
+        }
+        
+        function formatPhoneForDisplay(phone) {
+            const cleaned = phone.replace(/[\s\-\.]/g, '');
+            
+            // Si commence par +221 ou 221
+            if (cleaned.startsWith('+221')) {
+                const number = cleaned.substring(4);
+                return `+221 ${number.substring(0, 2)} ${number.substring(2, 5)} ${number.substring(5, 7)} ${number.substring(7)}`;
+            } else if (cleaned.startsWith('221')) {
+                const number = cleaned.substring(3);
+                return `+221 ${number.substring(0, 2)} ${number.substring(2, 5)} ${number.substring(5, 7)} ${number.substring(7)}`;
+            } else if (/^(77|78|76|70)/.test(cleaned)) {
+                return `+221 ${cleaned.substring(0, 2)} ${cleaned.substring(2, 5)} ${cleaned.substring(5, 7)} ${cleaned.substring(7)}`;
+            }
+            
+            return phone;
+        }
+        
+        function formatPhoneInput(input) {
+            const oldValue = input.value;
+            const cleaned = oldValue.replace(/[\s\-\.]/g, '');
+            const helper = document.getElementById('phoneHelper');
+            
+            // Limiter à 13 caractères au total (avec le +) ou 12 chiffres
+            // Format complet : +221701234567 = 13 caractères
+            if (cleaned.length > 13) {
+                input.value = oldValue.substring(0, oldValue.length - 1);
+                return;
+            }
+            
+            // Validation visuelle en temps réel
+            if (cleaned.length > 0) {
+                const validation = validateSenegalPhone(oldValue);
+                if (validation.valid) {
+                    input.classList.remove('invalid');
+                    input.classList.add('valid');
+                    if (helper) {
+                        helper.textContent = '✓ Numéro valide';
+                        helper.classList.remove('error');
+                        helper.style.color = '#00A854';
+                    }
+                } else {
+                    input.classList.remove('valid');
+                    if (cleaned.length >= 9) {
+                        input.classList.add('invalid');
+                        if (helper) {
+                            helper.textContent = validation.message;
+                            helper.classList.add('error');
+                        }
+                    } else {
+                        input.classList.remove('invalid');
+                        if (helper) {
+                            helper.textContent = 'Formats acceptés : 77/78/76/70 XXX XX XX';
+                            helper.classList.remove('error');
+                            helper.style.color = '#666';
+                        }
+                    }
+                }
+            } else {
+                input.classList.remove('valid', 'invalid');
+                if (helper) {
+                    helper.textContent = 'Formats acceptés : 77/78/76/70 XXX XX XX';
+                    helper.classList.remove('error');
+                    helper.style.color = '#666';
+                }
+            }
+        }
 
         // ========== DEBUG FUNCTIONS ==========
         function showDebug(show = true) {
@@ -494,18 +600,37 @@
             const digits = normalizePhoneForComparison(phone);
             const variants = new Set();
             
+            // Ajouter le numéro nettoyé
             variants.add(digits);
-            variants.add('+' + digits);
-            variants.add('+221' + digits.slice(-9));
-            variants.add('221' + digits.slice(-9));
-            variants.add(digits.slice(-9));
             
+            // Extraire les 9 derniers chiffres (numéro local)
+            const localNumber = digits.slice(-9);
+            
+            // Générer toutes les variantes possibles
+            variants.add(localNumber);                           // 771234567
+            variants.add('+221' + localNumber);                  // +221771234567
+            variants.add('221' + localNumber);                   // 221771234567
+            variants.add('00221' + localNumber);                 // 00221771234567
+            
+            // Si le numéro commence déjà par 221, ajouter avec +
             if (digits.startsWith('221')) {
-                variants.add(digits.substring(3));
                 variants.add('+' + digits);
+                const local = digits.substring(3);
+                variants.add(local);
+                variants.add('+221' + local);
             }
             
-            return [...variants].filter(v => v.length >= 9);
+            // Si le numéro commence par +221
+            if (digits.startsWith('+221')) {
+                variants.add(digits.substring(1));  // Sans le +
+                variants.add(digits.substring(4));  // Juste le numéro local
+            }
+            
+            // Filtrer pour ne garder que les numéros valides (9 chiffres ou plus)
+            return [...variants].filter(v => {
+                const cleaned = v.replace(/\D/g, '');
+                return cleaned.length >= 9;
+            });
         }
 
         // ========== RECHERCHE CHAUFFEUR ==========
@@ -781,10 +906,22 @@
                 showToast('Remplissez tous les champs', 'error');
                 return;
             }
+            
+            // Valider le format du numéro
+            const validation = validateSenegalPhone(phone);
+            if (!validation.valid) {
+                showToast(`❌ ${validation.message}`, 'error');
+                addDebugLog(`❌ Format invalide: ${phone}`);
+                return;
+            }
+            
+            const normalizedPhone = validation.normalized;
+            addDebugLog(`✅ Numéro valide: ${phone} → ${normalizedPhone}`);
 
             showDebug(true);
             document.getElementById('debugContent').innerHTML = '';
             addDebugLog('🚀 Début connexion...');
+            addDebugLog(`📱 Format accepté: ${formatPhoneForDisplay(phone)}`);
 
             if (password === 'demo123') {
                 showLoading('Connexion démo...');
@@ -792,7 +929,7 @@
                     currentUser = {
                         firestoreId: 'DEMO_' + Date.now(),
                         uid: 'DEMO_' + Date.now(),
-                        telephone: phone,
+                        telephone: formatPhoneForDisplay(phone),
                         prenom: 'Chauffeur',
                         nom: 'Demo',
                         rating: 4.8,
@@ -817,7 +954,7 @@
 
             try {
                 addDebugLog('🔍 Recherche du chauffeur...');
-                const existingDriver = await findDriverByPhone(phone);
+                const existingDriver = await findDriverByPhone(normalizedPhone);
                 
                 if (existingDriver) {
                     addDebugLog(`🎉 Chauffeur existant: ${existingDriver.id}`);
@@ -1741,8 +1878,8 @@
 
         // ========== INIT ==========
         document.addEventListener('DOMContentLoaded', () => {
-            console.log('🚕 Al Bourakh Driver Pro v4.6 PHOTO OK - Ready');
-            document.getElementById('loginPhone').value = '+221777123456';
+            console.log('🚕 Al Bourakh Driver Pro v4.7 VALIDATION - Ready');
+            document.getElementById('loginPhone').value = '+221 77 712 34 56';
             document.getElementById('loginPassword').value = 'Admin2025';
         });
     </script>
