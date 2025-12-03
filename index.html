@@ -15,7 +15,7 @@
     <link rel="apple-touch-icon" href="https://i.imgur.com/VtgG6pR.png">
     <meta name="description" content="Application chauffeur Al Bourakh - VTC Sénégal">
     
-    <title>Al Bourakh Driver - PWA v4.9.5</title>
+    <title>Al Bourakh Driver - PWA v4.9.6</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -205,7 +205,7 @@
                 <div class="login-logo">
                     <img src="https://i.imgur.com/VtgG6pR.png" alt="Al Bourakh Logo" onerror="this.src='https://i.imgur.com/VtgG6pR.jpg'">
                 </div>
-                <h1 class="login-title">Al Bourakh Driver <span class="version-badge">v4.9.5</span><span class="fix-badge">LIVE STATS</span></h1>
+                <h1 class="login-title">Al Bourakh Driver <span class="version-badge">v4.9.6</span><span class="fix-badge">RATINGS FIX</span></h1>
                 <p class="login-subtitle">Connexion Sécurisée</p>
                 
                 <div class="input-group">
@@ -233,12 +233,12 @@
                 </div>
                 
                 <div style="background: #fff3cd; padding: 12px; border-radius: 10px; margin-top: 10px; border-left: 4px solid #FF9800; font-size: 0.8em;">
-                    <p><strong>📊 v4.9.5 STATS EN TEMPS RÉEL:</strong></p>
-                    <p>• ⭐ <strong>Note actualisée automatiquement</strong></p>
+                    <p><strong>📊 v4.9.6 NOTE CALCULÉE EN TEMPS RÉEL:</strong></p>
+                    <p>• ⭐ <strong>Note calculée depuis les évaluations clients</strong></p>
+                    <p>• 📊 Moyenne mise à jour automatiquement</p>
                     <p>• 📈 Courses totales en temps réel</p>
                     <p>• 💰 Revenus totaux en temps réel</p>
-                    <p>• 📊 Stats du jour calculées depuis Firestore</p>
-                    <p>• 🔄 Listener Firestore permanent</p>
+                    <p>• 🔄 Listeners Firestore permanents</p>
                     <p>• ⚡ Performance optimisée</p>
                 </div>
                 
@@ -247,7 +247,7 @@
                     <div id="debugContent"></div>
                 </div>
                 
-                <p style="margin-top: 20px; color: #999; font-size: 0.8em;">Version 4.9.5 LIVE STATS © 2025</p>
+                <p style="margin-top: 20px; color: #999; font-size: 0.8em;">Version 4.9.6 RATINGS FIX © 2025</p>
             </div>
         </div>
 
@@ -540,7 +540,7 @@
         const db = firebase.firestore();
         const auth = firebase.auth();
 
-        console.log('🚕 Al Bourakh Driver Pro v4.9.5 LIVE STATS - Ready');
+        console.log('🚕 Al Bourakh Driver Pro v4.9.6 RATINGS FIX - Ready');
 
         // ========== GLOBAL VARIABLES ==========
         let currentUser = null;
@@ -560,6 +560,7 @@
         let courseRoute = null;
         let audioContext = null;
         let driverStatsListener = null;
+        let ratingsListener = null;
 
         // ========== STATISTIQUES COURSES ==========
         let courseStats = {
@@ -579,28 +580,92 @@
             return audioContext;
         }
 
-        // ========== LISTENER TEMPS RÉEL POUR LES STATS DRIVER ==========
+        // ========== LISTENER TEMPS RÉEL POUR CALCULER LA NOTE ==========
+        function startRatingsListener() {
+            if (!currentUser || currentUser.isDemo) {
+                // Mode démo : note fixe
+                document.getElementById('rating').textContent = '4.8';
+                document.getElementById('profileRating').textContent = '4.8';
+                return;
+            }
+            
+            const driverId = currentUser.firestoreId || currentUser.uid;
+            console.log('👂 Démarrage écoute évaluations en temps réel pour:', driverId);
+            
+            // Arrêter l'ancien listener s'il existe
+            if (ratingsListener) {
+                ratingsListener();
+            }
+            
+            // Écouter toutes les réservations terminées du chauffeur avec une note
+            ratingsListener = db.collection('reservations')
+                .where('chauffeurAssigne', '==', driverId)
+                .where('statut', '==', 'terminee')
+                .onSnapshot((snapshot) => {
+                    console.log('📊 Calcul de la note depuis', snapshot.size, 'courses');
+                    
+                    let totalRating = 0;
+                    let ratingCount = 0;
+                    
+                    snapshot.forEach(doc => {
+                        const data = doc.data();
+                        // Vérifier différents noms de champs possibles
+                        const rating = data.noteChauffeur || data.ratingChauffeur || data.rating || data.note;
+                        
+                        if (rating && rating > 0 && rating <= 5) {
+                            totalRating += rating;
+                            ratingCount++;
+                            console.log(`  ✅ Course ${doc.id}: note ${rating}`);
+                        }
+                    });
+                    
+                    // Calculer la moyenne
+                    const averageRating = ratingCount > 0 ? (totalRating / ratingCount) : 4.8;
+                    const displayRating = averageRating.toFixed(1);
+                    
+                    console.log(`📊 Note calculée: ${displayRating} (${ratingCount} évaluations sur ${snapshot.size} courses)`);
+                    
+                    // Mettre à jour l'affichage
+                    document.getElementById('rating').textContent = displayRating;
+                    document.getElementById('profileRating').textContent = displayRating;
+                    
+                    // Mettre à jour le document driver dans Firestore
+                    if (ratingCount > 0) {
+                        db.collection('drivers').doc(driverId).update({
+                            rating: parseFloat(displayRating),
+                            totalEvaluations: ratingCount,
+                            derniereMAJRating: firebase.firestore.FieldValue.serverTimestamp()
+                        }).catch(err => console.warn('⚠️ Erreur MAJ rating:', err));
+                    }
+                    
+                }, (error) => {
+                    console.error('❌ Erreur listener évaluations:', error);
+                });
+        }
+
+        function stopRatingsListener() {
+            if (ratingsListener) {
+                ratingsListener();
+                ratingsListener = null;
+                console.log('🛑 Listener évaluations arrêté');
+            }
+        }
+
+        // ========== LISTENER STATS DRIVER (simplifié) ==========
         function startDriverStatsListener() {
             if (!currentUser || currentUser.isDemo) return;
             
             const driverId = currentUser.firestoreId || currentUser.uid;
             console.log('👂 Démarrage écoute stats en temps réel pour:', driverId);
             
-            // Arrêter l'ancien listener s'il existe
             if (driverStatsListener) {
                 driverStatsListener();
             }
             
-            // Créer un nouveau listener
             driverStatsListener = db.collection('drivers').doc(driverId)
                 .onSnapshot((doc) => {
                     if (doc.exists) {
                         const data = doc.data();
-                        
-                        // ✅ Mettre à jour la NOTE en temps réel
-                        const newRating = (data.rating || 4.8).toFixed(1);
-                        document.getElementById('rating').textContent = newRating;
-                        document.getElementById('profileRating').textContent = newRating;
                         
                         // ✅ Mettre à jour les courses totales
                         document.getElementById('coursesTotal').textContent = data.coursesCompletees || 0;
@@ -609,7 +674,7 @@
                         // ✅ Mettre à jour les revenus totaux
                         document.getElementById('profileRevenuTotal').textContent = (data.revenusTotal || 0).toLocaleString() + ' FCFA';
                         
-                        console.log('📊 Stats mises à jour en temps réel - Note:', newRating);
+                        console.log('📊 Stats driver mises à jour');
                     }
                 }, (error) => {
                     console.error('❌ Erreur listener stats:', error);
@@ -1276,6 +1341,7 @@
                     showScreen('dashboardScreen');
                     loadDashboardDataDemo();
                     startLocationTracking();
+                    startRatingsListener(); // ✅ Listener note en mode démo
                 }, 1000);
                 return;
             }
@@ -1319,7 +1385,8 @@
                     showScreen('dashboardScreen');
                     loadDashboardData();
                     startLocationTracking();
-                    startDriverStatsListener(); // ✅ Démarrer le listener en temps réel
+                    startDriverStatsListener(); // ✅ Stats driver
+                    startRatingsListener(); // ✅ Calcul note en temps réel
                     return;
                 }
                 
@@ -1340,7 +1407,8 @@
                 showLoading('Déconnexion...');
                 if (isOnline) toggleOnlineStatus();
                 stopLocationTracking();
-                stopDriverStatsListener(); // ✅ Arrêter le listener
+                stopDriverStatsListener(); // ✅ Arrêter listener stats
+                stopRatingsListener(); // ✅ Arrêter listener notes
                 if (!currentUser?.isDemo) auth.signOut();
                 currentUser = null;
                 currentCourse = null;
@@ -2037,8 +2105,8 @@
                 document.getElementById('profilePhone').textContent = data.telephone || '';
                 document.getElementById('profileFirestoreId').textContent = driverId;
                 document.getElementById('profileVehicle').textContent = data.vehicule?.modele || data.typeVehicule || '-';
-                document.getElementById('rating').textContent = (data.rating || 4.8).toFixed(1);
-                document.getElementById('profileRating').textContent = (data.rating || 4.8).toFixed(1);
+                
+                // La note sera mise à jour par le listener
                 document.getElementById('coursesTotal').textContent = data.coursesCompletees || 0;
                 document.getElementById('profileTotalCourses').textContent = data.coursesCompletees || 0;
                 document.getElementById('profileRevenuTotal').textContent = (data.revenusTotal || 0).toLocaleString() + ' FCFA';
@@ -2202,75 +2270,80 @@
 
             document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
             const navIndex = { 'dashboardScreen': 0, 'activeCourseScreen': 1, 'historyScreen': 2, 'profileScreen': 3 };
-            if (navIndex[screenId] !== undefined) {
-                document.querySelectorAll('.nav-item')[navIndex[screenId]].classList.add('active');
-            }
-
-            if (screenId === 'activeCourseScreen' && currentCourse) setTimeout(() => initActiveCourseMap(), 100);
-            if (screenId === 'dashboardScreen' && map) {
-                setTimeout(() => {
-                    google.maps.event.trigger(map, 'resize');
-                    if (driverPosition) map.setCenter(driverPosition);
-                }, 100);
-                
-                // ✅ Rafraîchir les stats du jour quand on revient au dashboard
-                if (currentUser && !currentUser.isDemo) {
-                    loadDailyStats();
-                }
-            }
-            if (screenId === 'historyScreen') loadHistory();
-        }
-
-        // ========== UI ==========
-        function showToast(message, type = 'info') {
-            const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
-            toast.innerHTML = `<strong>${message}</strong>`;
-            document.body.appendChild(toast);
+            if (navIndex[screenId] !== undefined)
+ { document.querySelectorAll('.nav-item')[navIndex[screenId]].classList.add('active'); }
+if (screenId === 'activeCourseScreen' && currentCourse) setTimeout(() => initActiveCourseMap(), 100);
+        if (screenId === 'dashboardScreen' && map) {
             setTimeout(() => {
-                toast.style.animation = 'slideInRight 0.3s reverse';
-                setTimeout(() => toast.remove(), 300);
-            }, 3000);
+                google.maps.event.trigger(map, 'resize');
+                if (driverPosition) map.setCenter(driverPosition);
+            }, 100);
+            
+            // ✅ Rafraîchir les stats du jour quand on revient au dashboard
+            if (currentUser && !currentUser.isDemo) {
+                loadDailyStats();
+            }
         }
+        if (screenId === 'historyScreen') loadHistory();
+    }
 
-        function showLoading(text = 'Chargement...') {
-            const loading = document.createElement('div');
-            loading.className = 'loading-overlay';
-            loading.id = 'loadingOverlay';
-            loading.innerHTML = `<div class="loading-spinner"></div><div class="loading-text">${text}</div>`;
-            document.body.appendChild(loading);
-        }
+    // ========== UI ==========
+    function showToast(message, type = 'info') {
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.innerHTML = `<strong>${message}</strong>`;
+        document.body.appendChild(toast);
+        setTimeout(() => {
+            toast.style.animation = 'slideInRight 0.3s reverse';
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    }
 
-        function hideLoading() {
-            const loading = document.getElementById('loadingOverlay');
-            if (loading) loading.remove();
-        }
+    function showLoading(text = 'Chargement...') {
+        const loading = document.createElement('div');
+        loading.className = 'loading-overlay';
+        loading.id = 'loadingOverlay';
+        loading.innerHTML = `<div class="loading-spinner"></div><div class="loading-text">${text}</div>`;
+        document.body.appendChild(loading);
+    }
 
-        // ========== INIT ==========
-        document.addEventListener('DOMContentLoaded', () => {
-            console.log('🚕 Al Bourakh Driver PWA v4.9.5 LIVE STATS - Ready');
-            document.getElementById('loginPhone').value = '+221 77 712 34 56';
-            document.getElementById('loginPassword').value = 'Admin2025';
+    function hideLoading() {
+        const loading = document.getElementById('loadingOverlay');
+        if (loading) loading.remove();
+    }
+
+    // ========== INIT ==========
+    document.addEventListener('DOMContentLoaded', () => {
+        console.log('🚕 Al Bourakh Driver PWA v4.9.6 RATINGS FIX - Ready');
+        document.getElementById('loginPhone').value = '+221 77 712 34 56';
+        document.getElementById('loginPassword').value = 'Admin2025';
+    });
+</script>
+
+<!-- Service Worker PWA -->
+<script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/sw.js')
+                .then(registration => {
+                    console.log('✅ Service Worker enregistré:', registration.scope);
+                })
+                .catch(error => {
+                    console.log('❌ Erreur Service Worker:', error);
+                });
         });
-    </script>
+    }
     
-    <!-- Service Worker PWA -->
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
-                    .then(registration => {
-                        console.log('✅ Service Worker enregistré:', registration.scope);
-                    })
-                    .catch(error => {
-                        console.log('❌ Erreur Service Worker:', error);
-                    });
-            });
-        }
-        
-        let deferredPrompt;
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            console.log('💡 App peut être installée !');
-        });
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        console.log('💡 App peut être installée !');
+    });
+    
+    window.addEventListener('appinstalled', () => {
+        console.log('🎉 App installée avec succès !');
+        deferredPrompt = null;
+    });
+</script>
+</body> </html>
