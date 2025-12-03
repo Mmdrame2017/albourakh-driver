@@ -237,6 +237,7 @@
                     <p>• 📊 <strong>Statistiques du jour en temps réel</strong></p>
                     <p>• 💰 Revenus calculés depuis Firestore</p>
                     <p>• 📈 Courses terminées aujourd'hui</p>
+                    <p>• ⭐ <strong>Note mise à jour en temps réel</strong></p>
                     <p>• 🔄 Mise à jour automatique</p>
                     <p>• ⚡ Performance optimisée</p>
                 </div>
@@ -776,6 +777,35 @@
                 
                 document.getElementById('coursesJour').textContent = '0';
                 document.getElementById('revenusJour').textContent = '0';
+            }
+        }
+
+        // ========== RAFRAÎCHISSEMENT STATISTIQUES DASHBOARD ==========
+        async function refreshDashboardStats() {
+            if (!currentUser || currentUser.isDemo) return;
+            
+            try {
+                const driverId = currentUser.firestoreId || currentUser.uid;
+                const driverDoc = await db.collection('drivers').doc(driverId).get();
+                const data = driverDoc.data();
+                
+                // ✅ Mettre à jour la NOTE en temps réel
+                document.getElementById('rating').textContent = (data.rating || 4.8).toFixed(1);
+                document.getElementById('profileRating').textContent = (data.rating || 4.8).toFixed(1);
+                
+                // ✅ Mettre à jour les courses totales
+                document.getElementById('coursesTotal').textContent = data.coursesCompletees || 0;
+                document.getElementById('profileTotalCourses').textContent = data.coursesCompletees || 0;
+                
+                // ✅ Mettre à jour les revenus totaux
+                document.getElementById('profileRevenuTotal').textContent = (data.revenusTotal || 0).toLocaleString() + ' FCFA';
+                
+                // ✅ Recharger les stats du jour (courses et revenus d'aujourd'hui)
+                await loadDailyStats();
+                
+                console.log('📊 Stats dashboard rafraîchies - Note:', data.rating);
+            } catch (error) {
+                console.error('❌ Erreur refresh stats:', error);
             }
         }
 
@@ -1939,7 +1969,8 @@
             showToast('✅ Course terminée!', 'success');
             showScreen('dashboardScreen');
             
-            loadDashboardData();
+            // ✅ Rafraîchir toutes les stats (y compris la note)
+            refreshDashboardStats();
         }
 
         async function cancelCourse() {
@@ -2163,8 +2194,9 @@
                     if (driverPosition) map.setCenter(driverPosition);
                 }, 100);
                 
+                // ✅ Rafraîchir toutes les stats quand on revient au dashboard
                 if (currentUser && !currentUser.isDemo) {
-                    loadDailyStats();
+                    refreshDashboardStats();
                 }
             }
             if (screenId === 'historyScreen') loadHistory();
