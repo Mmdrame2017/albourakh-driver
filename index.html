@@ -15,7 +15,7 @@
     <link rel="apple-touch-icon" href="https://i.imgur.com/VtgG6pR.png">
     <meta name="description" content="Application chauffeur Al Bourakh - VTC Sénégal">
     
-    <title>Al Bourakh Driver - PWA v4.9.3</title>
+    <title>Al Bourakh Driver - PWA v4.9.4</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -205,7 +205,7 @@
                 <div class="login-logo">
                     <img src="https://i.imgur.com/VtgG6pR.png" alt="Al Bourakh Logo" onerror="this.src='https://i.imgur.com/VtgG6pR.jpg'">
                 </div>
-                <h1 class="login-title">Al Bourakh Driver <span class="version-badge">v4.9.3</span><span class="fix-badge">STATS</span></h1>
+                <h1 class="login-title">Al Bourakh Driver <span class="version-badge">v4.9.4</span><span class="fix-badge">REAL DATA</span></h1>
                 <p class="login-subtitle">Connexion Sécurisée</p>
                 
                 <div class="input-group">
@@ -233,13 +233,12 @@
                 </div>
                 
                 <div style="background: #fff3cd; padding: 12px; border-radius: 10px; margin-top: 10px; border-left: 4px solid #FF9800; font-size: 0.8em;">
-                    <p><strong>📊 v4.9.3 STATISTIQUES:</strong></p>
-                    <p>• 📈 Taux d'acceptation en temps réel</p>
-                    <p>• ⚠️ Historique des courses manquées</p>
-                    <p>• 📊 Stats quotidiennes</p>
-                    <p>• 🔊 Volume progressif (30% → 100%)</p>
-                    <p>• 📳 Vibrations progressives</p>
-                    <p>• 🔴 Badge de notification</p>
+                    <p><strong>📊 v4.9.4 DONNÉES RÉELLES:</strong></p>
+                    <p>• 📊 <strong>Statistiques du jour en temps réel</strong></p>
+                    <p>• 💰 Revenus calculés depuis Firestore</p>
+                    <p>• 📈 Courses terminées aujourd'hui</p>
+                    <p>• 🔄 Mise à jour automatique</p>
+                    <p>• ⚡ Performance optimisée</p>
                 </div>
                 
                 <div class="debug-box" id="loginDebug" style="display: none;">
@@ -247,7 +246,7 @@
                     <div id="debugContent"></div>
                 </div>
                 
-                <p style="margin-top: 20px; color: #999; font-size: 0.8em;">Version 4.9.3 STATS © 2025</p>
+                <p style="margin-top: 20px; color: #999; font-size: 0.8em;">Version 4.9.4 REAL DATA © 2025</p>
             </div>
         </div>
 
@@ -280,12 +279,12 @@
                     <div class="stat-card">
                         <div class="stat-icon">🚗</div>
                         <div class="stat-value" id="coursesJour">0</div>
-                        <div class="stat-label">Courses</div>
+                        <div class="stat-label">Courses Aujourd'hui</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-icon">💰</div>
                         <div class="stat-value" id="revenusJour">0</div>
-                        <div class="stat-label">FCFA</div>
+                        <div class="stat-label">FCFA Aujourd'hui</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-icon">⭐</div>
@@ -295,7 +294,7 @@
                     <div class="stat-card">
                         <div class="stat-icon">📈</div>
                         <div class="stat-value" id="coursesTotal">0</div>
-                        <div class="stat-label">Total</div>
+                        <div class="stat-label">Total Courses</div>
                     </div>
                 </div>
                 
@@ -540,7 +539,7 @@
         const db = firebase.firestore();
         const auth = firebase.auth();
 
-        console.log('🚕 Al Bourakh Driver Pro v4.9.3 STATS - Ready');
+        console.log('🚕 Al Bourakh Driver Pro v4.9.4 REAL DATA - Ready');
 
         // ========== GLOBAL VARIABLES ==========
         let currentUser = null;
@@ -567,7 +566,7 @@
             missed: 0,
             todayAccepted: 0,
             todayMissed: 0,
-            missedHistory: [] // { date, depart, destination, prix, time }
+            missedHistory: []
         };
 
         // ========== SYSTÈME D'ALERTE SONORE ==========
@@ -581,7 +580,6 @@
         // ========== GESTION STATISTIQUES ==========
         async function loadCourseStats() {
             if (!currentUser || currentUser.isDemo) {
-                // Mode démo : statistiques fictives
                 courseStats = {
                     accepted: 42,
                     refused: 5,
@@ -631,7 +629,7 @@
                     coursesMissed: courseStats.missed,
                     todayAccepted: courseStats.todayAccepted,
                     todayMissed: courseStats.todayMissed,
-                    missedHistory: courseStats.missedHistory.slice(0, 10) // Garder seulement les 10 dernières
+                    missedHistory: courseStats.missedHistory.slice(0, 10)
                 });
                 console.log('✅ Statistiques sauvegardées');
             } catch (error) {
@@ -643,7 +641,6 @@
             const total = courseStats.accepted + courseStats.refused + courseStats.missed;
             const acceptanceRate = total > 0 ? ((courseStats.accepted / total) * 100).toFixed(1) : 0;
             
-            // Mettre à jour les valeurs
             document.getElementById('acceptanceRate').textContent = `${acceptanceRate}%`;
             document.getElementById('acceptanceBar').style.width = `${acceptanceRate}%`;
             document.getElementById('coursesAccepted').textContent = courseStats.accepted;
@@ -652,7 +649,6 @@
             document.getElementById('coursesToday').textContent = 
                 `${courseStats.todayAccepted} acceptées / ${courseStats.todayMissed} manquées`;
             
-            // Couleur du taux d'acceptation
             const rateElement = document.getElementById('acceptanceRate');
             if (acceptanceRate >= 80) {
                 rateElement.className = 'stats-row-value good';
@@ -662,7 +658,6 @@
                 rateElement.className = 'stats-row-value bad';
             }
             
-            // Afficher les courses manquées
             const missedSection = document.getElementById('missedCoursesSection');
             const missedList = document.getElementById('missedCoursesList');
             
@@ -688,7 +683,6 @@
             courseStats.missed++;
             courseStats.todayMissed++;
             
-            // Ajouter à l'historique
             courseStats.missedHistory.unshift({
                 date: new Date(),
                 depart: course.depart || 'Départ',
@@ -697,13 +691,11 @@
                 time: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
             });
             
-            // Garder seulement les 10 dernières
             courseStats.missedHistory = courseStats.missedHistory.slice(0, 10);
             
             updateStatsDisplay();
             saveCourseStats();
             
-            // Toast d'alerte
             showToast(`⚠️ Course manquée ! Taux d'acceptation: ${((courseStats.accepted / (courseStats.accepted + courseStats.refused + courseStats.missed)) * 100).toFixed(1)}%`, 'warning');
         }
         
@@ -726,6 +718,67 @@
             saveCourseStats();
         }
 
+        // ========== CHARGEMENT STATISTIQUES DU JOUR ==========
+        async function loadDailyStats() {
+            if (!currentUser || currentUser.isDemo) {
+                document.getElementById('coursesJour').textContent = '5';
+                document.getElementById('revenusJour').textContent = '17,500';
+                return;
+            }
+
+            try {
+                const driverId = currentUser.firestoreId || currentUser.uid;
+                
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                const tomorrow = new Date(today);
+                tomorrow.setDate(tomorrow.getDate() + 1);
+
+                console.log('📊 Chargement stats du jour pour:', driverId);
+                console.log('📅 Période:', today, 'à', tomorrow);
+
+                const snapshot = await db.collection('reservations')
+                    .where('chauffeurAssigne', '==', driverId)
+                    .where('statut', '==', 'terminee')
+                    .get();
+
+                let coursesJour = 0;
+                let revenusJour = 0;
+
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    let courseDate = null;
+
+                    if (data.dateFin?.toDate) {
+                        courseDate = data.dateFin.toDate();
+                    } else if (data.dateFin?.seconds) {
+                        courseDate = new Date(data.dateFin.seconds * 1000);
+                    } else if (data.timestamp?.toDate) {
+                        courseDate = data.timestamp.toDate();
+                    } else if (data.timestamp?.seconds) {
+                        courseDate = new Date(data.timestamp.seconds * 1000);
+                    }
+
+                    if (courseDate && courseDate >= today && courseDate < tomorrow) {
+                        coursesJour++;
+                        revenusJour += (data.prixEstime || data.prix || 0);
+                        console.log('✅ Course du jour:', doc.id, courseDate, data.prixEstime || data.prix);
+                    }
+                });
+
+                console.log(`📊 Résultat: ${coursesJour} courses, ${revenusJour} FCFA`);
+
+                document.getElementById('coursesJour').textContent = coursesJour;
+                document.getElementById('revenusJour').textContent = revenusJour.toLocaleString();
+
+            } catch (error) {
+                console.error('❌ Erreur chargement stats du jour:', error);
+                
+                document.getElementById('coursesJour').textContent = '0';
+                document.getElementById('revenusJour').textContent = '0';
+            }
+        }
+
         function playBeep(frequency = 800, duration = 200, volume = 0.3) {
             try {
                 const ctx = initAudioContext();
@@ -738,7 +791,6 @@
                 oscillator.frequency.value = frequency;
                 oscillator.type = 'sine';
                 
-                // ✅ Limiter le volume max à 1.0
                 const clampedVolume = Math.min(volume, 1.0);
                 gainNode.gain.setValueAtTime(clampedVolume, ctx.currentTime);
                 gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + duration / 1000);
@@ -753,14 +805,12 @@
         function playAlertBeeps(repetition = 0) {
             console.log(`🔔 Lecture des bips d'alerte (répétition #${repetition})...`);
             
-            // ✅ Augmentation progressive du volume : 0.3 → 0.5 → 0.7 → 0.9 → 1.0
             const baseVolume = 0.3;
             const volumeIncrement = 0.15;
             const volume = Math.min(baseVolume + (repetition * volumeIncrement), 1.0);
             
             console.log(`🔊 Volume: ${(volume * 100).toFixed(0)}%`);
             
-            // Séquence de 5 bips avec fréquences alternées et volume progressif
             const beepSequence = [
                 { freq: 800, delay: 0 },
                 { freq: 1000, delay: 300 },
@@ -773,11 +823,7 @@
                 setTimeout(() => playBeep(beep.freq, 200, volume), beep.delay);
             });
             
-            // ✅ Vibration pattern progressif : de plus en plus long
             if (navigator.vibrate) {
-                // Base: [200, 100, 200, 100, 200, 100, 200, 100, 300]
-                // +1: [300, 100, 300, 100, 300, 100, 300, 100, 400]
-                // +2: [400, 100, 400, 100, 400, 100, 400, 100, 500]
                 const vibeDuration = 200 + (repetition * 100);
                 const finalVibe = 300 + (repetition * 100);
                 const pattern = [
@@ -1452,14 +1498,11 @@
         function showCourseNotification(course) {
             console.log('🔔 Affichage notification course:', course.id);
             
-            // ✅ Afficher le badge sur l'onglet Course
             const courseBadge = document.getElementById('navCourseBadge');
             if (courseBadge) courseBadge.style.display = 'flex';
             
-            // ✅ Compteur de répétitions pour volume progressif
             let repetitionCount = 0;
             
-            // ✅ Jouer les bips d'alerte immédiatement (répétition 0)
             playAlertBeeps(repetitionCount);
             
             const notification = document.createElement('div');
@@ -1490,7 +1533,6 @@
             `;
             document.body.appendChild(notification);
 
-            // ✅ Répéter les bips toutes les 5 secondes avec volume progressif
             const beepInterval = setInterval(() => {
                 repetitionCount++;
                 console.log(`🔁 Répétition #${repetitionCount} des bips d'alerte...`);
@@ -1505,8 +1547,7 @@
                 if (timer) timer.innerHTML = `${timeLeft}<div class="course-timer-label">sec</div>`;
                 if (timeLeft <= 0) {
                     clearInterval(timerInterval);
-                    clearInterval(beepInterval); // ✅ Arrêter les bips
-                    // ✅ Enregistrer la course manquée
+                    clearInterval(beepInterval);
                     recordMissedCourse(course);
                     refuseCourse(course.id, true);
                 }
@@ -1518,15 +1559,13 @@
             const notification = document.querySelector('.course-notification');
             if (notification) {
                 clearInterval(notification.timerInterval);
-                clearInterval(notification.beepInterval); // ✅ Arrêter les bips
+                clearInterval(notification.beepInterval);
                 notification.remove();
             }
             
-            // ✅ Cacher le badge
             const courseBadge = document.getElementById('navCourseBadge');
             if (courseBadge) courseBadge.style.display = 'none';
             
-            // ✅ Enregistrer la course acceptée
             recordAcceptedCourse();
 
             showLoading('Acceptation...');
@@ -1610,15 +1649,13 @@
             const notification = document.querySelector('.course-notification');
             if (notification) {
                 clearInterval(notification.timerInterval);
-                clearInterval(notification.beepInterval); // ✅ Arrêter les bips
+                clearInterval(notification.beepInterval);
                 notification.remove();
             }
             
-            // ✅ Cacher le badge
             const courseBadge = document.getElementById('navCourseBadge');
             if (courseBadge) courseBadge.style.display = 'none';
             
-            // ✅ Enregistrer seulement les refus manuels (pas les timeout)
             if (!auto) {
                 recordRefusedCourse();
             }
@@ -1901,6 +1938,7 @@
             hideLoading();
             showToast('✅ Course terminée!', 'success');
             showScreen('dashboardScreen');
+            
             loadDashboardData();
         }
 
@@ -1954,10 +1992,9 @@
                 document.getElementById('coursesTotal').textContent = data.coursesCompletees || 0;
                 document.getElementById('profileTotalCourses').textContent = data.coursesCompletees || 0;
                 document.getElementById('profileRevenuTotal').textContent = (data.revenusTotal || 0).toLocaleString() + ' FCFA';
-                document.getElementById('coursesJour').textContent = Math.floor(Math.random() * 5) + 2;
-                document.getElementById('revenusJour').textContent = ((Math.floor(Math.random() * 5) + 2) * 3500).toLocaleString();
 
-                // ✅ Charger les statistiques
+                await loadDailyStats();
+                
                 loadCourseStats();
                 
                 loadHistory();
@@ -1978,12 +2015,11 @@
             document.getElementById('coursesTotal').textContent = currentUser.coursesCompletees;
             document.getElementById('profileTotalCourses').textContent = currentUser.coursesCompletees;
             document.getElementById('profileRevenuTotal').textContent = currentUser.revenusTotal.toLocaleString() + ' FCFA';
-            document.getElementById('coursesJour').textContent = 5;
-            document.getElementById('revenusJour').textContent = '17500';
             
-            // ✅ Charger les statistiques (mode démo)
+            document.getElementById('coursesJour').textContent = '5';
+            document.getElementById('revenusJour').textContent = '17,500';
+            
             loadCourseStats();
-            
             loadHistoryDemo();
         }
 
@@ -2126,6 +2162,10 @@
                     google.maps.event.trigger(map, 'resize');
                     if (driverPosition) map.setCenter(driverPosition);
                 }, 100);
+                
+                if (currentUser && !currentUser.isDemo) {
+                    loadDailyStats();
+                }
             }
             if (screenId === 'historyScreen') loadHistory();
         }
@@ -2157,7 +2197,7 @@
 
         // ========== INIT ==========
         document.addEventListener('DOMContentLoaded', () => {
-            console.log('🚕 Al Bourakh Driver PWA v4.9 ALERT - Ready');
+            console.log('🚕 Al Bourakh Driver PWA v4.9.4 REAL DATA - Ready');
             document.getElementById('loginPhone').value = '+221 77 712 34 56';
             document.getElementById('loginPassword').value = 'Admin2025';
         });
