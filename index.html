@@ -15,7 +15,7 @@
     <link rel="apple-touch-icon" href="https://i.imgur.com/VtgG6pR.png">
     <meta name="description" content="Application chauffeur Al Bourakh - VTC Sénégal">
     
-    <title>Al Bourakh Driver - PWA v4.9.4</title>
+    <title>Al Bourakh Driver - PWA v4.9.5</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -205,7 +205,7 @@
                 <div class="login-logo">
                     <img src="https://i.imgur.com/VtgG6pR.png" alt="Al Bourakh Logo" onerror="this.src='https://i.imgur.com/VtgG6pR.jpg'">
                 </div>
-                <h1 class="login-title">Al Bourakh Driver <span class="version-badge">v4.9.4</span><span class="fix-badge">REAL DATA</span></h1>
+                <h1 class="login-title">Al Bourakh Driver <span class="version-badge">v4.9.5</span><span class="fix-badge">LIVE STATS</span></h1>
                 <p class="login-subtitle">Connexion Sécurisée</p>
                 
                 <div class="input-group">
@@ -233,12 +233,12 @@
                 </div>
                 
                 <div style="background: #fff3cd; padding: 12px; border-radius: 10px; margin-top: 10px; border-left: 4px solid #FF9800; font-size: 0.8em;">
-                    <p><strong>📊 v4.9.4 DONNÉES RÉELLES:</strong></p>
-                    <p>• 📊 <strong>Statistiques du jour en temps réel</strong></p>
-                    <p>• 💰 Revenus calculés depuis Firestore</p>
-                    <p>• 📈 Courses terminées aujourd'hui</p>
-                    <p>• ⭐ <strong>Note mise à jour en temps réel</strong></p>
-                    <p>• 🔄 Mise à jour automatique</p>
+                    <p><strong>📊 v4.9.5 STATS EN TEMPS RÉEL:</strong></p>
+                    <p>• ⭐ <strong>Note actualisée automatiquement</strong></p>
+                    <p>• 📈 Courses totales en temps réel</p>
+                    <p>• 💰 Revenus totaux en temps réel</p>
+                    <p>• 📊 Stats du jour calculées depuis Firestore</p>
+                    <p>• 🔄 Listener Firestore permanent</p>
                     <p>• ⚡ Performance optimisée</p>
                 </div>
                 
@@ -247,7 +247,7 @@
                     <div id="debugContent"></div>
                 </div>
                 
-                <p style="margin-top: 20px; color: #999; font-size: 0.8em;">Version 4.9.4 REAL DATA © 2025</p>
+                <p style="margin-top: 20px; color: #999; font-size: 0.8em;">Version 4.9.5 LIVE STATS © 2025</p>
             </div>
         </div>
 
@@ -540,7 +540,7 @@
         const db = firebase.firestore();
         const auth = firebase.auth();
 
-        console.log('🚕 Al Bourakh Driver Pro v4.9.4 REAL DATA - Ready');
+        console.log('🚕 Al Bourakh Driver Pro v4.9.5 LIVE STATS - Ready');
 
         // ========== GLOBAL VARIABLES ==========
         let currentUser = null;
@@ -559,6 +559,7 @@
         let approcheRoute = null;
         let courseRoute = null;
         let audioContext = null;
+        let driverStatsListener = null;
 
         // ========== STATISTIQUES COURSES ==========
         let courseStats = {
@@ -576,6 +577,51 @@
                 audioContext = new (window.AudioContext || window.webkitAudioContext)();
             }
             return audioContext;
+        }
+
+        // ========== LISTENER TEMPS RÉEL POUR LES STATS DRIVER ==========
+        function startDriverStatsListener() {
+            if (!currentUser || currentUser.isDemo) return;
+            
+            const driverId = currentUser.firestoreId || currentUser.uid;
+            console.log('👂 Démarrage écoute stats en temps réel pour:', driverId);
+            
+            // Arrêter l'ancien listener s'il existe
+            if (driverStatsListener) {
+                driverStatsListener();
+            }
+            
+            // Créer un nouveau listener
+            driverStatsListener = db.collection('drivers').doc(driverId)
+                .onSnapshot((doc) => {
+                    if (doc.exists) {
+                        const data = doc.data();
+                        
+                        // ✅ Mettre à jour la NOTE en temps réel
+                        const newRating = (data.rating || 4.8).toFixed(1);
+                        document.getElementById('rating').textContent = newRating;
+                        document.getElementById('profileRating').textContent = newRating;
+                        
+                        // ✅ Mettre à jour les courses totales
+                        document.getElementById('coursesTotal').textContent = data.coursesCompletees || 0;
+                        document.getElementById('profileTotalCourses').textContent = data.coursesCompletees || 0;
+                        
+                        // ✅ Mettre à jour les revenus totaux
+                        document.getElementById('profileRevenuTotal').textContent = (data.revenusTotal || 0).toLocaleString() + ' FCFA';
+                        
+                        console.log('📊 Stats mises à jour en temps réel - Note:', newRating);
+                    }
+                }, (error) => {
+                    console.error('❌ Erreur listener stats:', error);
+                });
+        }
+
+        function stopDriverStatsListener() {
+            if (driverStatsListener) {
+                driverStatsListener();
+                driverStatsListener = null;
+                console.log('🛑 Listener stats arrêté');
+            }
         }
 
         // ========== GESTION STATISTIQUES ==========
@@ -777,35 +823,6 @@
                 
                 document.getElementById('coursesJour').textContent = '0';
                 document.getElementById('revenusJour').textContent = '0';
-            }
-        }
-
-        // ========== RAFRAÎCHISSEMENT STATISTIQUES DASHBOARD ==========
-        async function refreshDashboardStats() {
-            if (!currentUser || currentUser.isDemo) return;
-            
-            try {
-                const driverId = currentUser.firestoreId || currentUser.uid;
-                const driverDoc = await db.collection('drivers').doc(driverId).get();
-                const data = driverDoc.data();
-                
-                // ✅ Mettre à jour la NOTE en temps réel
-                document.getElementById('rating').textContent = (data.rating || 4.8).toFixed(1);
-                document.getElementById('profileRating').textContent = (data.rating || 4.8).toFixed(1);
-                
-                // ✅ Mettre à jour les courses totales
-                document.getElementById('coursesTotal').textContent = data.coursesCompletees || 0;
-                document.getElementById('profileTotalCourses').textContent = data.coursesCompletees || 0;
-                
-                // ✅ Mettre à jour les revenus totaux
-                document.getElementById('profileRevenuTotal').textContent = (data.revenusTotal || 0).toLocaleString() + ' FCFA';
-                
-                // ✅ Recharger les stats du jour (courses et revenus d'aujourd'hui)
-                await loadDailyStats();
-                
-                console.log('📊 Stats dashboard rafraîchies - Note:', data.rating);
-            } catch (error) {
-                console.error('❌ Erreur refresh stats:', error);
             }
         }
 
@@ -1302,6 +1319,7 @@
                     showScreen('dashboardScreen');
                     loadDashboardData();
                     startLocationTracking();
+                    startDriverStatsListener(); // ✅ Démarrer le listener en temps réel
                     return;
                 }
                 
@@ -1322,6 +1340,7 @@
                 showLoading('Déconnexion...');
                 if (isOnline) toggleOnlineStatus();
                 stopLocationTracking();
+                stopDriverStatsListener(); // ✅ Arrêter le listener
                 if (!currentUser?.isDemo) auth.signOut();
                 currentUser = null;
                 currentCourse = null;
@@ -1969,8 +1988,8 @@
             showToast('✅ Course terminée!', 'success');
             showScreen('dashboardScreen');
             
-            // ✅ Rafraîchir toutes les stats (y compris la note)
-            refreshDashboardStats();
+            // ✅ Rafraîchir les stats du jour
+            loadDailyStats();
         }
 
         async function cancelCourse() {
@@ -2194,9 +2213,9 @@
                     if (driverPosition) map.setCenter(driverPosition);
                 }, 100);
                 
-                // ✅ Rafraîchir toutes les stats quand on revient au dashboard
+                // ✅ Rafraîchir les stats du jour quand on revient au dashboard
                 if (currentUser && !currentUser.isDemo) {
-                    refreshDashboardStats();
+                    loadDailyStats();
                 }
             }
             if (screenId === 'historyScreen') loadHistory();
@@ -2229,7 +2248,7 @@
 
         // ========== INIT ==========
         document.addEventListener('DOMContentLoaded', () => {
-            console.log('🚕 Al Bourakh Driver PWA v4.9.4 REAL DATA - Ready');
+            console.log('🚕 Al Bourakh Driver PWA v4.9.5 LIVE STATS - Ready');
             document.getElementById('loginPhone').value = '+221 77 712 34 56';
             document.getElementById('loginPassword').value = 'Admin2025';
         });
@@ -2255,11 +2274,3 @@
             deferredPrompt = e;
             console.log('💡 App peut être installée !');
         });
-        
-        window.addEventListener('appinstalled', () => {
-            console.log('🎉 App installée avec succès !');
-            deferredPrompt = null;
-        });
-    </script>
-</body>
-</html>
