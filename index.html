@@ -581,75 +581,125 @@
         }
 
         // ========== LISTENER TEMPS RÉEL POUR CALCULER LA NOTE ==========
-        function startRatingsListener() {
-            if (!currentUser || currentUser.isDemo) {
-                // Mode démo : note fixe
-                document.getElementById('rating').textContent = '4.8';
-                document.getElementById('profileRating').textContent = '4.8';
-                return;
+function startRatingsListener() {
+    if (!currentUser || currentUser.isDemo) {
+        // Mode démo : note fixe
+        document.getElementById('rating').textContent = '4.8';
+        document.getElementById('profileRating').textContent = '4.8';
+        return;
+    }
+    
+    const driverId = currentUser.firestoreId || currentUser.uid;
+    const driverName = `${currentUser.prenom || ''} ${currentUser.nom || ''}`.trim();
+    
+    console.log('👂 Démarrage écoute évaluations en temps réel pour:', driverName, '(ID:', driverId, ')');
+    
+    // Arrêter l'ancien listener s'il existe
+    if (ratingsListener) {
+        ratingsListener();
+    }
+    
+    // ✅ CORRECTION : Écouter la collection "evaluations" au lieu de "reservations"
+    ratingsListener = db.collection('evaluations')
+        .where('nomChauffeur', '==', driverName)
+        .onSnapshot((snapshot) => {
+            console.log('📊 Calcul de la note depuis', snapshot.size, 'évaluations');
+            
+            let totalRating = 0;
+            let ratingCount = 0;
+            
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                const rating = data.noteGlobale || 0;
+                
+                if (rating > 0 && rating <= 5) {
+                    totalRating += rating;
+                    ratingCount++;
+                    console.log(`  ✅ Évaluation ${doc.id}: note ${rating}`);
+                }
+            });
+            
+            // Calculer la moyenne
+            const averageRating = ratingCount > 0 ? (totalRating / ratingCount) : 4.8;
+            const displayRating = averageRating.toFixed(1);
+            
+            console.log(`📊 Note calculée: ${displayRating} (${ratingCount} évaluations)`);
+            
+            // Mettre à jour l'affichage
+            document.getElementById('rating').textContent = displayRating;
+            document.getElementById('profileRating').textContent = displayRating;
+            
+            // Mettre à jour le profil avec le nombre d'évaluations
+            const profileRatingElement = document.getElementById('profileRating');
+            if (profileRatingElement && profileRatingElement.parentElement) {
+                // Chercher le span qui contient "• X courses"
+                const coursesText = profileRatingElement.parentElement.querySelector('.profile-courses-count');
+                if (coursesText && ratingCount > 0) {
+                    coursesText.textContent = ` • ${document.getElementById('profileTotalCourses').textContent} courses • ${ratingCount} éval.`;
+                }
             }
             
-            const driverId = currentUser.firestoreId || currentUser.uid;
-            console.log('👂 Démarrage écoute évaluations en temps réel pour:', driverId);
-            
-            // Arrêter l'ancien listener s'il existe
-            if (ratingsListener) {
-                ratingsListener();
+            // Mettre à jour le document driver dans Firestore
+            if (ratingCount > 0) {
+                db.collection('drivers').doc(driverId).update({
+                    rating: parseFloat(displayRating),
+                    totalEvaluations: ratingCount,
+                    derniereMAJRating: firebase.firestore.FieldValue.serverTimestamp()
+                }).catch(err => console.warn('⚠️ Erreur MAJ rating:', err));
             }
             
-            // Écouter toutes les réservations terminées du chauffeur avec une note
-            ratingsListener = db.collection('reservations')
-                .where('chauffeurAssigne', '==', driverId)
-                .where('statut', '==', 'terminee')
-                .onSnapshot((snapshot) => {
-                    console.log('📊 Calcul de la note depuis', snapshot.size, 'courses');
-                    
-                    let totalRating = 0;
-                    let ratingCount = 0;
-                    
-                    snapshot.forEach(doc => {
-                        const data = doc.data();
-                        // Vérifier différents noms de champs possibles
-                        const rating = data.noteChauffeur || data.ratingChauffeur || data.rating || data.note;
+        }, (error) => {
+            console.error('❌ Erreur listener évaluations:', error);
+            
+            // En cas d'erreur, essayer avec chauffeurId
+            if (error.code === 'permission-denied' || !snapshot || snapshot.size === 0) {
+                console.log('🔄 Tentative avec chauffeurId...');
+                
+                ratingsListener = db.collection('evaluations')
+                    .where('chauffeurId', '==', driverId)
+                    .onSnapshot((snapshot) => {
+                        console.log('📊 Calcul via chauffeurId:', snapshot.size, 'évaluations');
                         
-                        if (rating && rating > 0 && rating <= 5) {
-                            totalRating += rating;
-                            ratingCount++;
-                            console.log(`  ✅ Course ${doc.id}: note ${rating}`);
+                        let totalRating = 0;
+                        let ratingCount = 0;
+                        
+                        snapshot.forEach(doc => {
+                            const data = doc.data();
+                            const rating = data.noteGlobale || 0;
+                            
+                            if (rating > 0 && rating <= 5) {
+                                totalRating += rating;
+                                ratingCount++;
+                            }
+                        });
+                        
+                        const averageRating = ratingCount > 0 ? (totalRating / ratingCount) : 4.8;
+                        const displayRating = averageRating.toFixed(1);
+                        
+                        console.log(`📊 Note calculée: ${displayRating} (${ratingCount} évaluations)`);
+                        
+                        document.getElementById('rating').textContent = displayRating;
+                        document.getElementById('profileRating').textContent = displayRating;
+                        
+                        if (ratingCount > 0) {
+                            db.collection('drivers').doc(driverId).update({
+                                rating: parseFloat(displayRating),
+                                totalEvaluations: ratingCount,
+                                derniereMAJRating: firebase.firestore.FieldValue.serverTimestamp()
+                            }).catch(err => console.warn('⚠️ Erreur MAJ rating:', err));
                         }
                     });
-                    
-                    // Calculer la moyenne
-                    const averageRating = ratingCount > 0 ? (totalRating / ratingCount) : 4.8;
-                    const displayRating = averageRating.toFixed(1);
-                    
-                    console.log(`📊 Note calculée: ${displayRating} (${ratingCount} évaluations sur ${snapshot.size} courses)`);
-                    
-                    // Mettre à jour l'affichage
-                    document.getElementById('rating').textContent = displayRating;
-                    document.getElementById('profileRating').textContent = displayRating;
-                    
-                    // Mettre à jour le document driver dans Firestore
-                    if (ratingCount > 0) {
-                        db.collection('drivers').doc(driverId).update({
-                            rating: parseFloat(displayRating),
-                            totalEvaluations: ratingCount,
-                            derniereMAJRating: firebase.firestore.FieldValue.serverTimestamp()
-                        }).catch(err => console.warn('⚠️ Erreur MAJ rating:', err));
-                    }
-                    
-                }, (error) => {
-                    console.error('❌ Erreur listener évaluations:', error);
-                });
-        }
-
-        function stopRatingsListener() {
-            if (ratingsListener) {
-                ratingsListener();
-                ratingsListener = null;
-                console.log('🛑 Listener évaluations arrêté');
             }
-        }
+        });
+}
+
+function stopRatingsListener() {
+    if (ratingsListener) {
+        ratingsListener();
+        ratingsListener = null;
+        console.log('🛑 Listener évaluations arrêté');
+    }
+}
 
         // ========== LISTENER STATS DRIVER (simplifié) ==========
         function startDriverStatsListener() {
