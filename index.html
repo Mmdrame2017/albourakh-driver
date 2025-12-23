@@ -398,6 +398,16 @@
             <div class="wallet-content" id="withdrawalContent"></div>
         </div>
 
+        <!-- RECHARGE SCREEN -->
+        <div id="rechargeScreen" class="screen">
+            <div class="app-header">
+                <button onclick="showScreen('walletScreen')"><i class="fas fa-arrow-left"></i></button>
+                <h1><i class="fas fa-plus-circle"></i> Recharger</h1>
+                <div style="width: 40px;"></div>
+            </div>
+            <div class="wallet-content" id="rechargeContent"></div>
+        </div>
+
         <!-- ACTIVE COURSE SCREEN -->
         <div id="activeCourseScreen" class="screen">
             <div class="app-header">
@@ -671,7 +681,9 @@
             },
             transactions: [],
             withdrawalAmount: '',
-            withdrawalDestination: 'Orange Money'
+            withdrawalDestination: 'Orange Money',
+            rechargeAmount: '',
+            rechargeSource: 'Orange Money'
         };
 
         // ========== SYSTÈME DE TRACKING GPS AVANCÉ ==========
@@ -999,21 +1011,66 @@
 
             // Calculer les revenus
             const earnings = calculateDriverEarnings(currentCourse.prixEstime || 0, 0);
+            const commissionAmount = earnings.commission; // 30%
             
-            // Mettre à jour le portefeuille
-            walletState.driverEarnings.today += earnings.totalEarned;
-            walletState.driverEarnings.week += earnings.totalEarned;
-            walletState.driverEarnings.month += earnings.totalEarned;
-            walletState.driverEarnings.available += earnings.totalEarned;
+            // ✅ VÉRIFIER LE MODE DE PAIEMENT DU CLIENT
+            const isPaidViaWallet = currentCourse.modePaiement === 'wallet' || 
+                                   currentCourse.modePaiement === 'al_bourakh_pay' ||
+                                   currentCourse.paidViaWallet === true;
+            
+            console.log('💳 Mode de paiement:', isPaidViaWallet ? 'Al Bourakh Pay' : 'Espèces');
+            
+            // ✅ DÉBITER LA COMMISSION (TOUJOURS, quel que soit le mode de paiement)
+            walletState.driverEarnings.available -= commissionAmount;
+            
+            // Vérifier si le solde est suffisant pour la commission
+            if (walletState.driverEarnings.available < 0 && !currentUser.isDemo) {
+                showToast(`⚠️ Solde insuffisant pour la commission (${commissionAmount.toLocaleString()} FCFA). Rechargez votre portefeuille.`, 'warning');
+                // On laisse quand même la course se terminer mais on note le solde négatif
+            }
+            
+            // ✅ SI PAIEMENT VIA WALLET : Créditer les 70% au portefeuille
+            if (isPaidViaWallet) {
+                console.log('✅ Paiement Al Bourakh Pay → Crédit 70% au portefeuille');
+                walletState.driverEarnings.today += earnings.netAmount;
+                walletState.driverEarnings.week += earnings.netAmount;
+                walletState.driverEarnings.month += earnings.netAmount;
+                walletState.driverEarnings.available += earnings.netAmount; // +70%
+            } else {
+                console.log('💵 Paiement Espèces → Pas de crédit portefeuille (chauffeur reçoit physiquement)');
+                // Le chauffeur a reçu l'argent en espèces, on ne crédite pas le portefeuille
+                // Mais la commission est quand même débitée
+            }
 
-            // Ajouter la transaction
+            // Ajouter la transaction de la course
             walletState.transactions.unshift({
                 id: currentCourse.id,
                 date: new Date(),
                 from: currentCourse.depart,
                 to: currentCourse.destination,
                 ...earnings,
+                modePaiement: isPaidViaWallet ? 'Al Bourakh Pay' : 'Espèces',
+                creditePortefeuille: isPaidViaWallet,
                 status: 'paid'
+            });
+            
+            // ✅ AJOUTER LA TRANSACTION DE COMMISSION (débit - TOUJOURS)
+            walletState.transactions.unshift({
+                id: `COM${Date.now()}`,
+                date: new Date(),
+                type: 'commission',
+                amount: commissionAmount,
+                courseId: currentCourse.id,
+                from: 'Portefeuille',
+                to: 'Al Bourakh Commission',
+                grossAmount: 0,
+                commission: commissionAmount,
+                netAmount: -commissionAmount,
+                tip: 0,
+                totalEarned: -commissionAmount,
+                status: 'completed',
+                description: `Commission 30% - Course ${currentCourse.id.substring(0, 8)}`,
+                modePaiementClient: isPaidViaWallet ? 'Al Bourakh Pay' : 'Espèces'
             });
 
             if (trackingSession && !currentUser.isDemo) {
@@ -1026,17 +1083,49 @@
 
                     await db.collection('reservations').doc(currentCourse.id).update({
                         distanceReelleParcourue: Math.round(distanceParcourue * 1000),
-                        trackingSessionId: trackingSession.id
+                        trackingSessionId: trackingSession.id,
+                        commissionDebitee: true,
+                        commissionAmount: commissionAmount
                     });
 
-                    // Mise à jour revenus driver
+                    // Mise à jour revenus driver avec batch
                     const driverId = currentUser.firestoreId || currentUser.uid;
-                    await db.collection('drivers').doc(driverId).update({
-                        revenusJour: firebase.firestore.FieldValue.increment(earnings.totalEarned),
-                        revenusSemaine: firebase.firestore.FieldValue.increment(earnings.totalEarned),
-                        revenusMois: firebase.firestore.FieldValue.increment(earnings.totalEarned),
-                        soldeDisponible: firebase.firestore.FieldValue.increment(earnings.totalEarned)
+                    const batch = db.batch();
+                    
+                    const driverRef = db.collection('drivers').doc(driverId);
+                    
+                    // ✅ Mise à jour selon le mode de paiement
+                    if (isPaidViaWallet) {
+                        // Paiement wallet : +70% -30% = +40% net au portefeuille
+                        batch.update(driverRef, {
+                            revenusJour: firebase.firestore.FieldValue.increment(earnings.netAmount),
+                            revenusSemaine: firebase.firestore.FieldValue.increment(earnings.netAmount),
+                            revenusMois: firebase.firestore.FieldValue.increment(earnings.netAmount),
+                            soldeDisponible: firebase.firestore.FieldValue.increment(earnings.netAmount - commissionAmount) // +70% -30% = +40%
+                        });
+                    } else {
+                        // Paiement espèces : 0% crédit, -30% commission
+                        batch.update(driverRef, {
+                            // Pas de revenus ajoutés au portefeuille (reçu en espèces)
+                            soldeDisponible: firebase.firestore.FieldValue.increment(-commissionAmount) // -30% seulement
+                        });
+                    }
+                    
+                    // Enregistrer la commission débitée
+                    const commissionRef = db.collection('commissions').doc();
+                    batch.set(commissionRef, {
+                        driverId: driverId,
+                        courseId: currentCourse.id,
+                        amount: commissionAmount,
+                        grossAmount: earnings.grossAmount,
+                        percentage: 30,
+                        modePaiementClient: isPaidViaWallet ? 'wallet' : 'cash',
+                        crediteChauffeur: isPaidViaWallet ? earnings.netAmount : 0,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        status: 'debited'
                     });
+                    
+                    await batch.commit();
                 } catch (error) {
                     console.warn('⚠️ Impossible de sauvegarder stats tracking:', error.message);
                 }
@@ -1181,20 +1270,44 @@
 
         function renderDriverDashboard() {
             const todayTransactions = walletState.transactions.filter(t => 
-                t.type !== 'withdrawal' &&
                 new Date(t.date).toDateString() === new Date().toDateString()
             );
 
+            // Séparer les courses et les transactions financières
+            const todayCourses = todayTransactions.filter(t => t.type !== 'withdrawal' && t.type !== 'recharge' && t.type !== 'commission');
+            const todayFinancial = todayTransactions.filter(t => t.type === 'withdrawal' || t.type === 'recharge' || t.type === 'commission');
+
+            // Alerte si solde faible
+            const lowBalanceWarning = walletState.driverEarnings.available < 5000 ? `
+                <div style="background: #fff3cd; border-left: 4px solid #FF9800; padding: 12px; border-radius: 10px; margin-bottom: 15px; display: flex; gap: 10px; align-items: start;">
+                    <span style="font-size: 1.5em;">⚠️</span>
+                    <div>
+                        <p style="font-weight: 600; color: #856404; margin-bottom: 4px;">Solde Faible</p>
+                        <p style="font-size: 0.85em; color: #856404; line-height: 1.4;">
+                            Votre solde est inférieur à 5 000 FCFA. Rechargez votre portefeuille pour payer les prochaines commissions (30% par course).
+                        </p>
+                    </div>
+                </div>
+            ` : '';
+
             document.getElementById('driverDashboard').innerHTML = `
+                ${lowBalanceWarning}
+                
                 <div class="card" style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); color: white;">
                     <p class="wallet-label" style="color: rgba(255,255,255,0.8);">Revenus Disponibles</p>
                     <h2 class="wallet-amount" style="margin-bottom: 1.5rem;">
                         ${walletState.driverEarnings.available.toLocaleString()} FCFA
                     </h2>
-                    <button class="btn-wallet primary" style="width: 100%;" 
-                            onclick="showScreen('withdrawalScreen'); renderWithdrawal();">
-                        📤 Demander un Retrait
-                    </button>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <button class="btn-wallet primary" style="width: 100%;" 
+                                onclick="showScreen('rechargeScreen'); renderRecharge();">
+                            💳 Recharger
+                        </button>
+                        <button class="btn-wallet primary" style="width: 100%;" 
+                                onclick="showScreen('withdrawalScreen'); renderWithdrawal();">
+                            📤 Retirer
+                        </button>
+                    </div>
                 </div>
 
                 <div class="driver-stats">
@@ -1217,10 +1330,10 @@
 
                 <div class="card" style="padding: 0;">
                     <div class="section-header">
-                        <h3>Courses Aujourd'hui (${todayTransactions.length})</h3>
+                        <h3>Courses Aujourd'hui (${todayCourses.length})</h3>
                     </div>
                     <div class="transaction-list">
-                        ${todayTransactions.length > 0 ? todayTransactions.map(t => `
+                        ${todayCourses.length > 0 ? todayCourses.map(t => `
                             <div class="transaction-item">
                                 <div class="transaction-header">
                                     <div style="flex: 1;">
@@ -1263,13 +1376,81 @@
                     </div>
                 </div>
 
+                ${todayFinancial.length > 0 ? `
+                <div class="card" style="padding: 0;">
+                    <div class="section-header">
+                        <h3>Transactions Financières Aujourd'hui (${todayFinancial.length})</h3>
+                    </div>
+                    <div class="transaction-list">
+                        ${todayFinancial.map(t => {
+                            const isRecharge = t.type === 'recharge';
+                            const isCommission = t.type === 'commission';
+                            const icon = isRecharge ? '💳' : isCommission ? '📊' : '📤';
+                            const color = isRecharge ? '#00A854' : isCommission ? '#FF9800' : '#7c3aed';
+                            const label = isRecharge ? 'Recharge' : isCommission ? 'Commission' : 'Retrait';
+                            const statusBadge = t.status === 'pending' ? 
+                                '<span style="background: #FF9800; color: white; padding: 4px 8px; border-radius: 12px; font-size: 0.75em;">En attente</span>' :
+                                t.status === 'completed' ?
+                                '<span style="background: #00A854; color: white; padding: 4px 8px; border-radius: 12px; font-size: 0.75em;">Validé</span>' :
+                                '<span style="background: #E30613; color: white; padding: 4px 8px; border-radius: 12px; font-size: 0.75em;">Rejeté</span>';
+                            
+                            return `
+                                <div class="transaction-item">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                        <div style="display: flex; align-items: center; gap: 10px;">
+                                            <span style="font-size: 1.5em;">${icon}</span>
+                                            <div>
+                                                <div style="font-weight: 600; color: ${color};">${label}</div>
+                                                <div style="font-size: 0.85em; color: #666;">
+                                                    ${new Date(t.date).toLocaleTimeString('fr-FR', {hour: '2-digit', minute: '2-digit'})}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div style="text-align: right;">
+                                            <div style="font-size: 1.2em; font-weight: bold; color: ${color};">
+                                                ${isRecharge ? '+' : '-'}${t.amount.toLocaleString()} FCFA
+                                            </div>
+                                            ${statusBadge}
+                                        </div>
+                                    </div>
+                                    <div style="background: #f8f9fa; padding: 10px; border-radius: 8px; font-size: 0.85em;">
+                                        ${isCommission ? `
+                                            <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                                                <span style="color: #666;">Type:</span>
+                                                <span style="font-weight: 600;">Commission 30%</span>
+                                            </div>
+                                            <div style="display: flex; justify-content: space-between;">
+                                                <span style="color: #666;">Description:</span>
+                                                <span style="font-weight: 600;">${t.description || 'Commission course'}</span>
+                                            </div>
+                                        ` : `
+                                            <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                                                <span style="color: #666;">Plateforme:</span>
+                                                <span style="font-weight: 600;">${t.destination || t.source}</span>
+                                            </div>
+                                            ${t.transactionId ? `
+                                            <div style="display: flex; justify-content: space-between;">
+                                                <span style="color: #666;">ID Transaction:</span>
+                                                <span style="font-weight: 600; font-family: monospace; font-size: 0.9em;">${t.transactionId}</span>
+                                            </div>
+                                            ` : ''}
+                                        `}
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+                ` : ''}
+
                 <div class="info-box">
                     <span class="info-icon">ℹ️</span>
                     <div>
-                        <p class="info-title">Répartition des Revenus</p>
+                        <p class="info-title">Système de Revenus</p>
                         <p class="info-text">
-                            Vous recevez 70% du montant de chaque course. Al Bourakh prélève 30% de commission. 
-                            Les pourboires vous reviennent à 100% sans aucune commission.
+                            • Vous recevez 70% du montant de chaque course<br>
+                            • La commission de 30% est automatiquement débitée de votre portefeuille<br>
+                            • Les pourboires vous reviennent à 100% sans commission
                         </p>
                     </div>
                 </div>
@@ -1408,6 +1589,185 @@
             
             hideLoading();
             showToast(`✅ Demande de retrait de ${amount.toLocaleString()} FCFA envoyée!`, 'success');
+            
+            setTimeout(() => {
+                showScreen('walletScreen');
+                renderDriverDashboard();
+            }, 1500);
+        }
+
+        function renderRecharge() {
+            walletState.rechargeAmount = '';
+            
+            document.getElementById('rechargeContent').innerHTML = `
+                <div class="card" style="background: linear-gradient(135deg, #00A854, #FECB00); color: white;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <p style="font-size: 0.9em; opacity: 0.9; margin-bottom: 8px;">Solde Actuel</p>
+                            <p style="font-size: 2em; font-weight: bold;">
+                                ${walletState.driverEarnings.available.toLocaleString()} FCFA
+                            </p>
+                        </div>
+                        <div style="font-size: 2rem;">💳</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 style="font-size: 1.125rem; font-weight: 700; margin-bottom: 1rem;">Montant à Recharger</h3>
+                    <div class="amount-input-container">
+                        <input type="number" id="rechargeAmountInput" class="amount-input" placeholder="0"
+                               oninput="walletState.rechargeAmount = this.value; document.getElementById('rechargeError').classList.add('hidden');">
+                        <span class="amount-currency">FCFA</span>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; margin-bottom: 0.5rem;">
+                        <button class="quick-amount-btn"
+                                onclick="document.getElementById('rechargeAmountInput').value = 5000; walletState.rechargeAmount = '5000';">
+                            5 000
+                        </button>
+                        <button class="quick-amount-btn"
+                                onclick="document.getElementById('rechargeAmountInput').value = 10000; walletState.rechargeAmount = '10000';">
+                            10 000
+                        </button>
+                        <button class="quick-amount-btn"
+                                onclick="document.getElementById('rechargeAmountInput').value = 20000; walletState.rechargeAmount = '20000';">
+                            20 000
+                        </button>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem;">
+                        <button class="quick-amount-btn"
+                                onclick="document.getElementById('rechargeAmountInput').value = 50000; walletState.rechargeAmount = '50000';">
+                            50 000
+                        </button>
+                        <button class="quick-amount-btn"
+                                onclick="document.getElementById('rechargeAmountInput').value = 100000; walletState.rechargeAmount = '100000';">
+                            100 000
+                        </button>
+                        <button class="quick-amount-btn"
+                                onclick="document.getElementById('rechargeAmountInput').value = 200000; walletState.rechargeAmount = '200000';">
+                            200 000
+                        </button>
+                    </div>
+                    
+                    <div id="rechargeError" class="error-box hidden">
+                        <span class="error-icon">⚠️</span>
+                        <p class="error-text">Le montant minimum de recharge est de 1 000 FCFA</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 style="font-size: 1.125rem; font-weight: 700; margin-bottom: 1rem;">Méthode de Paiement</h3>
+                    ${['Orange Money', 'Wave', 'Free Money'].map(source => `
+                        <button class="payment-method ${walletState.rechargeSource === source ? 'active' : ''}"
+                                onclick="walletState.rechargeSource = '${source}'; renderRecharge();">
+                            <span class="payment-method-name">${source}</span>
+                            ${walletState.rechargeSource === source ? '<span>✓</span>' : ''}
+                        </button>
+                    `).join('')}
+                    <div class="form-group" style="margin-top: 1rem;">
+                        <label>Numéro de compte</label>
+                        <input type="text" value="${currentUser?.telephone || '+221 77 123 45 67'}" placeholder="+221 XX XXX XX XX">
+                    </div>
+                </div>
+
+                <div class="info-box" style="background: #e8f5e9; border-left: 4px solid #00A854;">
+                    <span class="info-icon" style="color: #00A854;">💡</span>
+                    <div>
+                        <p class="info-title" style="color: #00A854;">Recharge Instantanée</p>
+                        <p class="info-text">
+                            1. Entrez le montant à recharger<br>
+                            2. Sélectionnez votre méthode de paiement<br>
+                            3. Confirmez la recharge<br>
+                            4. ✅ <strong>Votre solde est crédité immédiatement</strong><br>
+                            5. Effectuez le paiement réel via ${walletState.rechargeSource}
+                        </p>
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <span class="info-icon">ℹ️</span>
+                    <div>
+                        <p class="info-title">Informations</p>
+                        <p class="info-text">
+                            • Crédit immédiat sans validation admin<br>
+                            • Montant minimum : 1 000 FCFA<br>
+                            • Toutes les plateformes acceptées
+                        </p>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" onclick="processRecharge()">
+                    💳 Recharger mon Portefeuille
+                </button>
+            `;
+        }
+
+        async function processRecharge() {
+            const amount = parseInt(walletState.rechargeAmount);
+            
+            if (!amount || amount < 1000) {
+                document.getElementById('rechargeError').classList.remove('hidden');
+                return;
+            }
+
+            showLoading('Recharge en cours...');
+
+            if (!currentUser.isDemo) {
+                try {
+                    const driverId = currentUser.firestoreId || currentUser.uid;
+                    
+                    const batch = db.batch();
+                    
+                    // Créer la transaction de recharge dans Firestore
+                    const rechargeRef = db.collection('recharges').doc();
+                    batch.set(rechargeRef, {
+                        driverId: driverId,
+                        amount: amount,
+                        source: walletState.rechargeSource,
+                        status: 'completed', // ✅ Crédit immédiat, pas de validation admin
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        transactionId: `TXN${Date.now()}`
+                    });
+
+                    // ✅ CRÉDITER IMMÉDIATEMENT LE SOLDE
+                    const driverRef = db.collection('drivers').doc(driverId);
+                    batch.update(driverRef, {
+                        soldeDisponible: firebase.firestore.FieldValue.increment(amount)
+                    });
+                    
+                    await batch.commit();
+                } catch (error) {
+                    console.error('Erreur recharge:', error);
+                    hideLoading();
+                    showToast('❌ Erreur lors de la recharge', 'error');
+                    return;
+                }
+            }
+
+            // Créditer le solde local
+            walletState.driverEarnings.available += amount;
+            
+            // Ajouter la transaction à l'historique
+            walletState.transactions.unshift({
+                id: `RCH${Date.now()}`,
+                date: new Date(),
+                type: 'recharge',
+                amount: amount,
+                source: walletState.rechargeSource,
+                from: walletState.rechargeSource,
+                to: 'Portefeuille',
+                grossAmount: 0,
+                commission: 0,
+                netAmount: amount,
+                tip: 0,
+                totalEarned: amount,
+                status: 'completed', // ✅ Statut complété immédiatement
+                transactionId: `TXN${Date.now()}`
+            });
+            
+            hideLoading();
+            showToast(`✅ Recharge de ${amount.toLocaleString()} FCFA effectuée avec succès!`, 'success');
             
             setTimeout(() => {
                 showScreen('walletScreen');
