@@ -13,7 +13,7 @@
     <meta name="apple-mobile-web-app-title" content="Al Bourakh">
     <link rel="apple-touch-icon" href="https://i.imgur.com/VtgG6pR.png">
     
-    <title>Al Bourakh Driver v5.1 - GPS + Portefeuille</title>
+    <title>Al Bourakh Driver v5.2 - GPS PRO + Portefeuille</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -28,6 +28,7 @@
         .app-header h1 img { width: 24px; height: 24px; object-fit: contain; }
         .app-header button { background: rgba(255,255,255,0.2); border: none; color: white; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 1.2em; }
         
+        /* TRACKING BADGE AMÉLIORÉ */
         .tracking-badge {
             position: fixed; top: 70px; right: 20px;
             background: linear-gradient(135deg, #00A854, #FECB00);
@@ -37,9 +38,18 @@
             box-shadow: 0 4px 12px rgba(0,168,84,0.3);
             animation: pulse 2s ease-in-out infinite;
         }
-        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
-        .tracking-indicator { width: 8px; height: 8px; background: #fff; border-radius: 50%; animation: blink 1s ease-in-out infinite; }
-        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+        @keyframes pulse { 
+            0%, 100% { transform: scale(1); } 
+            50% { transform: scale(1.05); } 
+        }
+        .tracking-indicator { 
+            width: 8px; height: 8px; background: #fff; border-radius: 50%; 
+            animation: blink 1s ease-in-out infinite; 
+        }
+        @keyframes blink { 
+            0%, 100% { opacity: 1; } 
+            50% { opacity: 0.3; } 
+        }
         
         .login-screen { padding: 40px 30px; text-align: center; }
         .login-logo { width: 100px; height: 100px; margin: 0 auto 20px; background: linear-gradient(135deg, #00A854, #FECB00); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.5em; box-shadow: 0 8px 20px rgba(0,168,84,0.3); overflow: hidden; }
@@ -253,12 +263,14 @@
         .acceptance-bar { height: 100%; background: linear-gradient(90deg, #E30613, #FF9800, #00A854); transition: width 0.3s ease; }
         
         .version-badge { display: inline-block; background: #d4edda; color: #155724; padding: 2px 6px; border-radius: 4px; font-size: 0.65em; font-weight: bold; margin-left: 5px; }
+        .tracking-badge-version { display: inline-block; background: #cce5ff; color: #004085; padding: 2px 6px; border-radius: 4px; font-size: 0.65em; font-weight: bold; margin-left: 5px; }
         
         @media (max-width: 414px) { .mobile-container, .bottom-nav { max-width: 100%; } }
     </style>
 </head>
 <body>
     <div class="mobile-container">
+        <!-- BADGE TRACKING GPS -->
         <div class="tracking-badge" id="trackingBadge">
             <div class="tracking-indicator"></div>
             <span id="trackingStatus">GPS Actif</span>
@@ -270,8 +282,8 @@
                 <div class="login-logo">
                     <img src="https://i.imgur.com/VtgG6pR.png" alt="Al Bourakh Logo">
                 </div>
-                <h1 class="login-title">Al Bourakh Driver <span class="version-badge">v5.1</span></h1>
-                <p class="login-subtitle">GPS + Portefeuille</p>
+                <h1 class="login-title">Al Bourakh Driver <span class="version-badge">v5.2</span><span class="tracking-badge-version">GPS PRO</span></h1>
+                <p class="login-subtitle">GPS Professionnel + Portefeuille</p>
                 
                 <div class="input-group">
                     <label>📱 Téléphone</label>
@@ -290,7 +302,18 @@
                     <p><strong>🧪 Démo:</strong> Tout numéro + <code>demo123</code></p>
                 </div>
                 
-                <p style="margin-top: 20px; color: #999; font-size: 0.8em;">Version 5.1 © 2025</p>
+                <div style="background: #cce5ff; padding: 12px; border-radius: 10px; margin-top: 10px; border-left: 4px solid #2196F3; font-size: 0.8em;">
+                    <p><strong>🛰️ v5.2 TRACKING GPS PRO:</strong></p>
+                    <p>• 📍 Sessions de tracking avec historique</p>
+                    <p>• 📊 Calcul distance parcourue temps réel</p>
+                    <p>• 🔋 Monitoring batterie</p>
+                    <p>• ⚡ Batch updates Firestore optimisés</p>
+                    <p>• 🗺️ Buffer positions intelligent</p>
+                    <p>• 🧹 Nettoyage auto historique</p>
+                    <p>• 💳 Système de portefeuille intégré</p>
+                </div>
+                
+                <p style="margin-top: 20px; color: #999; font-size: 0.8em;">Version 5.2 GPS PRO © 2025</p>
             </div>
         </div>
 
@@ -580,6 +603,7 @@
     </script>
 
     <script>
+        // ========== FIREBASE CONFIG ==========
         const firebaseConfig = {
             apiKey: "AIzaSyANcdvMz2yMbRD4V82EGLm95Jh2NdaR2o0",
             authDomain: "albourakh-sn-ok.firebaseapp.com",
@@ -593,8 +617,9 @@
         const db = firebase.firestore();
         const auth = firebase.auth();
 
-        console.log('🚕 Al Bourakh Driver v5.1 GPS + Portefeuille');
+        console.log('🚕 Al Bourakh Driver v5.2 GPS PRO + Portefeuille - Initialized');
 
+        // ========== VARIABLES GLOBALES ==========
         let currentUser = null;
         let isOnline = false;
         let currentCourse = null;
@@ -607,10 +632,12 @@
         let directionsRenderer = null;
         let audioContext = null;
         let driverStatsListener = null;
-        let ratingsListener = null;
         let currentRouteMode = 'approche';
         let approcheRoute = null;
         let courseRoute = null;
+        let courseListener = null;
+
+        // ========== VARIABLES TRACKING GPS AVANCÉ ==========
         let watchPositionId = null;
         let driverPosition = null;
         let lastPositionUpdate = 0;
@@ -634,7 +661,7 @@
             todayMissed: 0
         };
 
-        // WALLET STATE
+        // ========== WALLET STATE ==========
         let walletState = {
             driverEarnings: {
                 today: 0,
@@ -647,16 +674,420 @@
             withdrawalDestination: 'Orange Money'
         };
 
-        // WALLET FUNCTIONS
+        // ========== SYSTÈME DE TRACKING GPS AVANCÉ ==========
+        
+        async function startTrackingSession() {
+            if (!currentUser || currentUser.isDemo) return;
+
+            const driverId = currentUser.firestoreId || currentUser.uid;
+            
+            trackingSession = {
+                id: `TRACK_${Date.now()}`,
+                driverId: driverId,
+                startTime: firebase.firestore.FieldValue.serverTimestamp(),
+                status: 'active',
+                courseId: currentCourse?.id || null,
+                positions: []
+            };
+
+            try {
+                await db.collection('tracking_sessions').doc(trackingSession.id).set(trackingSession);
+                console.log('📊 Session de tracking démarrée:', trackingSession.id);
+                
+                document.getElementById('trackingBadge').style.display = 'flex';
+            } catch (error) {
+                console.warn('⚠️ Tracking sessions non disponible (permissions):', error.message);
+                trackingSession = null;
+            }
+        }
+
+        async function stopTrackingSession() {
+            if (!trackingSession) return;
+
+            try {
+                await db.collection('tracking_sessions').doc(trackingSession.id).update({
+                    endTime: firebase.firestore.FieldValue.serverTimestamp(),
+                    status: 'completed',
+                    totalDistance: distanceParcourue,
+                    totalPositions: positionBuffer.length
+                });
+
+                console.log('🏁 Session terminée:', trackingSession.id);
+            } catch (error) {
+                console.warn('⚠️ Impossible de fermer session tracking:', error.message);
+            }
+            
+            trackingSession = null;
+            positionBuffer = [];
+            distanceParcourue = 0;
+            
+            document.getElementById('trackingBadge').style.display = 'none';
+        }
+
+        function startLocationTracking() {
+            if (!navigator.geolocation) {
+                console.error('❌ Géolocalisation non supportée');
+                showToast('❌ Votre navigateur ne supporte pas la géolocalisation', 'error');
+                return;
+            }
+
+            const options = {
+                enableHighAccuracy: true,
+                timeout: 10000,
+                maximumAge: 0
+            };
+
+            watchPositionId = navigator.geolocation.watchPosition(
+                handlePositionUpdate,
+                handlePositionError,
+                options
+            );
+
+            console.log('🛰️ Tracking GPS démarré');
+            
+            document.getElementById('trackingBadge').style.display = 'flex';
+            
+            if (isOnline) {
+                startTrackingSession();
+            }
+        }
+
+        async function handlePositionUpdate(position) {
+            const now = Date.now();
+            const { latitude, longitude, accuracy, speed, heading } = position.coords;
+
+            const newPosition = {
+                lat: latitude,
+                lng: longitude,
+                accuracy: accuracy,
+                speed: speed || 0,
+                heading: heading || 0,
+                timestamp: now,
+                batteryLevel: await getBatteryLevel()
+            };
+
+            driverPosition = { lat: latitude, lng: longitude };
+
+            // Calculer la distance
+            if (lastKnownPosition) {
+                const distance = calculerDistance(
+                    lastKnownPosition.lat,
+                    lastKnownPosition.lng,
+                    latitude,
+                    longitude
+                );
+
+                if (distance < TRACKING_CONFIG.minDistance / 1000) {
+                    return;
+                }
+
+                if (currentCourse) {
+                    distanceParcourue += distance;
+                }
+            }
+
+            updateTrackingUI(newPosition);
+
+            positionBuffer.push(newPosition);
+            if (positionBuffer.length > TRACKING_CONFIG.batchSize) {
+                positionBuffer.shift();
+            }
+
+            // Mise à jour Firestore throttled avec batch
+            if (now - lastPositionUpdate >= TRACKING_CONFIG.updateInterval) {
+                await updateFirestorePositionBatch(newPosition);
+                lastPositionUpdate = now;
+            }
+
+            lastKnownPosition = newPosition;
+
+            // Mise à jour carte dashboard
+            if (driverMarker && map && !currentCourse) {
+                driverMarker.setPosition(driverPosition);
+                map.panTo(driverPosition);
+            }
+
+            document.getElementById('accuracy').innerHTML = 
+                `${accuracy < 50 ? '🟢' : '🟡'} Précision: ${Math.round(accuracy)} m`;
+            
+            reverseGeocode(latitude, longitude);
+
+            // Mise à jour route approche
+            if (currentCourse && activeCourseMap && currentRouteMode === 'approche') {
+                updateApprocheRoute();
+            }
+        }
+
+        function handlePositionError(error) {
+            console.error('❌ Erreur GPS:', error);
+            
+            const statusElement = document.getElementById('trackingStatus');
+            if (statusElement) {
+                statusElement.textContent = 'GPS Erreur';
+                statusElement.style.color = '#E30613';
+            }
+
+            document.getElementById('currentAddress').textContent = 'Position non disponible';
+            document.getElementById('accuracy').innerHTML = '🔴 GPS désactivé';
+            
+            if (error.code === 1) {
+                showToast('⚠️ Activez la géolocalisation pour utiliser l\'application', 'warning');
+                console.warn('🔒 Géolocalisation refusée par l\'utilisateur');
+            } else if (error.code === 2) {
+                showToast('⚠️ Position GPS non disponible', 'warning');
+                console.warn('📍 Position GPS non disponible');
+            } else if (error.code === 3) {
+                console.warn('⏱️ Timeout GPS');
+            }
+        }
+
+        async function updateFirestorePositionBatch(position) {
+            if (!currentUser || currentUser.isDemo) return;
+
+            const driverId = currentUser.firestoreId || currentUser.uid;
+
+            try {
+                const batch = db.batch();
+
+                // 1. Mise à jour driver
+                const driverRef = db.collection('drivers').doc(driverId);
+                batch.update(driverRef, {
+                    position: {
+                        latitude: position.lat,
+                        longitude: position.lng,
+                        accuracy: position.accuracy,
+                        speed: position.speed,
+                        heading: position.heading,
+                        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                    },
+                    positionActuelle: new firebase.firestore.GeoPoint(position.lat, position.lng),
+                    derniereActivite: firebase.firestore.FieldValue.serverTimestamp(),
+                    batteryLevel: position.batteryLevel
+                });
+
+                // 2. Mise à jour réservation si en cours
+                if (currentCourse && !currentCourse.id.startsWith('TEST_')) {
+                    const reservationRef = db.collection('reservations').doc(currentCourse.id);
+                    batch.update(reservationRef, {
+                        chauffeurPosition: {
+                            latitude: position.lat,
+                            longitude: position.lng,
+                            accuracy: position.accuracy,
+                            speed: position.speed,
+                            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                        },
+                        distanceParcourue: Math.round(distanceParcourue * 1000),
+                        dernierePositionChauffeur: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                }
+
+                await batch.commit();
+                console.log('✅ Position mise à jour (batch)');
+
+                // 3. Historique (optionnel)
+                if (trackingSession) {
+                    try {
+                        await db.collection('position_history').add({
+                            driverId: driverId,
+                            sessionId: trackingSession.id,
+                            courseId: currentCourse?.id || null,
+                            position: new firebase.firestore.GeoPoint(position.lat, position.lng),
+                            accuracy: position.accuracy,
+                            speed: position.speed,
+                            heading: position.heading,
+                            batteryLevel: position.batteryLevel,
+                            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                    } catch (err) {
+                        console.warn('⚠️ Historique position non disponible:', err.message);
+                    }
+                }
+
+            } catch (error) {
+                console.error('❌ Erreur batch MAJ position:', error);
+            }
+        }
+
+        function updateTrackingUI(position) {
+            const statusElement = document.getElementById('trackingStatus');
+            if (!statusElement) return;
+
+            const speedKmh = Math.round(position.speed * 3.6);
+            const accuracyM = Math.round(position.accuracy);
+
+            let status = 'GPS Actif';
+            let color = '#FFFFFF';
+
+            if (accuracyM > 50) {
+                status = 'GPS Faible';
+                color = '#FF9800';
+            } else if (position.speed > 0) {
+                status = `${speedKmh} km/h`;
+                color = '#FFFFFF';
+            }
+
+            statusElement.textContent = status;
+            statusElement.style.color = color;
+
+            if (currentCourse) {
+                const distanceKm = (distanceParcourue).toFixed(2);
+                statusElement.textContent = `${speedKmh} km/h • ${distanceKm} km`;
+            }
+        }
+
+        async function getBatteryLevel() {
+            try {
+                if ('getBattery' in navigator) {
+                    const battery = await navigator.getBattery();
+                    return Math.round(battery.level * 100);
+                }
+            } catch (error) {
+                console.warn('⚠️ Battery API non disponible');
+            }
+            return null;
+        }
+
+        function calculerDistance(lat1, lng1, lat2, lng2) {
+            const R = 6371;
+            const dLat = toRad(lat2 - lat1);
+            const dLng = toRad(lng2 - lng1);
+            const a =
+                Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+                Math.sin(dLng / 2) * Math.sin(dLng / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            return R * c;
+        }
+
+        function toRad(value) {
+            return value * Math.PI / 180;
+        }
+
+        function stopLocationTracking() {
+            if (watchPositionId) {
+                navigator.geolocation.clearWatch(watchPositionId);
+                watchPositionId = null;
+                console.log('🛑 Tracking GPS arrêté');
+            }
+
+            stopTrackingSession();
+        }
+
+        async function onCourseStart(courseData) {
+            currentCourse = courseData;
+            distanceParcourue = 0;
+            
+            console.log('🚗 Course démarrée:', currentCourse.id);
+
+            if (!trackingSession || trackingSession.courseId !== currentCourse.id) {
+                await stopTrackingSession();
+                await startTrackingSession();
+            }
+
+            if (trackingSession) {
+                await db.collection('tracking_sessions').doc(trackingSession.id).update({
+                    courseId: currentCourse.id,
+                    startCourseTime: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            }
+        }
+
+        async function onCourseComplete() {
+            if (!currentCourse) return;
+
+            console.log('🏁 Course terminée:', currentCourse.id);
+
+            // Calculer les revenus
+            const earnings = calculateDriverEarnings(currentCourse.prixEstime || 0, 0);
+            
+            // Mettre à jour le portefeuille
+            walletState.driverEarnings.today += earnings.totalEarned;
+            walletState.driverEarnings.week += earnings.totalEarned;
+            walletState.driverEarnings.month += earnings.totalEarned;
+            walletState.driverEarnings.available += earnings.totalEarned;
+
+            // Ajouter la transaction
+            walletState.transactions.unshift({
+                id: currentCourse.id,
+                date: new Date(),
+                from: currentCourse.depart,
+                to: currentCourse.destination,
+                ...earnings,
+                status: 'paid'
+            });
+
+            if (trackingSession && !currentUser.isDemo) {
+                try {
+                    await db.collection('tracking_sessions').doc(trackingSession.id).update({
+                        endCourseTime: firebase.firestore.FieldValue.serverTimestamp(),
+                        finalDistance: distanceParcourue,
+                        status: 'course_completed'
+                    });
+
+                    await db.collection('reservations').doc(currentCourse.id).update({
+                        distanceReelleParcourue: Math.round(distanceParcourue * 1000),
+                        trackingSessionId: trackingSession.id
+                    });
+
+                    // Mise à jour revenus driver
+                    const driverId = currentUser.firestoreId || currentUser.uid;
+                    await db.collection('drivers').doc(driverId).update({
+                        revenusJour: firebase.firestore.FieldValue.increment(earnings.totalEarned),
+                        revenusSemaine: firebase.firestore.FieldValue.increment(earnings.totalEarned),
+                        revenusMois: firebase.firestore.FieldValue.increment(earnings.totalEarned),
+                        soldeDisponible: firebase.firestore.FieldValue.increment(earnings.totalEarned)
+                    });
+                } catch (error) {
+                    console.warn('⚠️ Impossible de sauvegarder stats tracking:', error.message);
+                }
+            }
+
+            currentCourse = null;
+            distanceParcourue = 0;
+            
+            await stopTrackingSession();
+            if (isOnline) {
+                await startTrackingSession();
+            }
+        }
+
+        async function cleanupOldPositions() {
+            if (currentUser?.isDemo) return;
+
+            const cutoffTime = new Date(Date.now() - TRACKING_CONFIG.historyRetention);
+            
+            try {
+                const snapshot = await db.collection('position_history')
+                    .where('timestamp', '<', cutoffTime)
+                    .limit(100)
+                    .get();
+
+                const batch = db.batch();
+                snapshot.forEach(doc => {
+                    batch.delete(doc.ref);
+                });
+
+                if (!snapshot.empty) {
+                    await batch.commit();
+                    console.log(`🧹 ${snapshot.size} positions anciennes supprimées`);
+                }
+            } catch (error) {
+                console.warn('⚠️ Nettoyage historique non disponible:', error.message);
+            }
+        }
+
+        setInterval(cleanupOldPositions, 60 * 60 * 1000);
+
+        // ========== WALLET FUNCTIONS ==========
         function calculateDriverEarnings(grossAmount, tipAmount = 0) {
-            const commissionRate = 0.30;  // 30% pour Al Bourakh
-            const driverRate = 0.70;      // 70% pour le chauffeur
+            const commissionRate = 0.30;
+            const driverRate = 0.70;
             
             return {
                 grossAmount: grossAmount,
                 commission: Math.round(grossAmount * commissionRate),
                 netAmount: Math.round(grossAmount * driverRate),
-                tip: tipAmount,  // 100% au chauffeur
+                tip: tipAmount,
                 totalEarned: Math.round(grossAmount * driverRate) + tipAmount
             };
         }
@@ -678,10 +1109,10 @@
                         from: 'Sicap',
                         to: 'Point E',
                         grossAmount: 3000,
-                        commission: 900,         // 30% de 3000
-                        netAmount: 2100,         // 70% de 3000
+                        commission: 900,
+                        netAmount: 2100,
                         tip: 500,
-                        totalEarned: 2600,       // 2100 + 500
+                        totalEarned: 2600,
                         status: 'paid'
                     },
                     {
@@ -690,8 +1121,8 @@
                         from: 'Liberté 6',
                         to: 'Fann',
                         grossAmount: 2500,
-                        commission: 750,         // 30% de 2500
-                        netAmount: 1750,         // 70% de 2500
+                        commission: 750,
+                        netAmount: 1750,
                         tip: 0,
                         totalEarned: 1750,
                         status: 'paid'
@@ -749,7 +1180,6 @@
         }
 
         function renderDriverDashboard() {
-            // Filtrer uniquement les courses (pas les retraits) pour l'affichage du jour
             const todayTransactions = walletState.transactions.filter(t => 
                 t.type !== 'withdrawal' &&
                 new Date(t.date).toDateString() === new Date().toDateString()
@@ -958,10 +1388,8 @@
                 }
             }
 
-            // Mettre à jour le solde local
             walletState.driverEarnings.available -= amount;
             
-            // Ajouter la transaction de retrait dans l'historique
             walletState.transactions.unshift({
                 id: `WD${Date.now()}`,
                 date: new Date(),
@@ -981,276 +1409,13 @@
             hideLoading();
             showToast(`✅ Demande de retrait de ${amount.toLocaleString()} FCFA envoyée!`, 'success');
             
-            // Retour à l'écran portefeuille avec actualisation
             setTimeout(() => {
                 showScreen('walletScreen');
-                renderDriverDashboard(); // Actualiser l'affichage avec le nouveau solde
+                renderDriverDashboard();
             }, 1500);
         }
 
-        // GPS TRACKING
-        async function startTrackingSession() {
-            if (!currentUser || currentUser.isDemo) return;
-
-            const driverId = currentUser.firestoreId || currentUser.uid;
-            
-            trackingSession = {
-                id: `TRACK_${Date.now()}`,
-                driverId: driverId,
-                startTime: firebase.firestore.FieldValue.serverTimestamp(),
-                status: 'active',
-                courseId: currentCourse?.id || null,
-                positions: []
-            };
-
-            try {
-                await db.collection('tracking_sessions').doc(trackingSession.id).set(trackingSession);
-                console.log('📊 Session tracking:', trackingSession.id);
-                document.getElementById('trackingBadge').style.display = 'flex';
-            } catch (error) {
-                console.warn('⚠️ Tracking sessions:', error.message);
-                trackingSession = null;
-            }
-        }
-
-        async function stopTrackingSession() {
-            if (!trackingSession) return;
-
-            try {
-                await db.collection('tracking_sessions').doc(trackingSession.id).update({
-                    endTime: firebase.firestore.FieldValue.serverTimestamp(),
-                    status: 'completed',
-                    totalDistance: distanceParcourue
-                });
-            } catch (error) {
-                console.warn('⚠️ Stop tracking:', error.message);
-            }
-            
-            trackingSession = null;
-            positionBuffer = [];
-            distanceParcourue = 0;
-            document.getElementById('trackingBadge').style.display = 'none';
-        }
-
-        function startLocationTracking() {
-            if (!navigator.geolocation) {
-                showToast('❌ Géolocalisation non supportée par votre navigateur', 'error');
-                document.getElementById('trackingBadge').style.display = 'none';
-                document.getElementById('currentAddress').textContent = 'GPS non disponible';
-                document.getElementById('accuracy').innerHTML = '🔴 GPS non supporté';
-                return;
-            }
-
-            const options = { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 };
-
-            watchPositionId = navigator.geolocation.watchPosition(
-                handlePositionUpdate,
-                handlePositionError,
-                options
-            );
-
-            console.log('🛰️ Tracking GPS démarré');
-            
-            // Le badge sera affiché seulement si la première position est reçue avec succès
-            if (isOnline) startTrackingSession();
-        }
-
-        async function handlePositionUpdate(position) {
-            const now = Date.now();
-            const { latitude, longitude, accuracy, speed, heading } = position.coords;
-
-            const newPosition = {
-                lat: latitude,
-                lng: longitude,
-                accuracy: accuracy,
-                speed: speed || 0,
-                heading: heading || 0,
-                timestamp: now
-            };
-
-            driverPosition = { lat: latitude, lng: longitude };
-
-            // Afficher le badge GPS en vert quand la position est reçue
-            const trackingBadge = document.getElementById('trackingBadge');
-            const trackingStatus = document.getElementById('trackingStatus');
-            if (trackingBadge && trackingStatus) {
-                trackingBadge.style.display = 'flex';
-                trackingBadge.style.background = 'linear-gradient(135deg, #00A854, #FECB00)';
-                trackingStatus.textContent = 'GPS Actif';
-            }
-
-            if (lastKnownPosition) {
-                const distance = calculerDistance(
-                    lastKnownPosition.lat,
-                    lastKnownPosition.lng,
-                    latitude,
-                    longitude
-                );
-
-                if (distance < TRACKING_CONFIG.minDistance / 1000) return;
-
-                if (currentCourse) distanceParcourue += distance;
-            }
-
-            positionBuffer.push(newPosition);
-            if (positionBuffer.length > TRACKING_CONFIG.batchSize) positionBuffer.shift();
-
-            if (now - lastPositionUpdate >= TRACKING_CONFIG.updateInterval) {
-                await updateFirestorePosition(newPosition);
-                lastPositionUpdate = now;
-            }
-
-            lastKnownPosition = newPosition;
-
-            if (driverMarker && map && !currentCourse) {
-                driverMarker.setPosition(driverPosition);
-                map.panTo(driverPosition);
-            }
-
-            document.getElementById('accuracy').innerHTML = 
-                `${accuracy < 50 ? '🟢' : '🟡'} Précision: ${Math.round(accuracy)} m`;
-            
-            reverseGeocode(latitude, longitude);
-
-            if (currentCourse && activeCourseMap && currentRouteMode === 'approche') {
-                updateApprocheRoute();
-            }
-        }
-
-        function handlePositionError(error) {
-            console.error('❌ GPS:', error);
-            const statusElement = document.getElementById('trackingStatus');
-            if (statusElement) {
-                statusElement.textContent = 'GPS Désactivé';
-                statusElement.parentElement.style.background = 'linear-gradient(135deg, #E30613, #FF6B00)';
-            }
-
-            document.getElementById('currentAddress').textContent = 'Position non disponible';
-            document.getElementById('accuracy').innerHTML = '🔴 GPS inactif';
-            
-            if (error.code === 1) {
-                console.warn('🔒 Permission géolocalisation refusée');
-                showToast('⚠️ Activez la géolocalisation dans les paramètres de votre navigateur', 'warning');
-                
-                // Masquer le badge GPS en cas d'erreur
-                const badge = document.getElementById('trackingBadge');
-                if (badge) badge.style.display = 'none';
-            }
-        }
-
-        async function updateFirestorePosition(position) {
-            if (!currentUser || currentUser.isDemo) return;
-
-            const driverId = currentUser.firestoreId || currentUser.uid;
-
-            try {
-                await db.collection('drivers').doc(driverId).update({
-                    position: {
-                        latitude: position.lat,
-                        longitude: position.lng,
-                        accuracy: position.accuracy,
-                        timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                    },
-                    positionActuelle: new firebase.firestore.GeoPoint(position.lat, position.lng)
-                });
-
-                if (currentCourse && !currentCourse.id.startsWith('TEST_')) {
-                    try {
-                        await db.collection('reservations').doc(currentCourse.id).update({
-                            chauffeurPosition: {
-                                latitude: position.lat,
-                                longitude: position.lng,
-                                timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                            }
-                        });
-                    } catch (err) {
-                        console.warn('⚠️ MAJ réservation:', err.message);
-                    }
-                }
-            } catch (error) {
-                console.error('❌ MAJ position:', error);
-            }
-        }
-
-        function calculerDistance(lat1, lng1, lat2, lng2) {
-            const R = 6371;
-            const dLat = toRad(lat2 - lat1);
-            const dLng = toRad(lng2 - lng1);
-            const a =
-                Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
-                Math.sin(dLng / 2) * Math.sin(dLng / 2);
-            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-            return R * c;
-        }
-
-        function toRad(value) {
-            return value * Math.PI / 180;
-        }
-
-        function stopLocationTracking() {
-            if (watchPositionId) {
-                navigator.geolocation.clearWatch(watchPositionId);
-                watchPositionId = null;
-            }
-            stopTrackingSession();
-        }
-
-        async function onCourseStart(courseData) {
-            currentCourse = courseData;
-            distanceParcourue = 0;
-            
-            if (!trackingSession || trackingSession.courseId !== currentCourse.id) {
-                await stopTrackingSession();
-                await startTrackingSession();
-            }
-        }
-
-        async function onCourseComplete() {
-            if (!currentCourse) return;
-
-            // Calculer les revenus
-            const earnings = calculateDriverEarnings(currentCourse.prixEstime || 0, 0);
-            
-            // Mettre à jour le portefeuille
-            walletState.driverEarnings.today += earnings.totalEarned;
-            walletState.driverEarnings.week += earnings.totalEarned;
-            walletState.driverEarnings.month += earnings.totalEarned;
-            walletState.driverEarnings.available += earnings.totalEarned;
-
-            // Ajouter la transaction
-            walletState.transactions.unshift({
-                id: currentCourse.id,
-                date: new Date(),
-                from: currentCourse.depart,
-                to: currentCourse.destination,
-                ...earnings,
-                status: 'paid'
-            });
-
-            // Sauvegarder dans Firebase
-            if (!currentUser.isDemo && !currentCourse.id.startsWith('TEST_')) {
-                try {
-                    const driverId = currentUser.firestoreId || currentUser.uid;
-                    await db.collection('drivers').doc(driverId).update({
-                        revenusJour: firebase.firestore.FieldValue.increment(earnings.totalEarned),
-                        revenusSemaine: firebase.firestore.FieldValue.increment(earnings.totalEarned),
-                        revenusMois: firebase.firestore.FieldValue.increment(earnings.totalEarned),
-                        soldeDisponible: firebase.firestore.FieldValue.increment(earnings.totalEarned)
-                    });
-                } catch (error) {
-                    console.warn('⚠️ MAJ revenus:', error.message);
-                }
-            }
-
-            currentCourse = null;
-            distanceParcourue = 0;
-            
-            await stopTrackingSession();
-            if (isOnline) await startTrackingSession();
-        }
-
-        // AUDIO
+        // ========== AUDIO SYSTEM ==========
         function initAudioContext() {
             if (!audioContext) {
                 audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -1269,47 +1434,116 @@
                 
                 oscillator.frequency.value = frequency;
                 oscillator.type = 'sine';
-                gainNode.gain.setValueAtTime(Math.min(volume, 1.0), ctx.currentTime);
+                
+                const clampedVolume = Math.min(volume, 1.0);
+                gainNode.gain.setValueAtTime(clampedVolume, ctx.currentTime);
                 gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + duration / 1000);
                 
                 oscillator.start(ctx.currentTime);
                 oscillator.stop(ctx.currentTime + duration / 1000);
             } catch (error) {
-                console.warn('Erreur son:', error);
+                console.warn('Erreur lecture son:', error);
             }
         }
 
         function playAlertBeeps(repetition = 0) {
-            const volume = Math.min(0.3 + (repetition * 0.15), 1.0);
-            const beeps = [
+            const baseVolume = 0.3;
+            const volumeIncrement = 0.15;
+            const volume = Math.min(baseVolume + (repetition * volumeIncrement), 1.0);
+            
+            const beepSequence = [
                 { freq: 800, delay: 0 },
                 { freq: 1000, delay: 300 },
-                { freq: 1200, delay: 600 }
+                { freq: 800, delay: 600 },
+                { freq: 1000, delay: 900 },
+                { freq: 1200, delay: 1200 }
             ];
-            beeps.forEach(b => setTimeout(() => playBeep(b.freq, 200, volume), b.delay));
+            
+            beepSequence.forEach(beep => {
+                setTimeout(() => playBeep(beep.freq, 200, volume), beep.delay);
+            });
+            
+            if (navigator.vibrate) {
+                const vibeDuration = 200 + (repetition * 100);
+                const finalVibe = 300 + (repetition * 100);
+                const pattern = [
+                    vibeDuration, 100, vibeDuration, 100, 
+                    vibeDuration, 100, vibeDuration, 100, 
+                    finalVibe
+                ];
+                navigator.vibrate(pattern);
+            }
         }
 
-        // PHONE VALIDATION
+        // ========== PHONE VALIDATION ==========
         function validateSenegalPhone(phone) {
             if (!phone) return { valid: false, message: 'Numéro requis' };
+            
             const cleaned = phone.replace(/[\s\-\.]/g, '');
+            
             const patterns = [
                 /^\+221(77|78|76|70)\d{7}$/,
                 /^221(77|78|76|70)\d{7}$/,
-                /^(77|78|76|70)\d{7}$/
+                /^(77|78|76|70)\d{7}$/,
+                /^00221(77|78|76|70)\d{7}$/
             ];
-            const isValid = patterns.some(p => p.test(cleaned));
-            return isValid ? { valid: true, normalized: cleaned } : 
-                { valid: false, message: 'Format invalide' };
+            
+            const isValid = patterns.some(pattern => pattern.test(cleaned));
+            
+            if (!isValid) {
+                return {
+                    valid: false,
+                    message: 'Format invalide. Utilisez : +221 77/78/76/70 XXX XX XX'
+                };
+            }
+            
+            return { valid: true, normalized: cleaned };
         }
-
+        
         function formatPhoneInput(input) {
-            const validation = validateSenegalPhone(input.value);
-            if (validation.valid) {
-                input.classList.add('valid');
-                input.classList.remove('invalid');
+            const oldValue = input.value;
+            const cleaned = oldValue.replace(/[\s\-\.]/g, '');
+            const helper = document.getElementById('phoneHelper');
+            
+            if (cleaned.length > 13) {
+                input.value = oldValue.substring(0, oldValue.length - 1);
+                return;
+            }
+            
+            if (cleaned.length > 0) {
+                const validation = validateSenegalPhone(oldValue);
+                if (validation.valid) {
+                    input.classList.remove('invalid');
+                    input.classList.add('valid');
+                    if (helper) {
+                        helper.textContent = '✓ Numéro valide';
+                        helper.classList.remove('error');
+                        helper.style.color = '#00A854';
+                    }
+                } else {
+                    input.classList.remove('valid');
+                    if (cleaned.length >= 9) {
+                        input.classList.add('invalid');
+                        if (helper) {
+                            helper.textContent = validation.message;
+                            helper.classList.add('error');
+                        }
+                    } else {
+                        input.classList.remove('invalid');
+                        if (helper) {
+                            helper.textContent = 'Formats acceptés : 77/78/76/70 XXX XX XX';
+                            helper.classList.remove('error');
+                            helper.style.color = '#666';
+                        }
+                    }
+                }
             } else {
-                input.classList.remove('valid');
+                input.classList.remove('valid', 'invalid');
+                if (helper) {
+                    helper.textContent = 'Formats acceptés : 77/78/76/70 XXX XX XX';
+                    helper.classList.remove('error');
+                    helper.style.color = '#666';
+                }
             }
         }
 
@@ -1335,10 +1569,35 @@
             });
         }
 
+        async function findDriverByPhone(inputPhone) {
+            const inputDigits = normalizePhoneForComparison(inputPhone);
+            
+            try {
+                const snapshot = await db.collection('drivers').get();
+                
+                for (const doc of snapshot.docs) {
+                    const data = doc.data();
+                    const dbPhone = data.telephone || '';
+                    const dbDigits = normalizePhoneForComparison(dbPhone);
+                    
+                    const inputLocal = inputDigits.slice(-9);
+                    const dbLocal = dbDigits.slice(-9);
+                    
+                    if (inputLocal === dbLocal && inputLocal.length === 9) {
+                        return { id: doc.id, ...data };
+                    }
+                }
+                
+                return null;
+                
+            } catch (error) {
+                return null;
+            }
+        }
+
         async function fetchDriverPhoto(driverData) {
             console.log('📸 Recherche photo pour:', driverData.telephone);
             
-            // Vérifier toutes les propriétés possibles
             let photoUrl = driverData.photoProfil || 
                           driverData.photoIdentite || 
                           driverData.photoUrl ||
@@ -1347,11 +1606,10 @@
                           driverData.photos?.photoIdentite;
             
             if (photoUrl) {
-                console.log('✅ Photo trouvée:', photoUrl);
+                console.log('✅ Photo trouvée dans driver:', photoUrl);
                 return photoUrl;
             }
             
-            // Rechercher dans tous les documents drivers
             try {
                 const phoneVariants = getPhoneVariants(driverData.telephone);
                 const driversSnapshot = await db.collection('drivers').get();
@@ -1378,7 +1636,6 @@
                             if (foundPhoto) {
                                 console.log('✅ Photo trouvée dans autre driver:', foundPhoto);
                                 
-                                // Synchroniser avec le document actuel
                                 if (driverData.id && doc.id !== driverData.id) {
                                     try {
                                         await db.collection('drivers').doc(driverData.id).update({
@@ -1400,7 +1657,6 @@
                 console.error('❌ Erreur recherche drivers:', error);
             }
             
-            // Rechercher dans candidatures
             try {
                 const phoneVariants = getPhoneVariants(driverData.telephone);
                 const candidaturesSnapshot = await db.collection('candidatures')
@@ -1429,7 +1685,6 @@
                             if (photoUrl) {
                                 console.log('✅ Photo trouvée dans candidature:', photoUrl);
                                 
-                                // Synchroniser
                                 if (driverData.id) {
                                     try {
                                         await db.collection('drivers').doc(driverData.id).update({
@@ -1448,7 +1703,7 @@
                     }
                 }
             } catch (error) {
-                console.warn('⚠️ Candidatures inaccessibles:', error.message);
+                console.warn('⚠️ Candidatures inaccessibles (permissions):', error.message);
             }
             
             console.log('❌ Aucune photo trouvée');
@@ -1467,13 +1722,13 @@
             
             const profileAvatar = document.getElementById('profileAvatar');
             if (photoUrl && photoUrl.trim() !== '') {
-                profileAvatar.innerHTML = `<img src="${photoUrl}" alt="Photo" onerror="console.error('Erreur chargement photo profil'); this.innerHTML='<i class=\\'fas fa-user\\'></i>'">`;
+                profileAvatar.innerHTML = `<img src="${photoUrl}" alt="Photo" onerror="console.error('Erreur chargement photo profil'); this.parentElement.innerHTML='<i class=\\'fas fa-user\\'></i>'">`;
             } else {
                 profileAvatar.innerHTML = `<i class="fas fa-user"></i>`;
             }
         }
 
-        // LOGIN
+        // ========== LOGIN ==========
         async function handleLogin() {
             const phone = document.getElementById('loginPhone').value.trim();
             const password = document.getElementById('loginPassword').value.trim();
@@ -1482,138 +1737,118 @@
                 showToast('Remplissez tous les champs', 'error');
                 return;
             }
-
+            
             const validation = validateSenegalPhone(phone);
             if (!validation.valid) {
                 showToast(`❌ ${validation.message}`, 'error');
                 return;
             }
+            
+            const normalizedPhone = validation.normalized;
 
-            // MODE DEMO
             if (password === 'demo123') {
                 showLoading('Connexion démo...');
-                setTimeout(() => {
+                setTimeout(async () => {
                     currentUser = {
                         firestoreId: 'DEMO_' + Date.now(),
                         uid: 'DEMO_' + Date.now(),
                         telephone: phone,
                         prenom: 'Chauffeur',
                         nom: 'Demo',
+                        rating: 4.8,
+                        coursesCompletees: 42,
+                        revenusTotal: 150000,
                         isDemo: true
                     };
                     hideLoading();
                     showToast('✅ Mode démo activé!', 'success');
                     document.getElementById('bottomNav').style.display = 'flex';
+                    displayProfilePhoto(null);
                     showScreen('dashboardScreen');
                     loadDashboardDataDemo();
-                    loadWalletData();
+                    await loadWalletData();
+                    await loadCourseStats();
                     startLocationTracking();
                 }, 1000);
                 return;
             }
 
-            // CONNEXION REELLE FIREBASE
-            if (password !== 'Admin2025') {
-                showToast('❌ Mot de passe incorrect. Utilisez Admin2025 ou demo123', 'error');
-                return;
-            }
-
-            showLoading('Recherche du chauffeur...');
+            showLoading('Connexion...');
 
             try {
-                const normalizedPhone = validation.normalized;
-                const phoneDigits = normalizePhoneForComparison(normalizedPhone);
-                const localPhone = phoneDigits.slice(-9); // Les 9 derniers chiffres
+                const existingDriver = await findDriverByPhone(normalizedPhone);
                 
-                console.log('🔍 Recherche pour:', phone);
-                console.log('📱 Chiffres locaux:', localPhone);
-                
-                // Rechercher le chauffeur dans Firebase
-                const driversSnapshot = await db.collection('drivers').get();
-                let existingDriver = null;
-                
-                console.log('📊 Nombre de chauffeurs:', driversSnapshot.size);
-                
-                for (const doc of driversSnapshot.docs) {
-                    const driver = doc.data();
-                    const driverPhone = driver.telephone || '';
-                    const driverDigits = normalizePhoneForComparison(driverPhone);
-                    const driverLocalPhone = driverDigits.slice(-9);
-                    
-                    console.log(`Comparaison: ${localPhone} vs ${driverLocalPhone} (${driverPhone})`);
-                    
-                    if (localPhone === driverLocalPhone && localPhone.length === 9) {
-                        existingDriver = { id: doc.id, ...driver };
-                        console.log('✅ MATCH TROUVÉ:', doc.id, driver.prenom, driver.nom);
-                        break;
+                if (existingDriver) {
+                    if (password !== 'Admin2025') {
+                        hideLoading();
+                        showToast('❌ Mot de passe incorrect', 'error');
+                        return;
                     }
-                }
-                
-                if (!existingDriver) {
-                    console.log('❌ Aucun chauffeur trouvé');
-                    hideLoading();
-                    showToast('❌ Numéro non enregistré dans Firebase', 'error');
-                    return;
-                }
-                
-                console.log('✅ Chauffeur trouvé:', existingDriver.prenom, existingDriver.nom);
-                
-                // Mettre à jour la dernière connexion
-                try {
+                    
+                    currentUser = {
+                        firestoreId: existingDriver.id,
+                        uid: existingDriver.id,
+                        ...existingDriver
+                    };
+                    
                     await db.collection('drivers').doc(existingDriver.id).update({
                         derniereConnexion: firebase.firestore.FieldValue.serverTimestamp(),
                         statut: 'hors_ligne'
                     });
-                } catch (updateError) {
-                    console.warn('⚠️ Impossible de mettre à jour la connexion:', updateError.message);
+                    
+                    hideLoading();
+                    
+                    showLoading('Chargement photo...');
+                    const photoUrl = await fetchDriverPhoto(currentUser);
+                    displayProfilePhoto(photoUrl);
+                    hideLoading();
+                    
+                    showToast(`✅ Bienvenue ${currentUser.prenom || ''} ${currentUser.nom || ''}!`, 'success');
+                    document.getElementById('bottomNav').style.display = 'flex';
+                    showScreen('dashboardScreen');
+                    await loadDashboardData();
+                    await loadWalletData();
+                    await loadCourseStats();
+                    startLocationTracking();
+                    return;
                 }
                 
-                currentUser = {
-                    firestoreId: existingDriver.id,
-                    uid: existingDriver.id,
-                    ...existingDriver,
-                    isDemo: false
-                };
-                
-                console.log('👤 CurrentUser défini:', currentUser.prenom, currentUser.nom, 'isDemo:', currentUser.isDemo);
-                
                 hideLoading();
-                
-                // Charger la photo
-                showLoading('Chargement photo...');
-                const photoUrl = await fetchDriverPhoto(currentUser);
-                displayProfilePhoto(photoUrl);
-                hideLoading();
-                
-                showToast(`✅ Bienvenue ${currentUser.prenom || ''} ${currentUser.nom || ''}!`, 'success');
-                document.getElementById('bottomNav').style.display = 'flex';
-                showScreen('dashboardScreen');
-                
-                // Charger les données réelles Firebase
-                await loadDashboardData();
-                await loadWalletData();
-                startLocationTracking();
+                showToast('❌ Numéro non enregistré', 'error');
                 
             } catch (error) {
-                console.error('❌ Erreur login:', error);
+                console.error('Erreur:', error);
                 hideLoading();
                 showToast('❌ Erreur: ' + error.message, 'error');
             }
         }
 
         function handleLogout() {
-            if (confirm('Déconnexion?')) {
+            if (confirm('Voulez-vous vous déconnecter?')) {
+                showLoading('Déconnexion...');
+                
+                // Nettoyage des listeners
                 if (isOnline) toggleOnlineStatus();
                 stopLocationTracking();
+                stopListeningForCourses();
+                
+                // Cleanup listeners Firebase
+                if (driverStatsListener) {
+                    driverStatsListener();
+                    driverStatsListener = null;
+                }
+                
+                if (!currentUser?.isDemo) auth.signOut();
                 currentUser = null;
                 currentCourse = null;
+                hideLoading();
                 document.getElementById('bottomNav').style.display = 'none';
                 showScreen('loginScreen');
                 showToast('Déconnexion réussie', 'info');
             }
         }
 
-        // MAPS
+        // ========== GOOGLE MAPS ==========
         function initMap() {
             const dakar = { lat: 14.6937, lng: -17.4441 };
             
@@ -1633,7 +1868,8 @@
                     fillOpacity: 1,
                     strokeColor: '#fff',
                     strokeWeight: 3
-                }
+                },
+                title: 'Ma position'
             });
 
             directionsService = new google.maps.DirectionsService();
@@ -1657,146 +1893,677 @@
             }
         }
 
-        // STATUS
+        // ========== ONLINE STATUS ==========
         async function toggleOnlineStatus() {
+            if (!currentUser) return;
+
             isOnline = !isOnline;
             const toggle = document.getElementById('toggleSwitch');
             const statusText = document.getElementById('statusText');
+            const driverId = currentUser.firestoreId || currentUser.uid;
 
             if (isOnline) {
                 toggle.classList.add('active');
                 statusText.textContent = '🟢 EN LIGNE';
                 statusText.classList.add('online');
+                showToast('✅ Vous êtes en ligne', 'success');
                 startLocationTracking();
+                listenForNewCourses();
+                
+                if (!currentUser.isDemo) {
+                    await db.collection('drivers').doc(driverId).update({
+                        statut: 'disponible',
+                        derniereActivite: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                }
             } else {
                 toggle.classList.remove('active');
                 statusText.textContent = '⚫ HORS LIGNE';
                 statusText.classList.remove('online');
+                showToast('Vous êtes hors ligne', 'info');
+                
                 stopLocationTracking();
+                stopListeningForCourses();
+                
+                if (!currentUser.isDemo) {
+                    await db.collection('drivers').doc(driverId).update({
+                        statut: 'hors_ligne'
+                    });
+                }
             }
         }
 
-        // COURSE MANAGEMENT
+        // ========== COURSE MANAGEMENT ==========
+        function listenForNewCourses() {
+            if (!currentUser || !isOnline || currentUser.isDemo) return;
+
+            const driverId = currentUser.firestoreId || currentUser.uid;
+
+            courseListener = db.collection('reservations')
+                .where('chauffeurAssigne', '==', driverId)
+                .where('statut', '==', 'assignee')
+                .onSnapshot(snapshot => {
+                    snapshot.docChanges().forEach(change => {
+                        if (change.type === 'added') {
+                            const course = { id: change.doc.id, ...change.doc.data() };
+                            showCourseNotification(course);
+                        }
+                    });
+                });
+        }
+
+        function stopListeningForCourses() {
+            if (courseListener) {
+                courseListener();
+                courseListener = null;
+            }
+        }
+
+        function showCourseNotification(course) {
+            const courseBadge = document.getElementById('navCourseBadge');
+            if (courseBadge) courseBadge.style.display = 'flex';
+            
+            let repetitionCount = 0;
+            playAlertBeeps(repetitionCount);
+            
+            const notification = document.createElement('div');
+            notification.className = 'course-notification';
+            notification.innerHTML = `
+                <div class="course-modal">
+                    <div class="course-timer" id="courseTimer">30<div class="course-timer-label">sec</div></div>
+                    <h2 class="course-title">🔔 NOUVELLE COURSE!</h2>
+                    <div class="course-client">
+                        <strong>Client:</strong> ${course.clientNom || 'Client'}<br>
+                        ${course.clientRating ? '⭐ ' + course.clientRating : ''}
+                    </div>
+                    <div class="course-route">
+                        <div class="route-point"><span class="route-icon">📍</span><span>${course.depart}</span></div>
+                        <div style="text-align: center; margin: 8px 0;">↓</div>
+                        <div class="route-point"><span class="route-icon">🎯</span><span>${course.destination}</span></div>
+                    </div>
+                    <div class="course-details">
+                        <div class="detail-item"><div class="detail-icon">💰</div><div>${(course.prixEstime || 0).toLocaleString()} F</div></div>
+                        <div class="detail-item"><div class="detail-icon">📏</div><div>${course.distance || 5} km</div></div>
+                        <div class="detail-item"><div class="detail-icon">👥</div><div>${course.passagers || 1}</div></div>
+                    </div>
+                    <div class="course-actions">
+                        <button class="btn btn-refuse" onclick="refuseCourse('${course.id}')">❌ Refuser</button>
+                        <button class="btn btn-accept" onclick="acceptCourse('${course.id}', ${JSON.stringify(course).replace(/"/g, '&quot;')})">✅ Accepter</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(notification);
+
+            const beepInterval = setInterval(() => {
+                repetitionCount++;
+                playAlertBeeps(repetitionCount);
+            }, 5000);
+            notification.beepInterval = beepInterval;
+
+            let timeLeft = 30;
+            const timerInterval = setInterval(() => {
+                timeLeft--;
+                const timer = document.getElementById('courseTimer');
+                if (timer) timer.innerHTML = `${timeLeft}<div class="course-timer-label">sec</div>`;
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    clearInterval(beepInterval);
+                    recordMissedCourse(course);
+                    refuseCourse(course.id, true);
+                }
+            }, 1000);
+            notification.timerInterval = timerInterval;
+        }
+
         async function acceptCourse(courseId, courseData) {
             const notification = document.querySelector('.course-notification');
-            if (notification) notification.remove();
+            if (notification) {
+                clearInterval(notification.timerInterval);
+                clearInterval(notification.beepInterval);
+                notification.remove();
+            }
+            
+            const courseBadge = document.getElementById('navCourseBadge');
+            if (courseBadge) courseBadge.style.display = 'none';
+            
+            recordAcceptedCourse();
+
+            showLoading('Acceptation...');
 
             if (typeof courseData === 'string') {
                 courseData = JSON.parse(courseData.replace(/&quot;/g, '"'));
             }
 
             currentCourse = { id: courseId, ...courseData, statut: 'acceptee' };
-            
+
+            if (!currentCourse.departCoords) {
+                currentCourse.departCoords = await geocodeAddress(currentCourse.depart);
+            }
+            if (!currentCourse.destinationCoords) {
+                currentCourse.destinationCoords = await geocodeAddress(currentCourse.destination);
+            }
+
+            const driverId = currentUser.firestoreId || currentUser.uid;
+
+            if (!currentUser.isDemo && !courseId.startsWith('TEST_')) {
+                try {
+                    const batch = db.batch();
+                    
+                    const reservationRef = db.collection('reservations').doc(courseId);
+                    const updateData = {
+                        statut: 'acceptee',
+                        accepteeParChauffeur: true,
+                        dateAcceptation: firebase.firestore.FieldValue.serverTimestamp(),
+                        nomChauffeur: `${currentUser.prenom || ''} ${currentUser.nom || ''}`.trim(),
+                        telephoneChauffeur: currentUser.telephone,
+                        chauffeurRating: currentUser.rating || 4.8
+                    };
+
+                    if (driverPosition) {
+                        updateData.chauffeurPosition = {
+                            latitude: driverPosition.lat,
+                            longitude: driverPosition.lng,
+                            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                        };
+                    }
+                    
+                    batch.update(reservationRef, updateData);
+                    
+                    const driverRef = db.collection('drivers').doc(driverId);
+                    batch.update(driverRef, {
+                        statut: 'en_course',
+                        currentBookingId: courseId,
+                        reservationEnCours: courseId
+                    });
+                    
+                    await batch.commit();
+                } catch (error) {
+                    console.error('Erreur acceptation:', error);
+                }
+            }
+
             await onCourseStart(currentCourse);
-            
+
+            hideLoading();
             showToast('✅ Course acceptée!', 'success');
+            
             currentRouteMode = 'approche';
             showScreen('activeCourseScreen');
             displayActiveCourse();
+            
+            setTimeout(() => initActiveCourseMap(), 300);
+        }
+
+        async function geocodeAddress(address) {
+            return new Promise((resolve) => {
+                if (!google || !google.maps) {
+                    resolve({ lat: 14.6937, lng: -17.4441 });
+                    return;
+                }
+                const geocoder = new google.maps.Geocoder();
+                geocoder.geocode({ address: address + ', Dakar, Senegal' }, (results, status) => {
+                    if (status === 'OK' && results[0]) {
+                        resolve({
+                            lat: results[0].geometry.location.lat(),
+                            lng: results[0].geometry.location.lng()
+                        });
+                    } else {
+                        resolve({ lat: 14.6937, lng: -17.4441 });
+                    }
+                });
+            });
+        }
+
+        function refuseCourse(courseId, auto = false) {
+            const notification = document.querySelector('.course-notification');
+            if (notification) {
+                clearInterval(notification.timerInterval);
+                clearInterval(notification.beepInterval);
+                notification.remove();
+            }
+            
+            const courseBadge = document.getElementById('navCourseBadge');
+            if (courseBadge) courseBadge.style.display = 'none';
+            
+            if (!auto) {
+                recordRefusedCourse();
+            }
+            
+            showToast(auto ? '⏱️ Temps écoulé' : 'Course refusée', 'info');
+        }
+
+        // ========== ACTIVE COURSE MAP ==========
+        function initActiveCourseMap() {
+            if (!google || !google.maps) return;
+
+            const mapElement = document.getElementById('activeCourseMap');
+            if (!mapElement) return;
+
+            const centerPos = driverPosition || currentCourse?.departCoords || { lat: 14.6937, lng: -17.4441 };
+
+            // Cleanup des anciens markers
+            if (driverMarker && driverMarker.getMap() === activeCourseMap) {
+                driverMarker.setMap(null);
+            }
+            if (clientPickupMarker) {
+                clientPickupMarker.setMap(null);
+                clientPickupMarker = null;
+            }
+            if (clientDestinationMarker) {
+                clientDestinationMarker.setMap(null);
+                clientDestinationMarker = null;
+            }
+
+            activeCourseMap = new google.maps.Map(mapElement, {
+                center: centerPos,
+                zoom: 13,
+                disableDefaultUI: true,
+                zoomControl: true
+            });
+
+            directionsRenderer = new google.maps.DirectionsRenderer({
+                map: activeCourseMap,
+                suppressMarkers: true,
+                polylineOptions: { strokeColor: '#2196F3', strokeWeight: 5 }
+            });
+
+            if (driverPosition) {
+                driverMarker = new google.maps.Marker({
+                    map: activeCourseMap,
+                    position: driverPosition,
+                    icon: {
+                        path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
+                        scale: 8,
+                        fillColor: '#2196F3',
+                        fillOpacity: 1,
+                        strokeColor: '#fff',
+                        strokeWeight: 2
+                    },
+                    zIndex: 100
+                });
+            }
+
+            if (currentCourse?.departCoords) {
+                clientPickupMarker = new google.maps.Marker({
+                    map: activeCourseMap,
+                    position: currentCourse.departCoords,
+                    icon: {
+                        url: 'data:image/svg+xml,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40"><circle cx="20" cy="20" r="18" fill="#4CAF50" stroke="white" stroke-width="3"/><text x="20" y="26" text-anchor="middle" fill="white" font-size="16" font-weight="bold">C</text></svg>`),
+                        scaledSize: new google.maps.Size(40, 40),
+                        anchor: new google.maps.Point(20, 20)
+                    }
+                });
+            }
+
+            if (currentCourse?.destinationCoords) {
+                clientDestinationMarker = new google.maps.Marker({
+                    map: activeCourseMap,
+                    position: currentCourse.destinationCoords,
+                    icon: {
+                        url: 'data:image/svg+xml,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40"><circle cx="20" cy="20" r="18" fill="#E30613" stroke="white" stroke-width="3"/><text x="20" y="26" text-anchor="middle" fill="white" font-size="16" font-weight="bold">D</text></svg>`),
+                        scaledSize: new google.maps.Size(40, 40),
+                        anchor: new google.maps.Point(20, 20)
+                    }
+                });
+            }
+
+            setTimeout(() => {
+                google.maps.event.trigger(activeCourseMap, 'resize');
+                const bounds = new google.maps.LatLngBounds();
+                if (driverPosition) bounds.extend(driverPosition);
+                if (currentCourse?.departCoords) bounds.extend(currentCourse.departCoords);
+                if (currentCourse?.destinationCoords) bounds.extend(currentCourse.destinationCoords);
+                if (!bounds.isEmpty()) activeCourseMap.fitBounds(bounds, { padding: 50 });
+            }, 200);
+
+            calculateApprocheRoute();
+            calculateCourseRoute();
+        }
+
+        function calculateApprocheRoute() {
+            if (!driverPosition || !currentCourse?.departCoords || !directionsService) return;
+
+            directionsService.route({
+                origin: driverPosition,
+                destination: currentCourse.departCoords,
+                travelMode: google.maps.TravelMode.DRIVING
+            }, (result, status) => {
+                if (status === 'OK') {
+                    approcheRoute = result;
+                    const leg = result.routes[0].legs[0];
+                    document.getElementById('approcheDistance').textContent = leg.distance.text;
+                    document.getElementById('approcheDuration').textContent = leg.duration.text;
+                    const eta = new Date(Date.now() + leg.duration.value * 1000);
+                    document.getElementById('approcheETA').textContent = eta.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+                    if (currentRouteMode === 'approche' && directionsRenderer) directionsRenderer.setDirections(result);
+                }
+            });
+        }
+
+        function calculateCourseRoute() {
+            if (!currentCourse?.departCoords || !currentCourse?.destinationCoords || !directionsService) return;
+
+            directionsService.route({
+                origin: currentCourse.departCoords,
+                destination: currentCourse.destinationCoords,
+                travelMode: google.maps.TravelMode.DRIVING
+            }, (result, status) => {
+                if (status === 'OK') {
+                    courseRoute = result;
+                    const leg = result.routes[0].legs[0];
+                    document.getElementById('courseDistance').textContent = leg.distance.text;
+                    document.getElementById('courseDuration').textContent = leg.duration.text;
+                    document.getElementById('coursePrice').textContent = (currentCourse.prixEstime || 0).toLocaleString() + ' F';
+                    if (currentRouteMode === 'course' && directionsRenderer) directionsRenderer.setDirections(result);
+                }
+            });
+        }
+
+        function updateApprocheRoute() {
+            if (currentRouteMode === 'approche' && driverPosition && driverMarker) {
+                driverMarker.setPosition(driverPosition);
+                calculateApprocheRoute();
+            }
+        }
+
+        function showRouteTab(mode) {
+            if (mode === 'course' && currentCourse?.statut !== 'en_cours') {
+                showToast('⚠️ Démarrez d\'abord la course', 'info');
+                return;
+            }
+
+            currentRouteMode = mode;
+            document.getElementById('tabApproche').classList.toggle('active', mode === 'approche');
+            document.getElementById('tabCourse').classList.toggle('active', mode === 'course');
+            document.getElementById('routeInfoApproche').style.display = mode === 'approche' ? 'block' : 'none';
+            document.getElementById('routeInfoCourse').style.display = mode === 'course' ? 'block' : 'none';
+
+            if (directionsRenderer) {
+                if (mode === 'approche' && approcheRoute) {
+                    directionsRenderer.setDirections(approcheRoute);
+                    directionsRenderer.setOptions({ polylineOptions: { strokeColor: '#2196F3', strokeWeight: 5 } });
+                } else if (mode === 'course' && courseRoute) {
+                    directionsRenderer.setDirections(courseRoute);
+                    directionsRenderer.setOptions({ polylineOptions: { strokeColor: '#00A854', strokeWeight: 5 } });
+                }
+            }
         }
 
         function displayActiveCourse() {
             if (!currentCourse) return;
+
             document.getElementById('clientName').textContent = currentCourse.clientNom || 'Client';
+            document.getElementById('clientPhone').textContent = currentCourse.clientTelephone || '-';
+            document.getElementById('clientRating').textContent = currentCourse.clientRating ? `⭐ ${currentCourse.clientRating}` : '-';
             document.getElementById('activeDeparture').textContent = currentCourse.depart;
             document.getElementById('activeDestination').textContent = currentCourse.destination;
             document.getElementById('activePrice').textContent = `${(currentCourse.prixEstime || 0).toLocaleString()} FCFA`;
+
+            updateCourseStatusDisplay();
         }
 
         async function updateCourseStatus(newStatus) {
             if (!currentCourse) return;
+
+            showLoading('Mise à jour...');
             currentCourse.statut = newStatus;
-            showToast(newStatus === 'arrive' ? '✅ Arrivé' : '🚗 Démarré!', 'success');
-        }
 
-        async function completeCourse() {
-            if (!currentCourse) return;
-            if (!confirm('Terminer la course?')) return;
+            if (!currentUser.isDemo && !currentCourse.id.startsWith('TEST_')) {
+                try {
+                    const updateData = { statut: newStatus, derniereModification: firebase.firestore.FieldValue.serverTimestamp() };
+                    if (driverPosition) {
+                        updateData.chauffeurPosition = { latitude: driverPosition.lat, longitude: driverPosition.lng, timestamp: firebase.firestore.FieldValue.serverTimestamp() };
+                    }
+                    await db.collection('reservations').doc(currentCourse.id).update(updateData);
+                } catch (error) {
+                    console.error('Erreur:', error);
+                }
+            }
 
-            showLoading('Finalisation...');
-            await onCourseComplete();
-            
             hideLoading();
-            showToast('✅ Course terminée!', 'success');
-            showScreen('dashboardScreen');
-            loadWalletData();
+            updateCourseStatusDisplay();
+            showToast(newStatus === 'arrive' ? '✅ Vous êtes arrivé' : '🚗 Course démarrée!', 'success');
         }
 
-        function callClient() {
-            if (!currentCourse?.clientTelephone) return;
-            window.location.href = `tel:${currentCourse.clientTelephone}`;
+        function updateCourseStatusDisplay() {
+            const status = currentCourse?.statut || 'acceptee';
+            const statusBadge = document.getElementById('courseStatus');
+            const statusTitle = document.getElementById('courseStatusTitle');
+            const btnArrive = document.getElementById('btnArrive');
+            const btnStart = document.getElementById('btnStart');
+            const btnComplete = document.getElementById('btnComplete');
+            const btnNavigation = document.getElementById('btnNavigation');
+            const tabCourse = document.getElementById('tabCourse');
+
+            switch(status) {
+                case 'acceptee':
+                case 'en_route':
+                    statusBadge.className = 'status-badge approche';
+                    statusBadge.textContent = '🚗 En route vers client';
+                    statusTitle.textContent = 'Direction: ' + currentCourse.depart;
+                    btnArrive.style.display = 'block';
+                    btnStart.style.display = 'none';
+                    btnComplete.disabled = true;
+                    btnNavigation.innerHTML = '<i class="fas fa-map-marked-alt"></i> GPS Client';
+                    btnNavigation.onclick = () => openGoogleMapsToClient();
+                    tabCourse.classList.add('disabled');
+                    break;
+                case 'arrive':
+                    statusBadge.className = 'status-badge arrive';
+                    statusBadge.textContent = '📍 Arrivé - En attente client';
+                    statusTitle.textContent = 'Le client arrive...';
+                    btnArrive.style.display = 'none';
+                    btnStart.style.display = 'block';
+                    btnComplete.disabled = true;
+                    tabCourse.classList.add('disabled');
+                    break;
+                case 'en_cours':
+                    statusBadge.className = 'status-badge en-cours';
+                    statusBadge.textContent = '🚗 Course en cours';
+                    statusTitle.textContent = 'Direction: ' + currentCourse.destination;
+                    btnArrive.style.display = 'none';
+                    btnStart.style.display = 'none';
+                    btnComplete.disabled = false;
+                    btnNavigation.innerHTML = '<i class="fas fa-map-marked-alt"></i> GPS Destination';
+                    btnNavigation.onclick = () => openGoogleMapsToDestination();
+                    tabCourse.classList.remove('disabled');
+                    currentRouteMode = 'course';
+                    showRouteTab('course');
+                    break;
+            }
         }
 
         function openGoogleMapsToClient() {
-            if (!currentCourse?.departCoords) return;
+            if (!currentCourse?.departCoords) return showToast('Coordonnées non disponibles', 'error');
             const { lat, lng } = currentCourse.departCoords;
-            window.open(`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`, '_blank');
+            window.open(`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=driving`, '_blank');
         }
 
-        function updateApprocheRoute() {}
-        function showRouteTab(mode) {}
-        function cancelCourse() {
-            if (confirm('Annuler?')) {
-                onCourseComplete();
-                showToast('Annulée', 'info');
-                showScreen('dashboardScreen');
+        function openGoogleMapsToDestination() {
+            if (!currentCourse?.destinationCoords) return showToast('Coordonnées non disponibles', 'error');
+            const { lat, lng } = currentCourse.destinationCoords;
+            window.open(`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=driving`, '_blank');
+        }
+
+        function callClient() {
+            if (!currentCourse?.clientTelephone) {
+                return showToast('Numéro non disponible', 'error');
             }
+            window.location.href = `tel:${currentCourse.clientTelephone}`;
         }
 
-        // DASHBOARD
-        async function loadDashboardData() {
+        async function completeCourse() {
+            if (!currentCourse || currentCourse.statut !== 'en_cours') return showToast('⚠️ Démarrez d\'abord la course', 'error');
+            if (!confirm('Confirmer la fin de la course?')) return;
+
+            showLoading('Finalisation...');
+            const driverId = currentUser.firestoreId || currentUser.uid;
+
+            if (!currentUser.isDemo && !currentCourse.id.startsWith('TEST_')) {
+                try {
+                    const batch = db.batch();
+                    
+                    const reservationRef = db.collection('reservations').doc(currentCourse.id);
+                    batch.update(reservationRef, {
+                        statut: 'terminee',
+                        dateFin: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    
+                    const driverRef = db.collection('drivers').doc(driverId);
+                    batch.update(driverRef, {
+                        statut: 'disponible',
+                        currentBookingId: null,
+                        reservationEnCours: null,
+                        coursesCompletees: firebase.firestore.FieldValue.increment(1),
+                        revenusTotal: firebase.firestore.FieldValue.increment(currentCourse.prixEstime || 0)
+                    });
+                    
+                    await batch.commit();
+                } catch (error) {
+                    console.error('Erreur:', error);
+                }
+            }
+
+            await onCourseComplete();
+
+            hideLoading();
+            showToast('✅ Course terminée!', 'success');
+            showScreen('dashboardScreen');
+            await loadDailyStats();
+            await loadWalletData();
+        }
+
+        async function cancelCourse() {
+            if (!confirm('Annuler cette course?')) return;
+
+            showLoading('Annulation...');
+            const driverId = currentUser.firestoreId || currentUser.uid;
+
+            if (!currentUser.isDemo && currentCourse && !currentCourse.id.startsWith('TEST_')) {
+                try {
+                    const batch = db.batch();
+                    
+                    const reservationRef = db.collection('reservations').doc(currentCourse.id);
+                    batch.update(reservationRef, {
+                        statut: 'annulee',
+                        annuleePar: 'chauffeur',
+                        dateAnnulation: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    
+                    const driverRef = db.collection('drivers').doc(driverId);
+                    batch.update(driverRef, {
+                        statut: 'disponible',
+                        currentBookingId: null,
+                        reservationEnCours: null
+                    });
+                    
+                    await batch.commit();
+                } catch (error) {
+                    console.error('Erreur:', error);
+                }
+            }
+
+            await onCourseComplete();
+
+            currentCourse = null;
+            hideLoading();
+            showToast('Course annulée', 'info');
+            showScreen('dashboardScreen');
+        }
+
+        // ========== STATS COURSES ==========
+        async function loadCourseStats() {
             if (!currentUser || currentUser.isDemo) {
-                loadDashboardDataDemo();
+                courseStats = {
+                    accepted: 42,
+                    refused: 5,
+                    missed: 3,
+                    todayAccepted: 5,
+                    todayMissed: 1
+                };
+                updateStatsDisplay();
                 return;
             }
-
+            
             try {
                 const driverId = currentUser.firestoreId || currentUser.uid;
                 const driverDoc = await db.collection('drivers').doc(driverId).get();
                 
                 if (driverDoc.exists) {
                     const data = driverDoc.data();
-                    
-                    // Charger et afficher la photo
-                    const photoUrl = await fetchDriverPhoto({ ...data, id: driverId });
-                    displayProfilePhoto(photoUrl);
-
-                    // Afficher les informations
-                    document.getElementById('profileName').textContent = `${data.prenom || ''} ${data.nom || ''}`.trim();
-                    document.getElementById('profilePhone').textContent = data.telephone || '';
-                    document.getElementById('profileFirestoreId').textContent = driverId;
-                    
-                    // Véhicule
-                    let vehicule = '-';
-                    if (data.vehicule?.modele) {
-                        vehicule = data.vehicule.modele;
-                        if (data.vehicule.annee) vehicule += ` ${data.vehicule.annee}`;
-                    } else if (data.typeVehicule) {
-                        vehicule = data.typeVehicule;
-                    }
-                    document.getElementById('profileVehicle').textContent = vehicule;
-                    
-                    // Stats
-                    document.getElementById('coursesTotal').textContent = data.coursesCompletees || 0;
-                    document.getElementById('profileTotalCourses').textContent = data.coursesCompletees || 0;
-                    document.getElementById('profileRevenuTotal').textContent = (data.revenusTotal || 0).toLocaleString() + ' FCFA';
-                    
-                    // Note
-                    const rating = data.rating || 4.8;
-                    document.getElementById('rating').textContent = rating.toFixed(1);
-                    document.getElementById('profileRating').textContent = rating.toFixed(1);
-
-                    // Charger les stats du jour
-                    await loadDailyStats();
-                    
-                    console.log('✅ Dashboard chargé');
+                    courseStats = {
+                        accepted: data.coursesAcceptees || 0,
+                        refused: data.coursesRefusees || 0,
+                        missed: data.coursesMissed || 0,
+                        todayAccepted: data.todayAccepted || 0,
+                        todayMissed: data.todayMissed || 0
+                    };
                 }
+                
+                updateStatsDisplay();
             } catch (error) {
-                console.error('❌ Erreur chargement dashboard:', error);
-                showToast('⚠️ Erreur de chargement', 'warning');
+                console.error('Erreur chargement stats:', error);
             }
         }
+        
+        async function saveCourseStats() {
+            if (!currentUser || currentUser.isDemo) return;
+            
+            try {
+                const driverId = currentUser.firestoreId || currentUser.uid;
+                await db.collection('drivers').doc(driverId).update({
+                    coursesAcceptees: courseStats.accepted,
+                    coursesRefusees: courseStats.refused,
+                    coursesMissed: courseStats.missed,
+                    todayAccepted: courseStats.todayAccepted,
+                    todayMissed: courseStats.todayMissed
+                });
+            } catch (error) {
+                console.error('❌ Erreur sauvegarde stats:', error);
+            }
+        }
+        
+        function updateStatsDisplay() {
+            const total = courseStats.accepted + courseStats.refused + courseStats.missed;
+            const acceptanceRate = total > 0 ? ((courseStats.accepted / total) * 100).toFixed(1) : 0;
+            
+            document.getElementById('acceptanceRate').textContent = `${acceptanceRate}%`;
+            document.getElementById('acceptanceBar').style.width = `${acceptanceRate}%`;
+            document.getElementById('coursesAccepted').textContent = courseStats.accepted;
+            document.getElementById('coursesRefused').textContent = courseStats.refused;
+            document.getElementById('coursesMissed').textContent = courseStats.missed;
+            
+            const rateElement = document.getElementById('acceptanceRate');
+            if (acceptanceRate >= 80) {
+                rateElement.className = 'stats-row-value good';
+            } else if (acceptanceRate >= 60) {
+                rateElement.className = 'stats-row-value warning';
+            } else {
+                rateElement.className = 'stats-row-value bad';
+            }
+        }
+        
+        function recordMissedCourse(course) {
+            courseStats.missed++;
+            courseStats.todayMissed++;
+            updateStatsDisplay();
+            saveCourseStats();
+        }
+        
+        function recordAcceptedCourse() {
+            courseStats.accepted++;
+            courseStats.todayAccepted++;
+            updateStatsDisplay();
+            saveCourseStats();
+        }
+        
+        function recordRefusedCourse() {
+            courseStats.refused++;
+            updateStatsDisplay();
+            saveCourseStats();
+        }
 
+        // ========== STATS DU JOUR ==========
         async function loadDailyStats() {
             if (!currentUser || currentUser.isDemo) {
                 document.getElementById('coursesJour').textContent = '5';
@@ -1809,6 +2576,8 @@
                 
                 const today = new Date();
                 today.setHours(0, 0, 0, 0);
+                const tomorrow = new Date(today);
+                tomorrow.setDate(tomorrow.getDate() + 1);
 
                 const snapshot = await db.collection('reservations')
                     .where('chauffeurAssigne', '==', driverId)
@@ -1828,10 +2597,8 @@
                         courseDate = new Date(data.dateFin.seconds * 1000);
                     }
 
-                    if (courseDate && courseDate >= today) {
+                    if (courseDate && courseDate >= today && courseDate < tomorrow) {
                         coursesJour++;
-                        
-                        // Calculer les revenus nets (80%)
                         const earnings = calculateDriverEarnings(data.prixEstime || 0, data.pourboire || 0);
                         revenusJour += earnings.totalEarned;
                     }
@@ -1841,41 +2608,66 @@
                 document.getElementById('revenusJour').textContent = revenusJour.toLocaleString();
 
             } catch (error) {
-                console.error('❌ Erreur stats jour:', error);
+                console.error('❌ Erreur stats du jour:', error);
                 document.getElementById('coursesJour').textContent = '0';
                 document.getElementById('revenusJour').textContent = '0';
             }
         }
 
+        // ========== DASHBOARD ==========
+        async function loadDashboardData() {
+            if (!currentUser || currentUser.isDemo) return loadDashboardDataDemo();
+
+            try {
+                const driverId = currentUser.firestoreId || currentUser.uid;
+                const driverDoc = await db.collection('drivers').doc(driverId).get();
+                const data = driverDoc.data();
+
+                const photoUrl = await fetchDriverPhoto({ ...data, id: driverId });
+                displayProfilePhoto(photoUrl);
+
+                document.getElementById('profileName').textContent = `${data.prenom || ''} ${data.nom || ''}`;
+                document.getElementById('profilePhone').textContent = data.telephone || '';
+                document.getElementById('profileFirestoreId').textContent = driverId;
+                document.getElementById('profileVehicle').textContent = data.vehicule?.modele || data.typeVehicule || '-';
+                
+                document.getElementById('coursesTotal').textContent = data.coursesCompletees || 0;
+                document.getElementById('profileTotalCourses').textContent = data.coursesCompletees || 0;
+                document.getElementById('profileRevenuTotal').textContent = (data.revenusTotal || 0).toLocaleString() + ' FCFA';
+
+                await loadDailyStats();
+            } catch (error) {
+                console.error('Erreur:', error);
+            }
+        }
+
         function loadDashboardDataDemo() {
+            displayProfilePhoto(null);
+            
             document.getElementById('profileName').textContent = `${currentUser.prenom} ${currentUser.nom}`;
             document.getElementById('profilePhone').textContent = currentUser.telephone;
             document.getElementById('profileFirestoreId').textContent = currentUser.firestoreId;
-            document.getElementById('profileVehicle').textContent = 'Toyota Corolla 2020 (Demo)';
+            document.getElementById('profileVehicle').textContent = 'Toyota Corolla (Demo)';
+            document.getElementById('rating').textContent = currentUser.rating.toFixed(1);
+            document.getElementById('profileRating').textContent = currentUser.rating.toFixed(1);
+            document.getElementById('coursesTotal').textContent = currentUser.coursesCompletees;
+            document.getElementById('profileTotalCourses').textContent = currentUser.coursesCompletees;
+            document.getElementById('profileRevenuTotal').textContent = currentUser.revenusTotal.toLocaleString() + ' FCFA';
+            
             document.getElementById('coursesJour').textContent = '5';
             document.getElementById('revenusJour').textContent = '17,500';
-            document.getElementById('coursesTotal').textContent = '42';
-            document.getElementById('profileTotalCourses').textContent = '42';
-            document.getElementById('profileRevenuTotal').textContent = '150,000 FCFA';
-            document.getElementById('rating').textContent = '4.8';
-            document.getElementById('profileRating').textContent = '4.8';
-            
-            // Afficher avatar par défaut en mode démo
-            displayProfilePhoto(null);
         }
 
-        // HISTORY
+        // ========== HISTORIQUE ==========
         async function loadHistory() {
-            const historyList = document.getElementById('historyList');
-            historyList.innerHTML = '<div style="text-align: center; padding: 40px; color: #666;"><div class="loading-spinner" style="margin: 0 auto 15px; border-color: #ddd; border-top-color: #00A854; width: 40px; height: 40px;"></div>Chargement...</div>';
-
             if (!currentUser || currentUser.isDemo) {
-                setTimeout(() => {
-                    loadHistoryDemo();
-                    showToast('✅ Historique rafraîchi', 'success');
-                }, 800);
+                loadHistoryDemo();
+                showToast('✅ Historique rafraîchi', 'success');
                 return;
             }
+
+            const historyList = document.getElementById('historyList');
+            historyList.innerHTML = '<div style="text-align: center; padding: 40px; color: #666;"><div class="loading-spinner" style="margin: 0 auto 15px; border-color: #ddd; border-top-color: #00A854; width: 40px; height: 40px;"></div>Chargement...</div>';
 
             try {
                 const driverId = currentUser.firestoreId || currentUser.uid;
@@ -1935,7 +2727,7 @@
                 showToast(`✅ ${courses.length} course(s) chargée(s)`, 'success');
 
             } catch (error) {
-                console.error('Erreur historique:', error);
+                console.error('❌ Erreur:', error);
                 historyList.innerHTML = `
                     <div style="text-align: center; padding: 40px; color: #721c24; background: #f8d7da; border-radius: 10px; margin: 15px;">
                         <p><strong>Erreur de chargement</strong></p>
@@ -1944,68 +2736,69 @@
                         </button>
                     </div>
                 `;
-                showToast('❌ Erreur de chargement', 'error');
+                showToast('Erreur de chargement', 'error');
             }
         }
 
         function loadHistoryDemo() {
             const historyList = document.getElementById('historyList');
             const courses = [
-                { date: new Date(), depart: 'Plateau', dest: 'Almadies', prix: 4500, statut: 'terminee', client: 'Aminata Sow' },
-                { date: new Date(Date.now() - 3600000), depart: 'Sacré-Cœur', dest: 'Yoff', prix: 3200, statut: 'terminee', client: 'Omar Diop' },
-                { date: new Date(Date.now() - 7200000), depart: 'Médina', dest: 'Ngor', prix: 2800, statut: 'terminee', client: 'Fatou Fall' },
-                { date: new Date(Date.now() - 86400000), depart: 'Point E', dest: 'Ouakam', prix: 3500, statut: 'annulee', client: 'Moussa Ba' },
-                { date: new Date(Date.now() - 172800000), depart: 'Mermoz', dest: 'Liberté 6', prix: 2000, statut: 'terminee', client: 'Aïssa Ndiaye' }
+                { date: new Date(), depart: 'Plateau', dest: 'Almadies', prix: 4500 },
+                { date: new Date(Date.now() - 3600000), depart: 'Sacré-Cœur', dest: 'Yoff', prix: 3200 },
+                { date: new Date(Date.now() - 86400000), depart: 'Médina', dest: 'Ngor', prix: 2800 }
             ];
-            
-            historyList.innerHTML = courses.map(c => {
-                const isTerminee = c.statut === 'terminee';
-                const statut = isTerminee ? '✅ Terminée' : '❌ Annulée';
-                const statutStyle = isTerminee ? 'background: #00A854;' : 'background: #E30613;';
-                
-                return `
-                    <div class="history-item">
-                        <div class="history-header">
-                            <span class="history-date">${c.date.toLocaleDateString('fr-FR')} ${c.date.toLocaleTimeString('fr-FR', {hour: '2-digit', minute: '2-digit'})}</span>
-                            <span class="history-price">${c.prix.toLocaleString()} FCFA</span>
-                        </div>
-                        <div class="history-route">📍 ${c.depart} → 🎯 ${c.dest}</div>
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">
-                            <span class="history-status" style="${statutStyle}">${statut}</span>
-                            <span style="color: #666; font-size: 0.8em;">👤 ${c.client}</span>
-                        </div>
+            historyList.innerHTML = courses.map(c => `
+                <div class="history-item">
+                    <div class="history-header">
+                        <span class="history-date">${c.date.toLocaleDateString('fr-FR')} ${c.date.toLocaleTimeString('fr-FR', {hour: '2-digit', minute: '2-digit'})}</span>
+                        <span class="history-price">${c.prix.toLocaleString()} FCFA</span>
                     </div>
-                `;
-            }).join('');
+                    <div class="history-route">📍 ${c.depart} → 🎯 ${c.dest}</div>
+                    <span class="history-status">✅ Terminée</span>
+                </div>
+            `).join('');
         }
 
-        // NAV
+        // ========== NAVIGATION ==========
         function showScreen(screenId) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(screenId).classList.add('active');
 
             document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
-            const navIndex = {
-                'dashboardScreen': 0,
-                'walletScreen': 1,
-                'activeCourseScreen': 2,
-                'historyScreen': 3,
-                'profileScreen': 4
-            };
+            const navIndex = { 'dashboardScreen': 0, 'walletScreen': 1, 'activeCourseScreen': 2, 'historyScreen': 3, 'profileScreen': 4 };
             if (navIndex[screenId] !== undefined) {
                 document.querySelectorAll('.nav-item')[navIndex[screenId]].classList.add('active');
             }
 
+            if (screenId === 'activeCourseScreen' && currentCourse) {
+                setTimeout(() => initActiveCourseMap(), 100);
+            }
+
+            if (screenId === 'dashboardScreen' && map) {
+                setTimeout(() => {
+                    google.maps.event.trigger(map, 'resize');
+                    if (driverPosition) map.setCenter(driverPosition);
+                }, 100);
+                
+                if (currentUser && !currentUser.isDemo) {
+                    loadDailyStats();
+                }
+            }
+
+            if (screenId === 'historyScreen') loadHistory();
             if (screenId === 'walletScreen') loadWalletData();
         }
 
-        // UI
+        // ========== UI ==========
         function showToast(message, type = 'info') {
             const toast = document.createElement('div');
             toast.className = `toast ${type}`;
             toast.innerHTML = `<strong>${message}</strong>`;
             document.body.appendChild(toast);
-            setTimeout(() => toast.remove(), 3000);
+            setTimeout(() => {
+                toast.style.animation = 'slideInRight 0.3s reverse';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
         }
 
         function showLoading(text = 'Chargement...') {
@@ -2021,12 +2814,12 @@
             if (loading) loading.remove();
         }
 
-        // INIT
+        // ========== INIT ==========
         document.addEventListener('DOMContentLoaded', () => {
-            console.log('🚕 Al Bourakh Driver v5.1 Ready');
+            console.log('🚕 Al Bourakh Driver v5.2 GPS PRO + Portefeuille - Ready');
             document.getElementById('loginPhone').value = '+221 77 712 34 56';
             document.getElementById('loginPassword').value = 'demo123';
         });
     </script>
-</body>
+</body> 
 </html>
