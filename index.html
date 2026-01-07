@@ -909,7 +909,7 @@ async function creditDriverWallet(course) {
     
     // ✅ Marquer comme en cours AVANT le traitement
     creditsInProgress.add(courseId);
-    window.globalCreditLock.set(courseId, Date.now());
+    
     
     const prix = course.prixEstime || 0;
     const netAmount = Math.round(prix * DRIVER_RATE);
