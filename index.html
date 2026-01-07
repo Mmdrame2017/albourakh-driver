@@ -771,6 +771,9 @@
         let lastKnownPosition = null;
         let positionBuffer = [];
         let currentScreen = 'loginScreen';
+        // ========== VARIABLES AUTO-REFRESH HISTORIQUE ==========
+let historyRefreshInterval = null;
+const HISTORY_REFRESH_SECONDS = 30; // Rafraîchir toutes les 30 secondes
 
         const TRACKING_CONFIG = {
             updateInterval: 3000,
@@ -1019,7 +1022,14 @@ async function creditDriverWallet(course) {
             console.log('🔄 [v5.6] Rafraîchissement automatique de l\'historique');
             await loadHistory();
         }
-        
+        // Après: showToast(`💰 +${netAmount.toLocaleString()} FCFA reçu!`, 'success');
+// Et après: playPaymentReceivedSound();
+
+// ⭐ NOUVEAU: Rafraîchir IMMÉDIATEMENT l'historique après crédit
+console.log('🔄 [v5.6] Rafraîchissement FORCÉ de l\'historique après crédit');
+await loadHistory();
+
+// Puis: loadDailyStats();
         loadDailyStats();
         
         console.log(`✅ [SUCCESS] Crédit réussi: ${netAmount} FCFA pour ${courseId}`);
@@ -2132,7 +2142,7 @@ async function creditDriverWallet(course) {
 
         async function handleLogin() { const phone = document.getElementById('loginPhone').value.trim(); const password = document.getElementById('loginPassword').value.trim(); if (!phone || !password) { showToast('Remplissez tous les champs', 'error'); return; } const validation = validateSenegalPhone(phone); if (!validation.valid) { showToast(`❌ ${validation.message}`, 'error'); return; } const normalizedPhone = validation.normalized; if (password === 'demo123') { showLoading('Connexion démo...'); setTimeout(async () => { currentUser = { firestoreId: 'DEMO_' + Date.now(), uid: 'DEMO_' + Date.now(), telephone: phone, prenom: 'Chauffeur', nom: 'Demo', rating: 4.8, coursesCompletees: 42, revenusTotal: 150000, isDemo: true }; hideLoading(); showToast('✅ Mode démo activé!', 'success'); document.getElementById('bottomNav').style.display = 'flex'; displayProfilePhoto(null); showScreen('dashboardScreen'); loadDashboardDataDemo(); await loadWalletData(); await loadCourseStats(); startLocationTracking(); }, 1000); return; } showLoading('Connexion...'); try { const existingDriver = await findDriverByPhone(normalizedPhone); if (existingDriver) { if (password !== 'Admin2025') { hideLoading(); showToast('❌ Mot de passe incorrect', 'error'); return; } currentUser = { firestoreId: existingDriver.id, uid: existingDriver.id, ...existingDriver }; await db.collection('drivers').doc(existingDriver.id).update({ derniereConnexion: firebase.firestore.FieldValue.serverTimestamp(), statut: 'hors_ligne' }); hideLoading(); showLoading('Chargement photo...'); const photoUrl = await fetchDriverPhoto(currentUser); displayProfilePhoto(photoUrl); hideLoading(); showToast(`✅ Bienvenue ${currentUser.prenom || ''} ${currentUser.nom || ''}!`, 'success'); document.getElementById('bottomNav').style.display = 'flex'; showScreen('dashboardScreen'); await loadDashboardData(); await loadWalletData(); await loadCourseStats(); startLocationTracking(); startListeningForPayments(); return; } hideLoading(); showToast('❌ Numéro non enregistré', 'error'); } catch (error) { console.error('Erreur:', error); hideLoading(); showToast('❌ Erreur: ' + error.message, 'error'); } }
 
-        function handleLogout() { if (confirm('Voulez-vous vous déconnecter?')) { showLoading('Déconnexion...'); stopWalletAutoRefresh(); if (isOnline) toggleOnlineStatus(); stopLocationTracking(); stopListeningForCourses(); stopListeningForPayments(); if (driverStatsListener) { driverStatsListener(); driverStatsListener = null; } if (!currentUser?.isDemo) auth.signOut(); currentUser = null; currentCourse = null; hideLoading(); document.getElementById('bottomNav').style.display = 'none'; showScreen('loginScreen'); showToast('Déconnexion réussie', 'info'); } }
+        function handleLogout() { if (confirm('Voulez-vous vous déconnecter?')) { showLoading('Déconnexion...'); stopWalletAutoRefresh(); stopHistoryAutoRefresh(); if (isOnline) toggleOnlineStatus(); stopLocationTracking(); stopListeningForCourses(); stopListeningForPayments(); if (driverStatsListener) { driverStatsListener(); driverStatsListener = null; } if (!currentUser?.isDemo) auth.signOut(); currentUser = null; currentCourse = null; hideLoading(); document.getElementById('bottomNav').style.display = 'none'; showScreen('loginScreen'); showToast('Déconnexion réussie', 'info'); } }
 
         // ========== GOOGLE MAPS ==========
         function initMap() { const dakar = { lat: 14.6937, lng: -17.4441 }; map = new google.maps.Map(document.getElementById('map'), { center: dakar, zoom: 14, disableDefaultUI: true, zoomControl: true }); driverMarker = new google.maps.Marker({ map: map, icon: { path: google.maps.SymbolPath.CIRCLE, scale: 12, fillColor: '#00A854', fillOpacity: 1, strokeColor: '#fff', strokeWeight: 3 }, title: 'Ma position' }); directionsService = new google.maps.DirectionsService(); }
@@ -2192,9 +2202,35 @@ function calculateApprocheRoute() { if (!driverPosition || !currentCourse?.depar
     // ========== HISTORIQUE ==========
     async function loadHistory() { if (!currentUser || currentUser.isDemo) { loadHistoryDemo(); showToast('✅ Historique rafraîchi', 'success'); return; } const historyList = document.getElementById('historyList'); historyList.innerHTML = '<div style="text-align: center; padding: 40px; color: #666;"><div class="loading-spinner" style="margin: 0 auto 15px; border-color: #ddd; border-top-color: #00A854; width: 40px; height: 40px;"></div>Chargement...</div>'; try { const driverId = currentUser.firestoreId || currentUser.uid; const snapshot = await db.collection('reservations').where('chauffeurAssigne', '==', driverId).where('statut', 'in', ['terminee', 'annulee']).orderBy('timestamp', 'desc').limit(20).get(); if (snapshot.empty) { historyList.innerHTML = `<div style="text-align: center; padding: 40px; color: #666;"><div style="font-size: 3em; margin-bottom: 15px;">📭</div><p>Aucune course dans l'historique</p></div>`; showToast('Aucune course trouvée', 'info'); return; } const courses = []; snapshot.forEach(doc => { courses.push({ id: doc.id, ...doc.data() }); }); historyList.innerHTML = courses.map(c => { let date; if (c.timestamp?.toDate) date = c.timestamp.toDate(); else if (c.timestamp?.seconds) date = new Date(c.timestamp.seconds * 1000); else date = new Date(); const isTerminee = c.statut === 'terminee'; const isPaid = c.chauffeurCredite === true; let statut = isTerminee ? (isPaid ? '✅ Payée' : '⏳ Paiement en attente') : '❌ Annulée'; let statutStyle = isTerminee ? (isPaid ? 'background: #00A854;' : 'background: #f59e0b;') : 'background: #E30613;'; return `<div class="history-item"><div class="history-header"><span class="history-date">${date.toLocaleDateString('fr-FR')} ${date.toLocaleTimeString('fr-FR', {hour: '2-digit', minute: '2-digit'})}</span><span class="history-price">${(c.prixEstime || 0).toLocaleString()} FCFA</span></div><div class="history-route">📍 ${c.depart || 'Départ'} → 🎯 ${c.destination || 'Destination'}</div><div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;"><span class="history-status" style="${statutStyle}">${statut}</span><span style="color: #666; font-size: 0.8em;">👤 ${c.clientNom || 'Client'}</span></div></div>`; }).join(''); showToast(`✅ ${courses.length} course(s) chargée(s)`, 'success'); } catch (error) { console.error('❌ Erreur:', error); historyList.innerHTML = `<div style="text-align: center; padding: 40px; color: #721c24; background: #f8d7da; border-radius: 10px; margin: 15px;"><p><strong>Erreur de chargement</strong></p><button onclick="loadHistory()" style="margin-top: 15px; padding: 10px 20px; background: #00A854; color: white; border: none; border-radius: 8px; cursor: pointer;">🔄 Réessayer</button></div>`; showToast('Erreur de chargement', 'error'); } }
     function loadHistoryDemo() { const historyList = document.getElementById('historyList'); const courses = [ { date: new Date(), depart: 'Plateau', dest: 'Almadies', prix: 4500, paid: true }, { date: new Date(Date.now() - 3600000), depart: 'Sacré-Cœur', dest: 'Yoff', prix: 3200, paid: false }, { date: new Date(Date.now() - 86400000), depart: 'Médina', dest: 'Ngor', prix: 2800, paid: true } ]; historyList.innerHTML = courses.map(c => `<div class="history-item"><div class="history-header"><span class="history-date">${c.date.toLocaleDateString('fr-FR')} ${c.date.toLocaleTimeString('fr-FR', {hour: '2-digit', minute: '2-digit'})}</span><span class="history-price">${c.prix.toLocaleString()} FCFA</span></div><div class="history-route">📍 ${c.depart} → 🎯 ${c.dest}</div><span class="history-status" style="background: ${c.paid ? '#00A854' : '#f59e0b'};">${c.paid ? '✅ Payée' : '⏳ En attente'}</span></div>`).join(''); }
+// ========== AUTO-REFRESH HISTORIQUE ==========
+function startHistoryAutoRefresh() {
+    stopHistoryAutoRefresh();
+    
+    console.log(`🔄 [Historique] Auto-refresh activé (${HISTORY_REFRESH_SECONDS}s)`);
+    
+    historyRefreshInterval = setInterval(() => {
+        if (currentScreen === 'historyScreen' && currentUser && !currentUser.isDemo) {
+            console.log(`🔄 [Historique] Rafraîchissement automatique`);
+            loadHistory();
+        }
+    }, HISTORY_REFRESH_SECONDS * 1000);
+}
 
+function stopHistoryAutoRefresh() {
+    if (historyRefreshInterval) {
+        clearInterval(historyRefreshInterval);
+        historyRefreshInterval = null;
+        console.log('🛑 [Historique] Auto-refresh arrêté');
+    }
+}
     // ========== NAVIGATION ==========
-    function showScreen(screenId) { currentScreen = screenId; document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById(screenId).classList.add('active'); document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active')); const navIndex = { 'dashboardScreen': 0, 'walletScreen': 1, 'activeCourseScreen': 2, 'historyScreen': 3, 'profileScreen': 4 }; if (navIndex[screenId] !== undefined) document.querySelectorAll('.nav-item')[navIndex[screenId]].classList.add('active'); if (screenId === 'activeCourseScreen' && currentCourse) setTimeout(() => initActiveCourseMap(), 100); if (screenId === 'dashboardScreen' && map) { setTimeout(() => { google.maps.event.trigger(map, 'resize'); if (driverPosition) map.setCenter(driverPosition); }, 100); if (currentUser && !currentUser.isDemo) loadDailyStats(); renderPendingPaymentsSection(); } if (screenId === 'historyScreen') loadHistory(); if (screenId === 'walletScreen') loadWalletData(); }
+    function showScreen(screenId) { currentScreen = screenId; document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById(screenId).classList.add('active'); document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active')); const navIndex = { 'dashboardScreen': 0, 'walletScreen': 1, 'activeCourseScreen': 2, 'historyScreen': 3, 'profileScreen': 4 }; if (navIndex[screenId] !== undefined) document.querySelectorAll('.nav-item')[navIndex[screenId]].classList.add('active'); if (screenId === 'activeCourseScreen' && currentCourse) setTimeout(() => initActiveCourseMap(), 100); if (screenId === 'dashboardScreen' && map) { setTimeout(() => { google.maps.event.trigger(map, 'resize'); if (driverPosition) map.setCenter(driverPosition); }, 100); if (currentUser && !currentUser.isDemo) loadDailyStats(); renderPendingPaymentsSection(); } // NOUVEAU CODE
+if (screenId === 'historyScreen') {
+    loadHistory();
+    startHistoryAutoRefresh();  // ⭐ NOUVEAU
+} else {
+    stopHistoryAutoRefresh();   // ⭐ NOUVEAU
+} if (screenId === 'walletScreen') loadWalletData(); }
 
     // ========== UI ==========
     function showToast(message, type = 'info') { const toast = document.createElement('div'); toast.className = `toast ${type}`; toast.innerHTML = `<strong>${message}</strong>`; document.body.appendChild(toast); setTimeout(() => { toast.style.animation = 'slideInRight 0.3s reverse'; setTimeout(() => toast.remove(), 300); }, 3000); }
