@@ -813,14 +813,22 @@ const HISTORY_REFRESH_SECONDS = 30; // Rafraîchir toutes les 30 secondes
         // ========== 🔒 v5.6 FIX DÉFINITIF: ÉCOUTE PAIEMENTS AVEC REQUÊTE OPTIMALE ==========
         // ========== 🔐 v5.7 FIX: ÉCOUTE PAIEMENTS CORRIGÉE ==========
 // ========== 🔐 v5.8 FIX CRITIQUE - PROTECTION ANTI-DOUBLE ==========
+// ========== 🔐 v5.9 FIX CRITIQUE - LISTENER UNIQUE ==========
 function startListeningForPayments() {
+    // ✅ CRITIQUE: TOUJOURS arrêter l'ancien listener AVANT d'en créer un nouveau
+    if (pendingPaymentsListener) {
+        console.log('🛑 [v5.9] Arrêt ancien listener paiements');
+        pendingPaymentsListener();
+        pendingPaymentsListener = null;
+    }
+    
     if (!currentUser || currentUser.isDemo) {
         console.log('🧪 Mode démo: écoute paiements simulée');
         return;
     }
     
     const driverId = currentUser.firestoreId || currentUser.uid;
-    console.log(`👂 [v5.8] Écoute paiements pour driver: ${driverId}`);
+    console.log(`👂 [v5.9] Création listener UNIQUE pour: ${driverId}`);
     
     pendingPaymentsListener = db.collection('reservations')
         .where('chauffeurAssigne', '==', driverId)
@@ -828,52 +836,45 @@ function startListeningForPayments() {
         .where('chauffeurCredite', '==', false)
         .onSnapshot(async snapshot => {
             
-            console.log(`📊 [v5.8] Snapshot: ${snapshot.docChanges().length} changements`);
+            const changes = snapshot.docChanges().filter(c => c.type === 'added');
+            console.log(`📊 [v5.9] Snapshot: ${changes.length} nouveaux paiements`);
             
-            for (const change of snapshot.docChanges()) {
+            for (const change of changes) {
+                const course = { id: change.doc.id, ...change.doc.data() };
                 
-                if (change.type === 'added') {
-                    const course = { id: change.doc.id, ...change.doc.data() };
-                    
-                    console.log(`🔍 [v5.8] Paiement détecté: ${course.id}`);
-                    
-                    // ✅ PROTECTION 1: Déjà crédité dans cette session?
-                    if (creditedCoursesInSession.has(course.id)) {
-                        console.log(`⏭️ [v5.8] Course ${course.id} déjà créditée session - SKIP`);
-                        continue;
-                    }
-                    
-                    // ✅ PROTECTION 2: Déjà en cours de traitement?
-                    if (creditsInProgress.has(course.id)) {
-                        console.log(`⏭️ [v5.8] Course ${course.id} en cours - SKIP`);
-                        continue;
-                    }
-                    
-                    // ✅ PROTECTION 3: Verrou global actif?
-                    const lockTime = window.globalCreditLock.get(course.id);
-                    if (lockTime && (Date.now() - lockTime < 60000)) {
-                        console.log(`⏭️ [v5.8] Course ${course.id} verrouillée - SKIP`);
-                        continue;
-                    }
-                    
-                    // ✅ VERROUILLAGE SYNCHRONE IMMÉDIAT (AVANT tout await)
-                    creditsInProgress.add(course.id);
-                    window.globalCreditLock.set(course.id, Date.now());
-                    console.log(`🔐 [v5.8] Verrou posé pour ${course.id}`);
-                    
-                    // ✅ Maintenant on peut appeler creditDriverWallet
-                    console.log(`💰 [v5.8] Envoi au crédit: ${course.id}`);
-                    await creditDriverWallet(course);
-                    
-                } else {
-                    console.log(`⏭️ [v5.8] Change ignoré (type: ${change.type})`);
+                console.log(`🔍 [v5.9] Paiement: ${course.id}`);
+                
+                // ✅ TRIPLE VÉRIFICATION SYNCHRONE
+                if (creditedCoursesInSession.has(course.id)) {
+                    console.log(`⏭️ [v5.9] ${course.id} déjà crédité session`);
+                    continue;
                 }
+                
+                if (creditsInProgress.has(course.id)) {
+                    console.log(`⏭️ [v5.9] ${course.id} en cours`);
+                    continue;
+                }
+                
+                const lockTime = window.globalCreditLock.get(course.id);
+                if (lockTime && (Date.now() - lockTime < 120000)) { // 2 minutes
+                    console.log(`⏭️ [v5.9] ${course.id} verrouillé`);
+                    continue;
+                }
+                
+                // ✅ VERROUILLAGE IMMÉDIAT
+                creditsInProgress.add(course.id);
+                window.globalCreditLock.set(course.id, Date.now());
+                creditedCoursesInSession.add(course.id); // ⭐ MARQUER IMMÉDIATEMENT
+                
+                console.log(`🔐 [v5.9] Verrous posés pour ${course.id}`);
+                
+                await creditDriverWallet(course);
             }
             
             updatePendingPaymentsList(snapshot);
             
         }, error => {
-            console.error('❌ Erreur écoute paiements:', error);
+            console.error('❌ Erreur:', error);
         });
 }
         
@@ -1051,13 +1052,17 @@ await loadHistory();
             showToast('❌ Erreur lors du crédit', 'error');
         }
     } finally {
-        // ✅ Retirer du Set "en cours"
+    // ✅ Ne pas supprimer immédiatement - garder le verrou actif
+    // creditsInProgress.delete(courseId);  // COMMENTER CETTE LIGNE
+    
+    // Nettoyer seulement après 30 secondes
+    setTimeout(() => {
         creditsInProgress.delete(courseId);
-        
-        // ✅ Nettoyer les vieux verrous (>5min)
-        cleanOldCreditLocks();
-    }
-}        
+        console.log(`🧹 [v5.9] Verrou ${courseId} libéré après délai`);
+    }, 30000);
+    
+    cleanOldCreditLocks();
+}   
         // ========== 🧹 NETTOYAGE DES VERROUS ANCIENS ==========
         function cleanOldCreditLocks() {
             const now = Date.now();
