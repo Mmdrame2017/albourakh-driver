@@ -811,60 +811,55 @@ const HISTORY_REFRESH_SECONDS = 30; // Rafraîchir toutes les 30 secondes
         };
 
         // ========== 🔒 v5.6 FIX DÉFINITIF: ÉCOUTE PAIEMENTS AVEC REQUÊTE OPTIMALE ==========
-        function startListeningForPayments() {
-            if (!currentUser || currentUser.isDemo) {
-                console.log('🧪 Mode démo: écoute paiements simulée');
-                return;
-            }
+        // ========== 🔐 v5.7 FIX: ÉCOUTE PAIEMENTS CORRIGÉE ==========
+function startListeningForPayments() {
+    if (!currentUser || currentUser.isDemo) {
+        console.log('🧪 Mode démo: écoute paiements simulée');
+        return;
+    }
+    
+    const driverId = currentUser.firestoreId || currentUser.uid;
+    console.log(`👂 [v5.7] Écoute optimisée des paiements pour driver: ${driverId}`);
+    
+    pendingPaymentsListener = db.collection('reservations')
+        .where('chauffeurAssigne', '==', driverId)
+        .where('paiementValide', '==', true)
+        .where('chauffeurCredite', '==', false)
+        .onSnapshot(async snapshot => {
             
-            const driverId = currentUser.firestoreId || currentUser.uid;
-            console.log(`👂 [v5.6] Écoute optimisée des paiements pour driver: ${driverId}`);
+            console.log(`📊 [v5.7] Snapshot reçu: ${snapshot.docChanges().length} changements`);
             
-            // ✅ CORRECTION: Requête précise sur les paiements à créditer uniquement
-            pendingPaymentsListener = db.collection('reservations')
-                .where('chauffeurAssigne', '==', driverId)
-                .where('paiementValide', '==', true)      // ✅ Payé par client
-                .where('chauffeurCredite', '==', false)   // ✅ Pas encore crédité
-                .onSnapshot(async snapshot => {  // ✅ async pour await
+            for (const change of snapshot.docChanges()) {
+                
+                if (change.type === 'added') {
+                    const course = { id: change.doc.id, ...change.doc.data() };
                     
-                    console.log(`📊 [v5.6] Snapshot reçu: ${snapshot.docChanges().length} changements`);
+                    console.log(`🔍 [v5.7] Nouveau paiement détecté: ${course.id}`);
                     
-                    // ✅ CORRECTION: for...of au lieu de forEach pour gérer async/await
-                    for (const change of snapshot.docChanges()) {
-                        
-                        // ✅ CORRECTION: Ne traiter que les nouveaux documents (évite les duplicatas)
-                        if (change.type === 'added') {
-                            const course = { id: change.doc.id, ...change.doc.data() };
-                            
-                            console.log(`🔍 [v5.6] Nouveau paiement détecté: ${course.id}`);
-                            
-                            // 🔒 Vérification verrou global (Protection Niveau 1)
-                            const lockTime = window.globalCreditLock.get(course.id);
-                            if (lockTime && (Date.now() - lockTime < 60000)) {
-                                const age = Math.round((Date.now() - lockTime) / 1000);
-                                console.log(`🔒 [GlobalLock] Course ${course.id} verrouillée (${age}s)`);
-                                continue;
-                            }
-                            
-                            // 🔒 Poser le verrou global IMMÉDIATEMENT
-                            window.globalCreditLock.set(course.id, Date.now());
-                            console.log(`🔐 [v5.6] Verrou global posé pour ${course.id}`);
-                            
-                            // Traiter le crédit
-                            console.log(`💰 [v5.6] NOUVEAU PAIEMENT À CRÉDITER: ${course.id}`);
-                            await creditDriverWallet(course);
-                        } else {
-                            console.log(`⏭️ [v5.6] Change ignoré (type: ${change.type})`);
-                        }
+                    // ✅ FIX: Vérifier le verrou ICI, mais NE PAS le poser
+                    // Le verrou sera posé dans creditDriverWallet()
+                    const lockTime = window.globalCreditLock.get(course.id);
+                    if (lockTime && (Date.now() - lockTime < 60000)) {
+                        const age = Math.round((Date.now() - lockTime) / 1000);
+                        console.log(`🔐 [GlobalLock] Course ${course.id} déjà verrouillée (${age}s) - SKIP`);
+                        continue;
                     }
                     
-                    // ✅ Mise à jour après traitement
-                    updatePendingPaymentsList(snapshot);
+                    // ✅ FIX: NE PLUS poser le verrou ici - creditDriverWallet() le gère
+                    console.log(`💰 [v5.7] NOUVEAU PAIEMENT À CRÉDITER: ${course.id}`);
+                    await creditDriverWallet(course);
                     
-                }, error => {
-                    console.error('❌ Erreur écoute paiements:', error);
-                });
-        }
+                } else {
+                    console.log(`⏭️ [v5.7] Change ignoré (type: ${change.type})`);
+                }
+            }
+            
+            updatePendingPaymentsList(snapshot);
+            
+        }, error => {
+            console.error('❌ Erreur écoute paiements:', error);
+        });
+}
         
         function stopListeningForPayments() {
             if (pendingPaymentsListener) {
@@ -1031,8 +1026,11 @@ await loadHistory();
 
 // Puis: loadDailyStats();
         loadDailyStats();
-        
+
         console.log(`✅ [SUCCESS] Crédit réussi: ${netAmount} FCFA pour ${courseId}`);
+                // ⭐ v5.7: Rafraîchir l'historique après crédit réussi
+console.log('🔄 [v5.7] Rafraîchissement historique après crédit');
+await loadHistory();
         
     } catch (error) {
         // ✅ Gestion d'erreurs silencieuse pour doublons
