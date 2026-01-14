@@ -901,13 +901,13 @@ async function creditDriverWallet(course) {
         return;
     }
     
-    // ✅ VÉRIFICATION 3: Verrou global (Protection Niveau 1)
-    const lockTime = window.globalCreditLock.get(courseId);
-    if (lockTime && (Date.now() - lockTime < 60000)) {
-        const age = Math.round((Date.now() - lockTime) / 1000);
-        console.log(`⚠️ [GlobalLock] Course ${courseId} verrouillée (${age}s)`);
-        return;
-    }
+    // ✅ VÉRIFICATION 3: Verrou global (Protection Niveau 1) - DÉSACTIVÉ car déjà vérifié dans listener
+    // const lockTime = window.globalCreditLock.get(courseId);
+    // if (lockTime && (Date.now() - lockTime < 60000)) {
+    //     const age = Math.round((Date.now() - lockTime) / 1000);
+    //     console.log(`⚠️ [GlobalLock] Course ${courseId} verrouillée (${age}s)`);
+    //     return;
+    // }
     
     // ✅ Marquer comme en cours AVANT le traitement
     creditsInProgress.add(courseId);
