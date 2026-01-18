@@ -13,7 +13,7 @@
     <meta name="apple-mobile-web-app-title" content="Al Bourakh">
     <link rel="apple-touch-icon" href="https://i.imgur.com/VtgG6pR.png">
     
-    <title>Al Bourakh Driver v5.6 - Fix Définitif Double Crédit</title>
+    <title>Al Bourakh Driver v5.7 - Fix Définitif Double Crédit</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -342,7 +342,7 @@
                 <div class="login-logo">
                     <img src="https://i.imgur.com/VtgG6pR.png" alt="Al Bourakh Logo">
                 </div>
-                <h1 class="login-title">Al Bourakh Driver <span class="version-badge">v5.6</span><span class="security-badge">FIX PRO</span></h1>
+                <h1 class="login-title">Al Bourakh Driver <span class="version-badge">v5.7</span><span class="security-badge">FIX PRO</span></h1>
                 <p class="login-subtitle">Triple Protection Anti-Double Crédit ✅</p>
                 
                 <div class="input-group">
@@ -364,7 +364,7 @@
                 </div>
                 
                 <div style="background: #d1fae5; padding: 12px; border-radius: 10px; margin-top: 10px; border-left: 4px solid #10b981; font-size: 0.8em;">
-                    <p><strong>🔒 v5.6 TRIPLE PROTECTION:</strong></p>
+                    <p><strong>🔒 v5.7 TRIPLE PROTECTION:</strong></p>
                     <p>✅ <strong>Verrou global persistant (Map)</strong></p>
                     <p>✅ <strong>Requête Firestore optimale</strong></p>
                     <p>✅ <strong>Transaction atomique renforcée</strong></p>
@@ -718,7 +718,7 @@
         const db = firebase.firestore();
         const auth = firebase.auth();
 
-        console.log('🚕 Al Bourakh Driver v5.6 - Fix Définitif Double Crédit');
+        console.log('🚕 Al Bourakh Driver v5.7 - Fix Définitif Double Crédit');
         console.log('🔒 Triple Protection Active');
 
         // ========== CONSTANTES PORTEFEUILLE ==========
@@ -752,15 +752,7 @@
         let pendingPaymentsListener = null;
         let pendingPayments = [];
         
-        // ========== 🔒 v5.6 FIX: TRIPLE PROTECTION ==========
-        // Protection Niveau 1: Verrou Global Persistant (survit aux rechargements)
-        if (!window.globalCreditLock) {
-            window.globalCreditLock = new Map(); // courseId -> timestamp
-        }
-        
-        // Protection Niveau 2: Sets pour éviter double crédit en session
-        let creditedCoursesInSession = new Set();
-        let creditsInProgress = new Set();
+              
 
         // ========== VARIABLES TRACKING GPS ==========
         let watchPositionId = null;
@@ -807,266 +799,81 @@
             withdrawalDestination: 'Orange Money'
         };
 
-        // ========== 🔒 v5.6 FIX DÉFINITIF: ÉCOUTE PAIEMENTS AVEC REQUÊTE OPTIMALE ==========
-        function startListeningForPayments() {
-            if (!currentUser || currentUser.isDemo) {
-                console.log('🧪 Mode démo: écoute paiements simulée');
-                return;
-            }
+        // ========== 🔒 v5.7 FIX DÉFINITIF: ÉCOUTE PAIEMENTS AVEC REQUÊTE OPTIMALE ==========
+       // ========== 🔒 v5.7: ÉCOUTE PAIEMENTS - AFFICHAGE UNIQUEMENT ==========
+// ⚠️ IMPORTANT: Cette fonction ne crédite PLUS le chauffeur
+// Elle ne fait QUE mettre à jour l'affichage en temps réel
+function startListeningForPayments() {
+    if (!currentUser || currentUser.isDemo) {
+        console.log('🧪 Mode démo: écoute paiements simulée');
+        return;
+    }
+    
+    const driverId = currentUser.firestoreId || currentUser.uid;
+    console.log(`👂 [v5.7] Écoute paiements (AFFICHAGE UNIQUEMENT) pour driver: ${driverId}`);
+    
+    // ✅ Écoute pour AFFICHAGE seulement - pas de crédit
+    pendingPaymentsListener = db.collection('reservations')
+        .where('chauffeurAssigne', '==', driverId)
+        .where('statut', '==', 'terminee')
+        .onSnapshot(snapshot => {
             
-            const driverId = currentUser.firestoreId || currentUser.uid;
-            console.log(`👂 [v5.6] Écoute optimisée des paiements pour driver: ${driverId}`);
+            console.log(`📊 [v5.7] Snapshot reçu: ${snapshot.size} réservations terminées`);
             
-            // ✅ CORRECTION: Requête précise sur les paiements à créditer uniquement
-            pendingPaymentsListener = db.collection('reservations')
-                .where('chauffeurAssigne', '==', driverId)
-                .where('paiementValide', '==', true)      // ✅ Payé par client
-                .where('chauffeurCredite', '==', false)   // ✅ Pas encore crédité
-                .onSnapshot(async snapshot => {  // ✅ async pour await
+            // Mise à jour de la liste d'affichage
+            pendingPayments = [];
+            snapshot.forEach(doc => {
+                const course = { id: doc.id, ...doc.data() };
+                
+                // Afficher seulement les cours en attente de paiement
+                if (!course.paiementValide && !course.chauffeurCredite) {
+                    pendingPayments.push(course);
+                }
+            });
+            
+            renderPendingPaymentsSection();
+            
+            // ✅ Détecter les paiements reçus (pour notification SEULEMENT)
+            snapshot.docChanges().forEach(change => {
+                if (change.type === 'modified') {
+                    const course = { id: change.doc.id, ...change.doc.data() };
                     
-                    console.log(`📊 [v5.6] Snapshot reçu: ${snapshot.docChanges().length} changements`);
-                    
-                    // ✅ CORRECTION: for...of au lieu de forEach pour gérer async/await
-                    for (const change of snapshot.docChanges()) {
+                    // Si le chauffeur vient d'être crédité par la Cloud Function
+                    if (course.chauffeurCredite === true && course.paiementValide === true) {
+                        const netAmount = course.montantCrediteChauffeur || Math.round((course.prixEstime || 0) * DRIVER_RATE);
                         
-                        // ✅ CORRECTION: Ne traiter que les nouveaux documents (évite les duplicatas)
-                        if (change.type === 'added') {
-                            const course = { id: change.doc.id, ...change.doc.data() };
-                            
-                            console.log(`🔍 [v5.6] Nouveau paiement détecté: ${course.id}`);
-                            
-                            // 🔒 Vérification verrou global (Protection Niveau 1)
-                            const lockTime = window.globalCreditLock.get(course.id);
-                            if (lockTime && (Date.now() - lockTime < 60000)) {
-                                const age = Math.round((Date.now() - lockTime) / 1000);
-                                console.log(`🔒 [GlobalLock] Course ${course.id} verrouillée (${age}s)`);
-                                continue;
-                            }
-                            
-                            // 🔒 Poser le verrou global IMMÉDIATEMENT
-                            window.globalCreditLock.set(course.id, Date.now());
-                            console.log(`🔐 [v5.6] Verrou global posé pour ${course.id}`);
-                            
-                            // Traiter le crédit
-                            console.log(`💰 [v5.6] NOUVEAU PAIEMENT À CRÉDITER: ${course.id}`);
-                            await creditDriverWallet(course);
-                        } else {
-                            console.log(`⏭️ [v5.6] Change ignoré (type: ${change.type})`);
-                        }
+                        console.log(`💰 [v5.7] Paiement reçu (via Cloud Function): ${netAmount} FCFA`);
+                        
+                        // Notification de paiement reçu (PAS DE CRÉDIT ICI!)
+                        showToast(`💰 +${netAmount.toLocaleString()} FCFA reçu!`, 'success');
+                        playPaymentReceivedSound();
+                        
+                        // Rafraîchir le portefeuille pour afficher le nouveau solde
+                        setTimeout(() => {
+                            silentRefreshWallet();
+                            loadDailyStats();
+                        }, 1000);
                     }
-                    
-                    // ✅ Mise à jour après traitement
-                    updatePendingPaymentsList(snapshot);
-                    
-                }, error => {
-                    console.error('❌ Erreur écoute paiements:', error);
-                });
-        }
+                }
+            });
+            
+        }, error => {
+            console.error('❌ Erreur écoute paiements:', error);
+        });
+}
         
         function stopListeningForPayments() {
-            if (pendingPaymentsListener) {
-                pendingPaymentsListener();
-                pendingPaymentsListener = null;
-            }
-            
-            // ✅ Nettoyer tous les Sets
-            creditedCoursesInSession.clear();
-            creditsInProgress.clear();
-            
-            // ✅ Nettoyer le verrou global
-            if (window.globalCreditLock) {
-                window.globalCreditLock.clear();
-            }
-            
-            console.log('🛑 [v5.6] Écoute paiements arrêtée, verrous nettoyés');
-        }
-        
-        // ========== 🔒 v5.6 FIX: CRÉDIT AVEC TRANSACTION ATOMIQUE RENFORCÉE ==========
-// ========== 🔒 v5.6 FIX: CRÉDIT AVEC RAFRAÎCHISSEMENT AUTO HISTORIQUE ==========
-async function creditDriverWallet(course) {
-    if (!currentUser || currentUser.isDemo) return;
-    
-    const courseId = course.id;
-    const driverId = currentUser.firestoreId || currentUser.uid;
-    
-    // ✅ VÉRIFICATION 1: Session (Protection Niveau 2)
-    if (creditedCoursesInSession.has(courseId)) {
-        console.log(`⚠️ [Session] Course ${courseId} déjà créditée dans cette session`);
-        return;
+    if (pendingPaymentsListener) {
+        pendingPaymentsListener();
+        pendingPaymentsListener = null;
     }
-    
-    // ✅ VÉRIFICATION 2: En cours de traitement
-    if (creditsInProgress.has(courseId)) {
-        console.log(`⚠️ [InProgress] Crédit déjà en cours pour ${courseId}`);
-        return;
-    }
-    
-    // ✅ VÉRIFICATION 3: Verrou global (Protection Niveau 1) - DÉSACTIVÉ car déjà vérifié dans listener
-    // const lockTime = window.globalCreditLock.get(courseId);
-    // if (lockTime && (Date.now() - lockTime < 60000)) {
-    //     const age = Math.round((Date.now() - lockTime) / 1000);
-    //     console.log(`⚠️ [GlobalLock] Course ${courseId} verrouillée (${age}s)`);
-    //     return;
-    // }
-    
-    // ✅ Marquer comme en cours AVANT le traitement
-    creditsInProgress.add(courseId);
-    window.globalCreditLock.set(courseId, Date.now());
-    
-    const prix = course.prixEstime || 0;
-    const netAmount = Math.round(prix * DRIVER_RATE);
-    
-    console.log(`💳 [START] Crédit: ${netAmount} FCFA pour course ${courseId}`);
-    
-    try {
-        // ✅ TRANSACTION FIRESTORE ATOMIQUE AVEC VÉRIFICATIONS MULTIPLES
-        const result = await db.runTransaction(async (transaction) => {
-            
-            // 1️⃣ Lire la réservation
-            const reservationRef = db.collection('reservations').doc(courseId);
-            const reservationDoc = await transaction.get(reservationRef);
-            
-            if (!reservationDoc.exists) {
-                throw new Error('COURSE_NOT_FOUND');
-            }
-            
-            const reservationData = reservationDoc.data();
-            
-            // 2️⃣ VÉRIFICATIONS CRITIQUES (Protection Niveau 3)
-            if (reservationData.chauffeurCredite === true) {
-                console.log(`⚠️ [DB] Course ${courseId} déjà créditée dans Firestore`);
-                throw new Error('ALREADY_CREDITED_DB');
-            }
-            
-            if (reservationData.paiementValide !== true) {
-                console.log(`⚠️ [DB] Paiement non validé pour ${courseId}`);
-                throw new Error('PAYMENT_NOT_VALIDATED');
-            }
-            
-            if (reservationData.chauffeurAssigne !== driverId) {
-                console.log(`⚠️ [DB] Mauvais chauffeur pour ${courseId}`);
-                throw new Error('WRONG_DRIVER');
-            }
-            
-            // 3️⃣ Lire le chauffeur
-            const driverRef = db.collection('drivers').doc(driverId);
-            const driverDoc = await transaction.get(driverRef);
-            
-            if (!driverDoc.exists) {
-                throw new Error('DRIVER_NOT_FOUND');
-            }
-            
-            const driverData = driverDoc.data();
-            
-            // 4️⃣ Calculer nouvelles valeurs (PAS d'increment pour éviter double!)
-            const newSolde = (driverData.soldeDisponible || 0) + netAmount;
-            const newRevenusJour = (driverData.revenusJour || 0) + netAmount;
-            const newRevenusSemaine = (driverData.revenusSemaine || 0) + netAmount;
-            const newRevenusMois = (driverData.revenusMois || 0) + netAmount;
-            const newCoursesCompletees = (driverData.coursesCompletees || 0) + 1;
-            const newRevenusTotal = (driverData.revenusTotal || 0) + netAmount;
-            
-            console.log(`📊 [CALC] Nouveau solde: ${newSolde} (ancien: ${driverData.soldeDisponible || 0})`);
-            
-            // 5️⃣ Mise à jour chauffeur
-            transaction.update(driverRef, {
-                soldeDisponible: newSolde,
-                revenusJour: newRevenusJour,
-                revenusSemaine: newRevenusSemaine,
-                revenusMois: newRevenusMois,
-                coursesCompletees: newCoursesCompletees,
-                revenusTotal: newRevenusTotal
-            });
-            
-            // 6️⃣ Marquer réservation comme créditée
-            transaction.update(reservationRef, {
-                chauffeurCredite: true,
-                dateCreditChauffeur: firebase.firestore.FieldValue.serverTimestamp(),
-                montantCrediteChauffeur: netAmount,
-                creditVersion: '5.6'  // ✅ Traçabilité
-            });
-            
-            console.log(`✅ [TRANSACTION] Succès pour ${courseId}`);
-            
-            return {
-                newSolde,
-                newRevenusJour,
-                newRevenusSemaine,
-                newRevenusMois
-            };
-        });
+    console.log('🛑 [v5.7] Écoute paiements arrêtée');
+}
         
-        // ✅ Mise à jour locale APRÈS succès de la transaction
-        walletState.soldeDisponible = result.newSolde;
-        walletState.revenusJour = result.newRevenusJour;
-        walletState.revenusSemaine = result.newRevenusSemaine;
-        walletState.revenusMois = result.newRevenusMois;
-        
-        // ✅ Marquer comme crédité dans cette session (Protection Niveau 2)
-        creditedCoursesInSession.add(courseId);
-        
-        // ✅ Notifier
-        showToast(`💰 +${netAmount.toLocaleString()} FCFA reçu!`, 'success');
-        playPaymentReceivedSound();
-        
-        // ✅ Rafraîchir affichage
-        if (currentScreen === 'walletScreen') {
-            renderWalletDashboard();
-        }
-        
-        // ⭐ NOUVEAU: Rafraîchir l'historique si on est sur cet écran
-        if (currentScreen === 'historyScreen') {
-            console.log('🔄 [v5.6] Rafraîchissement automatique de l\'historique');
-            await loadHistory();
-        }
-        
-        loadDailyStats();
-        
-        console.log(`✅ [SUCCESS] Crédit réussi: ${netAmount} FCFA pour ${courseId}`);
-        
-    } catch (error) {
-        // ✅ Gestion d'erreurs silencieuse pour doublons
-        if (error.message === 'ALREADY_CREDITED_DB') {
-            console.log(`ℹ️ [SKIP] Course ${courseId} déjà créditée dans DB`);
-            creditedCoursesInSession.add(courseId);
-        } else if (error.message === 'PAYMENT_NOT_VALIDATED') {
-            console.log(`⚠️ [SKIP] Paiement non validé pour ${courseId}`);
-        } else if (error.message === 'WRONG_DRIVER') {
-            console.log(`⚠️ [SKIP] Mauvais chauffeur pour ${courseId}`);
-        } else if (error.message === 'COURSE_NOT_FOUND') {
-            console.log(`⚠️ [SKIP] Course ${courseId} non trouvée`);
-        } else if (error.message === 'DRIVER_NOT_FOUND') {
-            console.error(`❌ [ERROR] Chauffeur ${driverId} non trouvé`);
-        } else {
-            console.error(`❌ [ERROR] Crédit échoué pour ${courseId}:`, error);
-            showToast('❌ Erreur lors du crédit', 'error');
-        }
-    } finally {
-        // ✅ Retirer du Set "en cours"
-        creditsInProgress.delete(courseId);
-        
-        // ✅ Nettoyer les vieux verrous (>5min)
-        cleanOldCreditLocks();
-    }
-}        
-        // ========== 🧹 NETTOYAGE DES VERROUS ANCIENS ==========
-        function cleanOldCreditLocks() {
-            const now = Date.now();
-            const maxAge = 5 * 60 * 1000; // 5 minutes
-            
-            let cleaned = 0;
-            for (const [courseId, timestamp] of window.globalCreditLock.entries()) {
-                if (now - timestamp > maxAge) {
-                    window.globalCreditLock.delete(courseId);
-                    cleaned++;
-                }
-            }
-            
-            if (cleaned > 0) {
-                console.log(`🧹 [v5.6] ${cleaned} verrou(x) expiré(s) nettoyé(s)`);
-            }
-        }
-        
+        // ========== 🔒 v5.7 FIX: CRÉDIT AVEC TRANSACTION ATOMIQUE RENFORCÉE ==========
+// ========== 🔒 v5.7 FIX: CRÉDIT AVEC RAFRAÎCHISSEMENT AUTO HISTORIQUE ==========
+
+               
         // ========== SON DE PAIEMENT REÇU ==========
         function playPaymentReceivedSound() {
             try {
@@ -1459,7 +1266,7 @@ async function creditDriverWallet(course) {
 
                 <div style="background: #d1fae5; border: 2px solid #10b981; padding: 15px; border-radius: 12px; margin-top: 15px;">
                     <h4 style="color: #065f46; margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
-                        <i class="fas fa-shield-alt"></i> v5.6 - Triple Protection
+                        <i class="fas fa-shield-alt"></i> v5.7 - Triple Protection
                     </h4>
                     <p style="color: #047857; font-size: 0.85em; line-height: 1.5;">
                         ✅ Verrou global persistant<br>
@@ -2203,7 +2010,7 @@ function calculateApprocheRoute() { if (!driverPosition || !currentCourse?.depar
 
     // ========== INIT ==========
     document.addEventListener('DOMContentLoaded', () => { 
-        console.log('🚕 Al Bourakh Driver v5.6 - Fix Définitif Double Crédit - Ready'); 
+        console.log('🚕 Al Bourakh Driver v5.7 - Fix Définitif Double Crédit - Ready'); 
         console.log('🔒 Triple Protection Active:'); 
         console.log('  ✅ Verrou global persistant (Map)');
         console.log('  ✅ Requête Firestore optimale');
