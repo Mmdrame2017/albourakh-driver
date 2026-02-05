@@ -1958,7 +1958,67 @@ function startListeningForPayments() {
 
         function showCourseNotification(course) { const courseBadge = document.getElementById('navCourseBadge'); if (courseBadge) courseBadge.style.display = 'flex'; let repetitionCount = 0; playAlertBeeps(repetitionCount); const notification = document.createElement('div'); notification.className = 'course-notification'; notification.innerHTML = `<div class="course-modal"><div class="course-timer" id="courseTimer">30<div class="course-timer-label">sec</div></div><h2 class="course-title">🔔 NOUVELLE COURSE!</h2><div class="course-client"><strong>Client:</strong> ${course.clientNom || 'Client'}<br>${course.clientRating ? '⭐ ' + course.clientRating : ''}</div><div class="course-route"><div class="route-point"><span class="route-icon">📍</span><span>${course.depart}</span></div><div style="text-align: center; margin: 8px 0;">↓</div><div class="route-point"><span class="route-icon">🎯</span><span>${course.destination}</span></div></div><div class="course-details"><div class="detail-item"><div class="detail-icon">💰</div><div>${(course.prixEstime || 0).toLocaleString()} F</div></div><div class="detail-item"><div class="detail-icon">📏</div><div>${course.distance || 5} km</div></div><div class="detail-item"><div class="detail-icon">👥</div><div>${course.passagers || 1}</div></div></div><div class="course-actions"><button class="btn btn-refuse" onclick="refuseCourse('${course.id}')">❌ Refuser</button><button class="btn btn-accept" onclick="acceptCourse('${course.id}', ${JSON.stringify(course).replace(/"/g, '&quot;')})">✅ Accepter</button></div></div>`; document.body.appendChild(notification); const beepInterval = setInterval(() => { repetitionCount++; playAlertBeeps(repetitionCount); }, 5000); notification.beepInterval = beepInterval; let timeLeft = 30; const timerInterval = setInterval(() => { timeLeft--; const timer = document.getElementById('courseTimer'); if (timer) timer.innerHTML = `${timeLeft}<div class="course-timer-label">sec</div>`; if (timeLeft <= 0) { clearInterval(timerInterval); clearInterval(beepInterval); recordMissedCourse(course); refuseCourse(course.id, true); } }, 1000); notification.timerInterval = timerInterval; }
 
-        async function acceptCourse(courseId, courseData) { const notification = document.querySelector('.course-notification'); if (notification) { clearInterval(notification.timerInterval); clearInterval(notification.beepInterval); notification.remove(); } const courseBadge = document.getElementById('navCourseBadge'); if (courseBadge) courseBadge.style.display = 'none'; recordAcceptedCourse(); showLoading('Acceptation...'); if (typeof courseData === 'string') courseData = JSON.parse(courseData.replace(/&quot;/g, '"')); currentCourse = { id: courseId, ...courseData, statut: 'acceptee' }; if (!currentCourse.departCoords) currentCourse.departCoords = await geocodeAddress(currentCourse.depart); if (!currentCourse.destinationCoords) currentCourse.destinationCoords = await geocodeAddress(currentCourse.destination); const driverId = currentUser.firestoreId || currentUser.uid; if (!currentUser.isDemo && !courseId.startsWith('TEST_')) { try { const batch = db.batch(); const reservationRef = db.collection('reservations').doc(courseId); const updateData = { statut: 'acceptee', accepteeParChauffeur: true, dateAcceptation: firebase.firestore.FieldValue.serverTimestamp(), nomChauffeur: `${currentUser.prenom || ''} ${currentUser.nom || ''}`.trim(), telephoneChauffeur: currentUser.telephone, chauffeurRating: currentUser.rating || 4.8 }; if (driverPosition) updateData.chauffeurPosition = { latitude: driverPosition.lat, longitude: driverPosition.lng, timestamp: firebase.firestore.FieldValue.serverTimestamp() }; batch.update(reservationRef, updateData); const driverRef = db.collection('drivers').doc(driverId); batch.update(driverRef, { statut: 'en_course', currentBookingId: courseId, reservationEnCours: courseId }); await batch.commit(); } catch (error) { console.error('Erreur acceptation:', error); } } await onCourseStart(currentCourse); hideLoading(); showToast('✅ Course acceptée!', 'success'); currentRouteMode = 'approche'; showScreen('activeCourseScreen'); displayActiveCourse(); setTimeout(() => initActiveCourseMap(), 300); }
+        async function acceptCourse(courseId, courseData) { const notification = document.querySelector('.course-notification'); if (notification) { clearInterval(notification.timerInterval); clearInterval(notification.beepInterval); notification.remove(); } const courseBadge = document.getElementById('navCourseBadge'); if (courseBadge) courseBadge.style.display = 'none'; recordAcceptedCourse(); showLoading('Acceptation...'); if (typeof courseData === 'string') courseData = JSON.parse(courseData.replace(/&quot;/g, '"')); currentCourse = { id: courseId, ...courseData, statut: 'acceptee' }; if (!currentCourse.departCoords) currentCourse.departCoords = await geocodeAddress(currentCourse.depart); if (!currentCourse.destinationCoords) currentCourse.destinationCoords = await geocodeAddress(currentCourse.destination); const driverId = currentUser.firestoreId || currentUser.uid; if (!currentUser.isDemo && !courseId.startsWith('TEST_')) { try { const batch = db.batch(); const reservationRef = db.collection('reservations').doc(courseId); const updateData = { statut: 'acceptee', accepteeParChauffeur: true, dateAcceptation: firebase.firestore.FieldValue.serverTimestamp(), nomChauffeur: `${currentUser.prenom || ''} ${currentUser.nom || ''}`.trim(), telephoneChauffeur: currentUser.telephone, chauffeurRating: currentUser.rating || 4.8 }; if (driverPosition) updateData.chauffeurPosition = { latitude: driverPosition.lat, longitude: driverPosition.lng, timestamp: firebase.firestore.FieldValue.serverTimestamp() }; batch.update(reservationRef, updateData); const driverRef = db.collection('drivers').doc(driverId); batch.update(driverRef, { statut: 'en_course', currentBookingId: courseId, reservationEnCours: courseId }); await batch.commit(); } catch (error) { console.error('Erreur acceptation:', error); } } await onCourseStart(currentCourse); listenToActiveCourseChanges(); hideLoading(); showToast('✅ Course acceptée!', 'success'); currentRouteMode = 'approche'; showScreen('activeCourseScreen'); displayActiveCourse(); setTimeout(() => initActiveCourseMap(), 300); }
+
+        // ========== LISTENER POUR COURSE ACTIVE ==========
+        let activeCourseListener = null;
+
+        function listenToActiveCourseChanges() {
+            if (!currentCourse || !currentCourse.id || currentUser?.isDemo || currentCourse.id.startsWith('TEST_')) {
+                console.log('⚠️ Pas de listener pour course démo');
+                return;
+            }
+
+            console.log('🔵 Démarrage du listener pour la course:', currentCourse.id);
+
+            activeCourseListener = db.collection('reservations').doc(currentCourse.id).onSnapshot((doc) => {
+                if (!doc.exists) {
+                    console.log('⚠️ Document de course n\'existe pas');
+                    return;
+                }
+
+                const data = doc.data();
+                const newStatus = data.statut;
+                console.log('📥 Mise à jour reçue du Firestore - Statut:', newStatus);
+
+                // Mettre à jour currentCourse avec les nouvelles données
+                currentCourse = { id: doc.id, ...data };
+
+                // Détection d'annulation par le client
+                if (newStatus === 'annulee' || newStatus === 'annulée' || newStatus === 'cancelled') {
+                    console.log('❌ ANNULATION DÉTECTÉE - Statut:', newStatus);
+                    console.log('📋 Annulé par:', data.annuleePar || 'inconnu');
+
+                    showToast('❌ Réservation annulée par le client', 'error');
+
+                    // Fermer le listener
+                    if (activeCourseListener) {
+                        console.log('🔴 Arrêt du listener de course active');
+                        activeCourseListener();
+                        activeCourseListener = null;
+                    }
+
+                    // Retourner au dashboard après un court délai
+                    setTimeout(async () => {
+                        console.log('🔄 Retour au dashboard...');
+                        currentCourse = null;
+                        showScreen('dashboardScreen');
+                        await loadDashboardData();
+                        console.log('✅ Réservation annulée et dashboard rechargé');
+                    }, 2000);
+                }
+            }, (error) => {
+                console.error('❌ Erreur listener course active:', error);
+            });
+        }
+
+        function stopListeningToActiveCourse() {
+            if (activeCourseListener) {
+                console.log('🔴 Arrêt du listener de course active');
+                activeCourseListener();
+                activeCourseListener = null;
+            }
+        }
 
         async function geocodeAddress(address) { return new Promise((resolve) => { if (!google || !google.maps) { resolve({ lat: 14.6937, lng: -17.4441 }); return; } const geocoder = new google.maps.Geocoder(); geocoder.geocode({ address: address + ', Dakar, Senegal' }, (results, status) => { if (status === 'OK' && results[0]) resolve({ lat: results[0].geometry.location.lat(), lng: results[0].geometry.location.lng() }); else resolve({ lat: 14.6937, lng: -17.4441 }); }); }); }
         function refuseCourse(courseId, auto = false) { const notification = document.querySelector('.course-notification'); if (notification) { clearInterval(notification.timerInterval); clearInterval(notification.beepInterval); notification.remove(); } const courseBadge = document.getElementById('navCourseBadge'); if (courseBadge) courseBadge.style.display = 'none'; if (!auto) recordRefusedCourse(); showToast(auto ? '⏱️ Temps écoulé' : 'Course refusée', 'info'); }
@@ -1977,9 +2037,9 @@ function calculateApprocheRoute() { if (!driverPosition || !currentCourse?.depar
     function openGoogleMapsToDestination() { if (!currentCourse?.destinationCoords) return showToast('Coordonnées non disponibles', 'error'); const { lat, lng } = currentCourse.destinationCoords; window.open(`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=driving`, '_blank'); }
     function callClient() { if (!currentCourse?.clientTelephone) return showToast('Numéro non disponible', 'error'); window.location.href = `tel:${currentCourse.clientTelephone}`; }
 
-    async function completeCourse() { if (!currentCourse || currentCourse.statut !== 'en_cours') return showToast('⚠️ Démarrez d\'abord la course', 'error'); if (!confirm('Confirmer la fin de la course?\n\n⚠️ Le paiement sera crédité après validation par le client.')) return; showLoading('Finalisation...'); const driverId = currentUser.firestoreId || currentUser.uid; if (!currentUser.isDemo && !currentCourse.id.startsWith('TEST_')) { try { const batch = db.batch(); const reservationRef = db.collection('reservations').doc(currentCourse.id); batch.update(reservationRef, { statut: 'terminee', dateFin: firebase.firestore.FieldValue.serverTimestamp(), paiementValide: false, chauffeurCredite: false, montantACreditrer: Math.round((currentCourse.prixEstime || 0) * DRIVER_RATE) }); const driverRef = db.collection('drivers').doc(driverId); batch.update(driverRef, { statut: 'disponible', currentBookingId: null, reservationEnCours: null }); await batch.commit(); } catch (error) { console.error('Erreur:', error); } } await onCourseComplete(); hideLoading(); showToast('✅ Course terminée!\n💰 Paiement en attente de validation client', 'success'); showScreen('dashboardScreen'); await loadDailyStats(); renderPendingPaymentsSection(); }
+    async function completeCourse() { if (!currentCourse || currentCourse.statut !== 'en_cours') return showToast('⚠️ Démarrez d\'abord la course', 'error'); if (!confirm('Confirmer la fin de la course?\n\n⚠️ Le paiement sera crédité après validation par le client.')) return; showLoading('Finalisation...'); stopListeningToActiveCourse(); const driverId = currentUser.firestoreId || currentUser.uid; if (!currentUser.isDemo && !currentCourse.id.startsWith('TEST_')) { try { const batch = db.batch(); const reservationRef = db.collection('reservations').doc(currentCourse.id); batch.update(reservationRef, { statut: 'terminee', dateFin: firebase.firestore.FieldValue.serverTimestamp(), paiementValide: false, chauffeurCredite: false, montantACreditrer: Math.round((currentCourse.prixEstime || 0) * DRIVER_RATE) }); const driverRef = db.collection('drivers').doc(driverId); batch.update(driverRef, { statut: 'disponible', currentBookingId: null, reservationEnCours: null }); await batch.commit(); } catch (error) { console.error('Erreur:', error); } } await onCourseComplete(); hideLoading(); showToast('✅ Course terminée!\n💰 Paiement en attente de validation client', 'success'); showScreen('dashboardScreen'); await loadDailyStats(); renderPendingPaymentsSection(); }
 
-    async function cancelCourse() { if (!confirm('Annuler cette course?')) return; showLoading('Annulation...'); const driverId = currentUser.firestoreId || currentUser.uid; if (!currentUser.isDemo && currentCourse && !currentCourse.id.startsWith('TEST_')) { try { const batch = db.batch(); const reservationRef = db.collection('reservations').doc(currentCourse.id); batch.update(reservationRef, { statut: 'annulee', annuleePar: 'chauffeur', dateAnnulation: firebase.firestore.FieldValue.serverTimestamp() }); const driverRef = db.collection('drivers').doc(driverId); batch.update(driverRef, { statut: 'disponible', currentBookingId: null, reservationEnCours: null }); await batch.commit(); } catch (error) { console.error('Erreur:', error); } } await onCourseComplete(); currentCourse = null; hideLoading(); showToast('Course annulée', 'info'); showScreen('dashboardScreen'); }
+    async function cancelCourse() { if (!confirm('Annuler cette course?')) return; console.log('🚫 Annulation de la course demandée'); showLoading('Annulation...'); stopListeningToActiveCourse(); const driverId = currentUser.firestoreId || currentUser.uid; if (!currentUser.isDemo && currentCourse && !currentCourse.id.startsWith('TEST_')) { try { console.log('📤 Mise à jour du statut vers "annulee" dans Firestore pour:', currentCourse.id); const batch = db.batch(); const reservationRef = db.collection('reservations').doc(currentCourse.id); batch.update(reservationRef, { statut: 'annulee', annuleePar: 'chauffeur', dateAnnulation: firebase.firestore.FieldValue.serverTimestamp() }); const driverRef = db.collection('drivers').doc(driverId); batch.update(driverRef, { statut: 'disponible', currentBookingId: null, reservationEnCours: null }); await batch.commit(); console.log('✅ Statut mis à jour dans Firestore'); } catch (error) { console.error('❌ Erreur lors de l\'annulation:', error); } } await onCourseComplete(); currentCourse = null; hideLoading(); showToast('Course annulée', 'info'); showScreen('dashboardScreen'); console.log('✅ Annulation terminée'); }
 
     // ========== STATS COURSES ==========
     async function loadCourseStats() { if (!currentUser || currentUser.isDemo) { courseStats = { accepted: 42, refused: 5, missed: 3, todayAccepted: 5, todayMissed: 1 }; updateStatsDisplay(); return; } try { const driverId = currentUser.firestoreId || currentUser.uid; const driverDoc = await db.collection('drivers').doc(driverId).get(); if (driverDoc.exists) { const data = driverDoc.data(); courseStats = { accepted: data.coursesAcceptees || 0, refused: data.coursesRefusees || 0, missed: data.coursesMissed || 0, todayAccepted: data.todayAccepted || 0, todayMissed: data.todayMissed || 0 }; } updateStatsDisplay(); } catch (error) { console.error('Erreur chargement stats:', error); } }
