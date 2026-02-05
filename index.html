@@ -2000,7 +2000,40 @@ function startListeningForPayments() {
 
                     // Retourner au dashboard après un court délai
                     setTimeout(async () => {
-                        console.log('🔄 Retour au dashboard...');
+                        console.log('🔄 Nettoyage de la carte et retour au dashboard...');
+
+                        // Nettoyer complètement la carte
+                        if (directionsRenderer) {
+                            console.log('🗺️ Suppression de la route d\'approche');
+                            directionsRenderer.setMap(null);
+                            directionsRenderer = null;
+                        }
+                        if (driverMarker && driverMarker.getMap() === activeCourseMap) {
+                            console.log('🚗 Suppression du marqueur chauffeur');
+                            driverMarker.setMap(null);
+                        }
+                        if (clientPickupMarker) {
+                            console.log('📍 Suppression du marqueur pickup client');
+                            clientPickupMarker.setMap(null);
+                            clientPickupMarker = null;
+                        }
+                        if (clientDestinationMarker) {
+                            console.log('🎯 Suppression du marqueur destination');
+                            clientDestinationMarker.setMap(null);
+                            clientDestinationMarker = null;
+                        }
+                        if (activeCourseMap) {
+                            console.log('🗺️ Nettoyage de la carte active');
+                            activeCourseMap = null;
+                        }
+
+                        // Réinitialiser les routes
+                        approcheRoute = null;
+                        courseRoute = null;
+                        currentRouteMode = null;
+
+                        console.log('✅ Carte nettoyée');
+
                         currentCourse = null;
                         showScreen('dashboardScreen');
                         await loadDashboardData();
