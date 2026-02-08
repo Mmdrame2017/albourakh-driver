@@ -768,8 +768,9 @@
             updateInterval: 3000,
             minDistance: 5,
             batchSize: 10,
-            historyRetention: 24 * 60 * 60 * 1000
+            historyRetention: 7 * 24 * 60 * 60 * 1000 // 7 jours au lieu de 24h
         };
+        let sessionPositionCount = 0; // Compteur de positions par session
 
         let courseStats = {
             accepted: 0,
@@ -1604,14 +1605,14 @@ function startListeningForPayments() {
             if (!currentUser || currentUser.isDemo) return;
 
             const driverId = currentUser.firestoreId || currentUser.uid;
-            
+            sessionPositionCount = 0;
+
             trackingSession = {
                 id: `TRACK_${Date.now()}`,
                 driverId: driverId,
                 startTime: firebase.firestore.FieldValue.serverTimestamp(),
                 status: 'active',
-                courseId: currentCourse?.id || null,
-                positions: []
+                courseId: currentCourse?.id || null
             };
 
             try {
@@ -1632,16 +1633,17 @@ function startListeningForPayments() {
                     endTime: firebase.firestore.FieldValue.serverTimestamp(),
                     status: 'completed',
                     totalDistance: distanceParcourue,
-                    totalPositions: positionBuffer.length
+                    totalPositions: sessionPositionCount
                 });
-                console.log('🏁 Session terminée:', trackingSession.id);
+                console.log(`🏁 Session terminée: ${trackingSession.id} (${sessionPositionCount} positions)`);
             } catch (error) {
                 console.warn('⚠️ Impossible de fermer session:', error.message);
             }
-            
+
             trackingSession = null;
             positionBuffer = [];
             distanceParcourue = 0;
+            sessionPositionCount = 0;
             document.getElementById('trackingBadge').style.display = 'none';
         }
 
@@ -1794,18 +1796,33 @@ function startListeningForPayments() {
                 console.log('✅ Position mise à jour (batch)');
 
                 if (trackingSession) {
+                    const positionData = {
+                        driverId: driverId,
+                        sessionId: trackingSession.id,
+                        courseId: currentCourse?.id || null,
+                        position: new firebase.firestore.GeoPoint(position.lat, position.lng),
+                        accuracy: position.accuracy,
+                        speed: position.speed,
+                        heading: position.heading,
+                        batteryLevel: position.batteryLevel,
+                        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                    };
+
+                    // Sauvegarder dans tracking_sessions/{sessionId}/positions (SOURCE PRINCIPALE)
                     try {
-                        await db.collection('position_history').add({
-                            driverId: driverId,
-                            sessionId: trackingSession.id,
-                            courseId: currentCourse?.id || null,
-                            position: new firebase.firestore.GeoPoint(position.lat, position.lng),
-                            accuracy: position.accuracy,
-                            speed: position.speed,
-                            heading: position.heading,
-                            batteryLevel: position.batteryLevel,
-                            timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                        });
+                        await db.collection('tracking_sessions')
+                            .doc(trackingSession.id)
+                            .collection('positions')
+                            .add(positionData);
+                        sessionPositionCount++;
+                        console.log(`📍 Position #${sessionPositionCount} sauvée (session: ${trackingSession.id})`);
+                    } catch (err) {
+                        console.warn('⚠️ Positions session non disponible:', err.message);
+                    }
+
+                    // Sauvegarder aussi dans position_history (backup/compatibilité)
+                    try {
+                        await db.collection('position_history').add(positionData);
                     } catch (err) {
                         console.warn('⚠️ Historique position non disponible:', err.message);
                     }
@@ -1917,12 +1934,13 @@ function startListeningForPayments() {
 
         async function cleanupOldPositions() {
             if (currentUser?.isDemo) return;
+            // Nettoyage uniquement de position_history (backup), les positions dans tracking_sessions sont conservées
             const cutoffTime = new Date(Date.now() - TRACKING_CONFIG.historyRetention);
             try {
                 const snapshot = await db.collection('position_history').where('timestamp', '<', cutoffTime).limit(100).get();
                 const batch = db.batch();
                 snapshot.forEach(doc => { batch.delete(doc.ref); });
-                if (!snapshot.empty) { await batch.commit(); console.log(`🧹 ${snapshot.size} positions anciennes supprimées`); }
+                if (!snapshot.empty) { await batch.commit(); console.log(`🧹 ${snapshot.size} positions anciennes supprimées (>7j)`); }
             } catch (error) { console.warn('⚠️ Nettoyage historique non disponible:', error.message); }
         }
         setInterval(cleanupOldPositions, 60 * 60 * 1000);
